@@ -5,6 +5,7 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 
+from business_data import reel_snapshot_metrics
 from data_generator import Scenario
 
 
@@ -25,57 +26,69 @@ def generate_insights(
     sms_anomalies: pd.DataFrame,
 ) -> List[Dict[str, str]]:
     insights: List[Dict[str, str]] = []
+    reel = reel_snapshot_metrics()
 
-    if len(monthly_sales) >= 2:
-        current = monthly_sales.iloc[-1]["revenue"]
-        previous = monthly_sales.iloc[-2]["revenue"]
-        change = (current / previous - 1) if previous else 0
-        direction = "افزایش یافته" if change >= 0 else "کاهش یافته"
-        insights.append(
-            {
-                "type": "روند",
-                "title": "تغییر درآمد",
-                "text": f"درآمد تاریخی آزمایشی نسبت به ماه قبل {_pct(abs(change))} {direction} است.",
-            }
-        )
+    insights.append(
+        {
+            "type": "اقتصاد فروش",
+            "title": "درآمد ماهانه محاسبه‌شده",
+            "text": (
+                f"با فرض {_fa(scenario.sales_days_per_month)} روز فروش، {_fa(scenario.daily_phone_sales)} فروش تلفنی در روز، "
+                f"{_fa(scenario.monthly_online_sales)} فروش آنلاین در ماه و Mix فعلی، فروش ماهانه {_fa(f'{kpis['monthly_units']:.0f}')} دستگاه می‌شود. "
+                "این عدد Derived است و فروش ثبت‌شده حسابداری نیست."
+            ),
+        }
+    )
 
     insights.append(
         {
             "type": "ترکیب کانال",
-            "title": "تمرکز فروش تلفنی",
-            "text": f"فروش تلفنی حدود {_pct(kpis['phone_share'])} از تعداد فروش سناریوی فعلی را تشکیل می‌دهد.",
+            "title": "وابستگی شدید حجم فروش به تلفن",
+            "text": f"در سناریوی فعلی حدود {_pct(kpis['phone_share'])} از تعداد فروش ماهانه از کانال تلفنی می‌آید.",
         }
     )
 
-    days_to_process = scenario.lead_backlog / scenario.daily_phone_sales if scenario.daily_phone_sales > 0 else np.inf
-    if np.isfinite(days_to_process):
-        severity = "زیاد" if days_to_process > 90 else "متوسط" if days_to_process > 30 else "قابل مدیریت"
+    if np.isfinite(kpis["backlog_months_of_sales"]):
         insights.append(
             {
-                "type": "شاخص ظرفیت",
-                "title": "صف سرنخ‌ها در برابر ظرفیت فروش",
+                "type": "صف فروش",
+                "title": "اندازه صف در برابر جریان فروش",
                 "text": (
-                    f"نسبت تعداد سرنخ‌های در صف به فروش تلفنی روزانه حدود {_fa(f'{days_to_process:.0f}')} روز است و در این مدل «{severity}» ارزیابی می‌شود. "
-                    "این عدد فقط یک شاخص تقریبی ظرفیت است و زمان واقعی پردازش سرنخ‌ها محسوب نمی‌شود."
+                    f"صف {_fa(scenario.lead_backlog)} لید، از نظر حجم، معادل حدود {_fa(f'{kpis['backlog_months_of_sales']:.1f}')} برابر فروش ماهانه سناریوی فعلی است. "
+                    "این شاخص زمان تخلیه صف یا Conversion نیست؛ برای آن به Calls / Contacted / Qualified و زمان پردازش واقعی نیاز داریم."
                 ),
             }
         )
 
     insights.append(
         {
-            "type": "نرخ تبدیل",
-            "title": "تبدیل سرنخ به خرید",
-            "text": f"نرخ تبدیل سرنخ به خرید در سناریوی فعلی حدود {_pct(kpis['lead_purchase_conversion'])} است.",
+            "type": "محتوا",
+            "title": "Performance محتوا Hit-driven است",
+            "text": (
+                f"در Snapshot ده ریلز، میانگین ویو {_fa(f'{reel['average_views']:.0f}')} ولی میانه فقط {_fa(f'{reel['median_views']:.0f}')} است؛ "
+                f"همچنین سه ریلز برتر {_pct(reel['top3_view_share'])} کل ویوها را ساخته‌اند. برای ارزیابی تیم، Median و توزیع عملکرد مهم‌تر از Average تنهاست."
+            ),
         }
     )
 
     insights.append(
         {
-            "type": "محتوا",
-            "title": "انتساب تخمینی / آزمایشی",
+            "type": "تعامل محتوا",
+            "title": "کامنت + اشتراک‌گذاری",
             "text": (
-                f"فروش منتسب به محتوا در این مدل حدود {_fa(f'{kpis['content_monthly_sales']:.0f}')} دستگاه در ماه برآورد می‌شود. "
-                "برای Attribution واقعی باید منبع ورودی و مدل انتساب مشخص وجود داشته باشد."
+                f"در همان Snapshot، مجموع کامنت و اشتراک‌گذاری {_fa(f'{reel['total_interactions']:.0f}')} و نسبت آن به View حدود {_pct(reel['interaction_rate'])} است. "
+                "این شاخص Interaction Proxy است و جایگزین Reach، Saves یا Watch Time نیست."
+            ),
+        }
+    )
+
+    insights.append(
+        {
+            "type": "Attribution",
+            "title": "فروش منتسب به محتوا دوباره شماری نمی‌شود",
+            "text": (
+                f"فروش منتسب به محتوا در مدل حدود {_fa(f'{kpis['content_monthly_sales_estimated']:.0f}')} دستگاه در ماه برآورد می‌شود، "
+                "اما به فروش کل اضافه نشده؛ چون ممکن است همان فروش تلفنی یا آنلاین باشد که منبع اولیه‌اش محتوا بوده است."
             ),
         }
     )
@@ -83,27 +96,35 @@ def generate_insights(
     insights.append(
         {
             "type": "ریسک مشتری",
-            "title": "ریسک آزمایشی ریزش",
-            "text": f"مشتریان با ریسک زیاد یا بسیار زیاد حدود {_pct(risk_stats['high_or_very_high_share'])} از مشتریان مصنوعی را تشکیل می‌دهند.",
+            "title": "مدل آزمایشی ریزش",
+            "text": f"در دیتای مصنوعی، سهم مشتریان با ریسک زیاد یا بسیار زیاد حدود {_pct(risk_stats['high_or_very_high_share'])} است.",
         }
     )
 
-    sales_anomaly_count = int(sales_anomalies["is_anomaly"].sum()) if "is_anomaly" in sales_anomalies else 0
-    sms_anomaly_count = int(sms_anomalies["is_anomaly"].sum()) if "is_anomaly" in sms_anomalies else 0
-    if sales_anomaly_count:
+    if len(monthly_sales) >= 2:
+        current = monthly_sales.iloc[-1]["revenue"]
+        previous = monthly_sales.iloc[-2]["revenue"]
+        change = (current / previous - 1) if previous else 0
+        direction = "افزایش" if change >= 0 else "کاهش"
         insights.append(
             {
-                "type": "هشدار",
-                "title": "ناهنجاری در فروش شناسایی شد",
-                "text": f"روش Rolling Z-score تعداد {_fa(sales_anomaly_count)} مشاهده غیرعادی در درآمد فروش آزمایشی شناسایی کرده است.",
+                "type": "روند مصنوعی",
+                "title": "تغییر ماه‌به‌ماه داده دمو",
+                "text": f"در داده تاریخی مصنوعی، درآمد نسبت به ماه قبل {_pct(abs(change))} {direction} داشته است.",
             }
         )
-    if sms_anomaly_count:
+
+    sales_anomaly_count = int(sales_anomalies["is_anomaly"].sum()) if "is_anomaly" in sales_anomalies else 0
+    sms_anomaly_count = int(sms_anomalies["is_anomaly"].sum()) if "is_anomaly" in sms_anomalies else 0
+    if sales_anomaly_count or sms_anomaly_count:
         insights.append(
             {
-                "type": "هشدار",
-                "title": "ناهنجاری در تحویل پیامک شناسایی شد",
-                "text": f"روش Rolling Z-score تعداد {_fa(sms_anomaly_count)} مشاهده غیرعادی در نرخ تحویل پیامک شناسایی کرده است.",
+                "type": "هشدار دمو",
+                "title": "سیگنال ناهنجاری",
+                "text": (
+                    f"Rolling Z-score در دیتای مصنوعی {_fa(sales_anomaly_count)} ناهنجاری فروش و "
+                    f"{_fa(sms_anomaly_count)} ناهنجاری تحویل پیامک علامت‌گذاری کرده است."
+                ),
             }
         )
 

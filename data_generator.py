@@ -6,20 +6,25 @@ from typing import Dict, Tuple
 import numpy as np
 import pandas as pd
 
+from business_data import BUSINESS_BASELINE, REEL_SNAPSHOT
+
 
 @dataclass(frozen=True)
 class Scenario:
-    price_plan_a: float = 15_000_000
-    price_plan_b: float = 30_000_000
-    plan_a_share: float = 0.50
-    daily_phone_sales: int = 10
-    monthly_online_sales: int = 20
-    lead_backlog: int = 4_000
-    stories_per_day: int = 9
-    content_sales_per_day: float = 2.0
+    price_plan_a: float = float(BUSINESS_BASELINE["plan_a_price"])
+    price_plan_b: float = float(BUSINESS_BASELINE["plan_b_price"])
+    plan_a_share: float = float(BUSINESS_BASELINE["plan_a_share"])
+    daily_phone_sales: int = int(BUSINESS_BASELINE["daily_phone_sales"])
+    monthly_online_sales: int = int(BUSINESS_BASELINE["monthly_online_sales"])
+    lead_backlog: int = int(BUSINESS_BASELINE["lead_backlog"])
+    stories_per_day: int = int(BUSINESS_BASELINE["stories_per_day"])
+    reels_per_day: int = int(BUSINESS_BASELINE["reels_per_day"])
+    content_sales_per_day: float = float(BUSINESS_BASELINE["estimated_content_sales_per_day"])
+    instagram_followers: int = int(BUSINESS_BASELINE["instagram_followers"])
+    content_team_size: int = int(BUSINESS_BASELINE["content_team_size"])
     synthetic_customer_count: int = 5_000
     history_months: int = 12
-    sales_days_per_month: int = 30
+    sales_days_per_month: int = int(BUSINESS_BASELINE["sales_days_per_month"])
     seed: int = 42
 
     @property
@@ -41,6 +46,10 @@ class Scenario:
     @property
     def monthly_revenue(self) -> float:
         return self.monthly_units * self.average_selling_price
+
+    @property
+    def total_content_per_day(self) -> float:
+        return float(self.stories_per_day + self.reels_per_day)
 
 
 CITIES = [
@@ -71,7 +80,7 @@ def generate_sales_data(scenario: Scenario) -> pd.DataFrame:
     trend = np.linspace(0.82, 1.0, n)
     weekly = np.array([0.92 if d.weekday() == 4 else 1.05 if d.weekday() in (0, 1) else 1.0 for d in dates])
     phone_lambda = np.clip(scenario.daily_phone_sales * trend * weekly, 0.05, None)
-    online_lambda = np.clip((scenario.monthly_online_sales / scenario.sales_days_per_month) * trend, 0.02, None)
+    online_lambda = np.clip((scenario.monthly_online_sales / max(scenario.sales_days_per_month, 1)) * trend, 0.02, None)
 
     phone_units = rng.poisson(phone_lambda)
     online_units = rng.poisson(online_lambda)
@@ -175,7 +184,6 @@ def generate_customer_data(scenario: Scenario) -> pd.DataFrame:
         }
     )
 
-    # Small, deterministic quality imperfections for the Data Quality demo.
     if n >= 1000:
         miss_idx = rng.choice(n, size=max(2, n // 500), replace=False)
         customers.loc[miss_idx, "city"] = np.nan
@@ -233,7 +241,7 @@ def generate_nikpos_data(scenario: Scenario, customers: pd.DataFrame) -> pd.Data
 def generate_subscriptions(customers: pd.DataFrame, seed: int) -> pd.DataFrame:
     rng = np.random.default_rng(seed + 44)
     n = len(customers)
-    subscription = pd.DataFrame(
+    return pd.DataFrame(
         {
             "customer_id": customers["customer_id"].astype(str).to_numpy(),
             "subscription_status": np.where(customers["recency"].to_numpy() <= 150, "Active", "Expired"),
@@ -241,7 +249,6 @@ def generate_subscriptions(customers: pd.DataFrame, seed: int) -> pd.DataFrame:
             "auto_renew": rng.random(n) < 0.58,
         }
     )
-    return subscription
 
 
 def generate_leads_data(scenario: Scenario) -> pd.DataFrame:
@@ -274,4 +281,5 @@ def generate_all(scenario: Scenario) -> Dict[str, pd.DataFrame]:
         "sms": generate_sms_data(scenario, customers),
         "nikpos": generate_nikpos_data(scenario, customers),
         "subscriptions": generate_subscriptions(customers, scenario.seed),
+        "content_snapshot": REEL_SNAPSHOT.copy(),
     }

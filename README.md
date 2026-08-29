@@ -1,83 +1,127 @@
-# NIK INTELLIGENCE V0.1
+# NIK INTELLIGENCE V0.2
 
-**Automated Data Intelligence Platform**  
-**Status:** Prototype / Proof of Concept
+**نیک اس‌ام‌اس | تحلیل داده**  
+**Executive Data Intelligence Prototype**
 
-> Prototype using synthetic/demo data. Not connected to NIK internal systems.
+> Prototype using aggregate baseline + synthetic/demo data. Not connected to NIK internal systems.
 >
 > Forecasts and ML outputs are experimental and should not be used for production decisions.
 
-## What this prototype demonstrates
+## What changed in V0.2
 
-NIK INTELLIGENCE V0.1 is a local Streamlit application designed to demonstrate an end-to-end internal Data Intelligence concept without connecting to confidential NIK SMS data.
+V0.2 is designed for a management presentation rather than a technical demo.
 
-The live dependency chain is:
+### Visual / UX
+- Premium dark executive UI
+- Liquid-glass / glassmorphism cards
+- NIK blue accent
+- Persian RTL interface
+- Clear data-confidence labels on KPI cards
+- API and n8n connector placeholder buttons
+- Cleaner sidebar with grouped scenario controls
+- Management-first Executive Snapshot
 
-`INPUT -> DATA -> ANALYSIS -> KPI -> CHART -> MODEL -> INSIGHT -> DASHBOARD UPDATE`
+### Data interpretation
+Every important number is classified as one of:
 
-Changing scenario controls regenerates the synthetic data and recalculates the downstream metrics, charts, forecast, models, funnel, channel mix, and rule-based insights.
+- **Baseline واقعی** — aggregate business input supplied for the prototype
+- **محاسبه‌شده** — derived from baseline and explicit assumptions
+- **تخمینی** — attribution / estimate, not a verified causal KPI
+- **مصنوعی** — generated demo data or experimental model output
 
-## Project files
+This prevents synthetic/model numbers from being presented as real internal NIK data.
 
-- `app.py` — Streamlit application, navigation, UI, scenario controls, CSV upload and demo flow.
-- `data_generator.py` — realistic synthetic datasets for sales, customers, leads, SMS, NIKPOS usage and subscriptions.
-- `analytics_engine.py` — KPI calculations, funnel, backlog capacity proxy, content metrics, aggregation and data quality.
-- `ml_engine.py` — K-Means RFM-style segmentation, Logistic Regression churn-risk prototype, Linear Regression revenue forecast and Rolling Z-score anomaly detection.
-- `insight_engine.py` — dynamic Automated Rule-based Insights.
-- `requirements.txt` — Python dependencies.
+## Current baseline snapshot
 
-## Dependencies
-
-- Python 3.10+
-- Streamlit
-- Pandas
-- NumPy
-- Plotly
-- Scikit-learn
-
-No external database, API key, NIK credential, cloud deployment or internal-system connection is required.
-
-## Default demo scenario
+Date context: **29 August 2026**
 
 - Plan A: 15,000,000 Toman
 - Plan B: 30,000,000 Toman
 - Plan mix: 50 / 50
+- Daily phone sales: 10 devices
+- Monthly online sales: 20 devices
 - Lead backlog: 4,000
-- Daily phone sales: 10
-- Monthly online sales: 20
-- Stories per day: 9
-- Estimated content-attributed sales per day: 2
-- Synthetic customers: 5,000
-- Sales days per month: 30
+- Instagram stories: 9/day
+- Instagram reels: approximately 1/day
+- Total Instagram content: approximately 10/day
+- Estimated content-attributed sales: approximately 2/day
+- Instagram followers: approximately 207K
+- Content team: 5 people
 
-With the default mix, Average Selling Price is calculated dynamically as:
+With a 30-day sales assumption:
 
-`0.50 * 15M + 0.50 * 30M = 22.5M Toman`
+- Phone units/month = 300
+- Total units/month = 320
+- ASP = 22.5M Toman
+- Derived monthly revenue = 7.2B Toman
 
-Monthly phone units are calculated as:
+These are calculations, not accounting revenue records.
 
-`Daily Phone Sales * Sales Days per Month`
+## 10-reel real snapshot
 
-Monthly total units are:
+The content page includes the supplied 10-reel performance snapshot:
 
-`Monthly Phone Units + Monthly Online Sales`
+- Total Views: 397,409
+- Average Views: 39,741
+- Median Views: 10,020
+- Total Comments: 6,647
+- Total Shares: 10,435
+- Comments + Shares: 17,082
+- Interaction/View proxy: approximately 4.3%
+- Top 3 reels represent approximately 76.9% of total views
 
-Monthly revenue is:
+The dashboard explicitly explains why Median and distribution are important for hit-driven content performance.
 
-`Monthly Units * Dynamic Average Selling Price`
+## Important analytical correction
 
-These values are not hard-coded into dashboard cards.
+V0.1 displayed `Monthly Sales / Lead Backlog` as a Lead-to-Purchase conversion proxy.
 
-## Run on Mac / Linux
+V0.2 no longer labels that ratio as conversion.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-streamlit run app.py
+`Lead Backlog` is a stock, while monthly sales are a flow. A real conversion rate requires matched lead-level data and a defined cohort/window.
+
+The dashboard therefore treats backlog comparisons as **volume context only**, not as a true conversion KPI or processing-time estimate.
+
+## Project files
+
+- `app.py` — Streamlit interface, RTL design, Liquid Glass UI and presentation flow
+- `business_data.py` — aggregate baseline, real 10-reel snapshot and historical business context
+- `data_generator.py` — realistic synthetic datasets
+- `analytics_engine.py` — KPI and business calculations
+- `ml_engine.py` — K-Means, Logistic Regression, Linear Regression forecast and anomaly tools
+- `insight_engine.py` — dynamic rule-based management insights
+- `requirements.txt` — dependencies
+
+## Placeholder connectors
+
+V0.2 includes visible buttons for:
+
+- `اتصال API`
+- `اتصال n8n`
+
+They are intentionally placeholders.
+
+No API, database, CRM, n8n workflow or NIK internal credential is connected yet.
+
+Future architecture:
+
+```text
+NIK Database / CRM / Panel
+        |
+    Read-only API
+        |
+       n8n
+        |
+Validation / Cleaning
+        |
+Analytics Engine
+        |
+NIK Intelligence
 ```
 
-## Run on Windows
+## Run
+
+### Windows
 
 ```bat
 python -m venv .venv
@@ -86,136 +130,64 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Application sections
+### Mac / Linux
 
-1. Executive Overview
-2. Data Center
-3. Sales Analytics
-4. Customer Intelligence
-5. NIKPOS Analytics
-6. Content Analytics
-7. SMS Analytics
-8. Anomaly Detection
-9. Predictions
-10. Automated Insights
-11. Analysis Pipeline
-12. Settings / Scenario Controls
-
-## Data Science methods used
-
-### Customer Segmentation
-
-A prototype K-Means model uses RFM-style features:
-
-- Recency
-- Frequency
-- Monetary Value
-
-Clusters are mapped to business labels: High Value, Growth, Regular, At Risk and Inactive.
-
-### Prototype Churn Risk Model
-
-A Logistic Regression model uses:
-
-- Recency
-- Frequency
-- Monetary Value
-- SMS Usage
-- NIKPOS Usage
-- Activity Score
-
-The training target is synthetically generated for this proof of concept. Any displayed AUC is therefore illustrative and must not be interpreted as real production validation.
-
-### Revenue Forecast
-
-A simple Linear Regression trend model forecasts the next three months from synthetic monthly revenue history. It is deliberately simple and explainable.
-
-### Anomaly Detection
-
-The prototype uses a rolling mean, rolling standard deviation and Z-score. Observations with absolute Z-score of 2.5 or greater are flagged.
-
-## Content attribution warning
-
-Content-attributed sales are displayed as **Estimated / Synthetic Attribution**. This is not a verified causal attribution model.
-
-Real attribution would require source tracking such as:
-
-- campaign IDs
-- channel/source tagging
-- lead-source capture
-- click and session tracking
-- CRM linkage
-- attribution windows
-- an explicitly defined attribution model
-
-## Lead backlog interpretation
-
-The prototype shows `Lead Backlog / Daily Phone Sales` as a capacity proxy. This should not be treated as a true lead-processing SLA because sales throughput is not identical to contact-processing capacity.
-
-A production version should use actual sales-agent activity data such as calls attempted, leads contacted, qualification outcomes, agent availability and handling time.
-
-## CSV import
-
-The Data Center includes local CSV uploaders for:
-
-- Sales
-- Customers
-- Leads
-- SMS
-- NIKPOS
-
-Synthetic data remains the default. V0.1 only accepts an uploaded dataset as active in the Data Center when expected prototype columns are present. No external API or database connection is created.
-
-## Suggested manager demo flow
-
-1. Open NIK INTELLIGENCE.
-2. Show Executive Overview.
-3. Point out the `DEMO / SYNTHETIC DATA` label.
-4. Show the default scenario controls.
-5. Click `RUN ANALYSIS`.
-6. Show the Analysis Pipeline.
-7. Return to KPI cards and Sales Funnel.
-8. Open Customer Intelligence.
-9. Show the Prototype Churn Risk Model and RFM segmentation.
-10. Open Anomaly Detection.
-11. Open Predictions and show the three-month forecast.
-12. Change `Daily Phone Sales` from `10` to `15`.
-13. Show that Revenue, Monthly Units, Conversion, Channel Mix, Funnel, synthetic trend, forecast and insights recalculate.
-14. Open Automated Insights.
-15. Explain that the current data is synthetic and no NIK internal systems are connected.
-16. Explain the future read-only data architecture below.
-
-## Future architecture — not implemented in V0.1
-
-```text
-NIK Database
-    |
-Read-only Connection / API
-    |
-Data Pipeline
-    |
-Data Warehouse
-    |
-Analytics Engine
-    |
-ML
-    |
-NIK Intelligence Dashboard
-    |
-Alerts / Reports / AI Assistant
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
-The intended production principle is to keep operational systems separate and provide NIK Intelligence with controlled, read-only access through a documented data contract or API.
+## Fast GitHub / Streamlit update
 
-## Security boundary
+If an older version is already deployed:
 
-V0.1 requires:
+1. Extract the V0.2 ZIP.
+2. Open the existing GitHub repository.
+3. Upload all V0.2 files into the repository root.
+4. Confirm overwriting files with the same names.
+5. Commit changes.
+6. Streamlit Community Cloud should rebuild automatically.
+7. If it does not, open the app menu and use **Reboot**.
 
-- no NIK internal data
-- no API keys
-- no database credentials
-- no CRM credentials
-- no cloud deployment
-- no authentication layer
+`Main file path` remains:
 
-This is intentionally a standalone proof of concept.
+```text
+app.py
+```
+
+## Recommended management demo
+
+1. Open **نمای مدیریتی**
+2. Explain the four data-confidence tags
+3. Show 10 phone sales/day and 20 online/month as baseline
+4. Show 320 units and 7.2B revenue as derived under a 30-day assumption
+5. Open **تحلیل محتوا و اینستاگرام**
+6. Show Average 39.7K vs Median 10K
+7. Show that Top 3 reels produce ~76.9% of total views
+8. Explain why content measurement needs Watch Time / Saves / Leads / Sales
+9. Open **مرکز داده**
+10. Show API / n8n placeholders
+11. Open **خط لوله تحلیل**
+12. Explain future read-only integration
+13. Return to Executive Overview
+14. Change Daily Phone Sales from 10 to 15
+15. Show that Units, Revenue, trends, forecast and insights update dynamically
+
+## Next production data needed
+
+The highest-value next datasets are:
+
+- Daily Sales raw data
+- Leads with stage history
+- Call Center: calls / answered / qualified / sale
+- Content per post/reel/story
+- Reach / Saves / Watch Time / Completion
+- Attribution source
+- SMS sent / delivered / click / conversion
+- NIKPOS active device and usage events
+- Customer industry / city / plan
+- Subscription renewal / churn
+- Campaign spend / lead / sale / revenue
+- Referral funnel and reward cost
