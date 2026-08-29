@@ -5,36 +5,99 @@ from typing import Dict, Iterable
 import numpy as np
 import pandas as pd
 
-from business_data import reel_snapshot_metrics
+from business_data import BUSINESS_BASELINE, reel_snapshot_metrics
 from data_generator import Scenario
 
 
+# -----------------------------------------------------------------------------
+# Compatibility helpers
+# -----------------------------------------------------------------------------
+# Streamlit Cloud can briefly run mixed revisions while a multi-file GitHub
+# commit is being rebuilt. These accessors make analytics tolerant of an older
+# Scenario class so the UI does not crash when newer optional fields are absent.
+
+
+def _baseline(key: str, fallback):
+    try:
+        return BUSINESS_BASELINE.get(key, fallback)
+    except Exception:
+        return fallback
+
+
+def _sv(scenario: Scenario, key: str, fallback):
+    return getattr(scenario, key, fallback)
+
+
+def _plan_b_share(scenario: Scenario) -> float:
+    return float(getattr(scenario, "plan_b_share", 1.0 - float(_sv(scenario, "plan_a_share", 0.50))))
+
+
+def _asp(scenario: Scenario) -> float:
+    if hasattr(scenario, "average_selling_price"):
+        return float(scenario.average_selling_price)
+    a = float(_sv(scenario, "price_plan_a", _baseline("plan_a_price", 15_000_000)))
+    b = float(_sv(scenario, "price_plan_b", _baseline("plan_b_price", 30_000_000)))
+    share_a = float(_sv(scenario, "plan_a_share", _baseline("plan_a_share", 0.50)))
+    return a * share_a + b * (1.0 - share_a)
+
+
+def _monthly_phone_units(scenario: Scenario) -> float:
+    if hasattr(scenario, "monthly_phone_units"):
+        return float(scenario.monthly_phone_units)
+    return float(_sv(scenario, "daily_phone_sales", _baseline("daily_phone_sales", 10))) * float(
+        _sv(scenario, "sales_days_per_month", _baseline("sales_days_per_month", 30))
+    )
+
+
+def _monthly_units(scenario: Scenario) -> float:
+    if hasattr(scenario, "monthly_units"):
+        return float(scenario.monthly_units)
+    return _monthly_phone_units(scenario) + float(
+        _sv(scenario, "monthly_online_sales", _baseline("monthly_online_sales", 20))
+    )
+
+
+def _total_content_per_day(scenario: Scenario) -> float:
+    if hasattr(scenario, "total_content_per_day"):
+        return float(scenario.total_content_per_day)
+    return float(_sv(scenario, "stories_per_day", _baseline("stories_per_day", 9))) + float(
+        _sv(scenario, "reels_per_day", _baseline("reels_per_day", 1))
+    )
+
+
 def current_kpis(scenario: Scenario, customers: pd.DataFrame) -> Dict[str, float]:
-    monthly_phone = scenario.monthly_phone_units
-    monthly_online = float(scenario.monthly_online_sales)
+    monthly_phone = _monthly_phone_units(scenario)
+    monthly_online = float(_sv(scenario, "monthly_online_sales", _baseline("monthly_online_sales", 20)))
     monthly_units = monthly_phone + monthly_online
-    asp = scenario.average_selling_price
+    asp = _asp(scenario)
     monthly_revenue = monthly_units * asp
     active_customers = int((customers["customer_status"] == "Active").sum()) if "customer_status" in customers else 0
+    backlog = float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 4_000)))
+    sales_days = float(_sv(scenario, "sales_days_per_month", _baseline("sales_days_per_month", 30)))
+    content_sales = float(
+        _sv(scenario, "content_sales_per_day", _baseline("estimated_content_sales_per_day", 2.0))
+    )
+    stories = float(_sv(scenario, "stories_per_day", _baseline("stories_per_day", 9)))
+    reels = float(_sv(scenario, "reels_per_day", _baseline("reels_per_day", 1)))
 
-    # This ratio is deliberately NOT named conversion. Backlog is a stock while sales are a monthly flow.
-    backlog_sales_volume_ratio = monthly_units / scenario.lead_backlog if scenario.lead_backlog > 0 else 0.0
-    backlog_months_of_sales = scenario.lead_backlog / monthly_units if monthly_units > 0 else np.inf
+    # Deliberately NOT called conversion: backlog is a stock and sales are a flow.
+    backlog_sales_volume_ratio = monthly_units / backlog if backlog > 0 else 0.0
+    backlog_months_of_sales = backlog / monthly_units if monthly_units > 0 else np.inf
 
     return {
         "monthly_revenue": monthly_revenue,
         "monthly_units": monthly_units,
         "active_customers": active_customers,
-        "lead_pool": float(scenario.lead_backlog),
+        "lead_pool": backlog,
         "average_selling_price": asp,
         "monthly_phone_units": monthly_phone,
         "monthly_online_units": monthly_online,
         "phone_share": monthly_phone / monthly_units if monthly_units else 0.0,
         "online_share": monthly_online / monthly_units if monthly_units else 0.0,
-        "content_monthly_sales_estimated": scenario.content_sales_per_day * scenario.sales_days_per_month,
-        "stories_month": scenario.stories_per_day * scenario.sales_days_per_month,
-        "reels_month": scenario.reels_per_day * scenario.sales_days_per_month,
-        "total_content_month": scenario.total_content_per_day * scenario.sales_days_per_month,
+        "content_monthly_sales_estimated": content_sales * sales_days,
+        "stories_month": stories * sales_days,
+        "reels_month": reels * sales_days,
+        "total_content_month": (stories + reels) * sales_days,
         "backlog_sales_volume_ratio": backlog_sales_volume_ratio,
         "backlog_months_of_sales": backlog_months_of_sales,
     }
@@ -57,27 +120,31 @@ def sales_monthly(sales: pd.DataFrame) -> pd.DataFrame:
 
 
 def plan_performance(scenario: Scenario) -> pd.DataFrame:
-    total = scenario.monthly_units
-    a_units = total * scenario.plan_a_share
+    total = _monthly_units(scenario)
+    share_a = float(_sv(scenario, "plan_a_share", _baseline("plan_a_share", 0.50)))
+    share_b = 1.0 - share_a
+    a_units = total * share_a
     b_units = total - a_units
+    price_a = float(_sv(scenario, "price_plan_a", _baseline("plan_a_price", 15_000_000)))
+    price_b = float(_sv(scenario, "price_plan_b", _baseline("plan_b_price", 30_000_000)))
     return pd.DataFrame(
         {
             "plan": ["Plan A", "Plan B"],
             "units": [a_units, b_units],
-            "share": [scenario.plan_a_share, scenario.plan_b_share],
-            "unit_price": [scenario.price_plan_a, scenario.price_plan_b],
-            "revenue": [a_units * scenario.price_plan_a, b_units * scenario.price_plan_b],
+            "share": [share_a, share_b],
+            "unit_price": [price_a, price_b],
+            "revenue": [a_units * price_a, b_units * price_b],
         }
     )
 
 
 def lead_funnel(scenario: Scenario) -> pd.DataFrame:
-    # Synthetic funnel for demonstration only. Real conversion requires matched lead-stage data.
-    new_leads = int(max(0, scenario.lead_backlog))
+    # Synthetic funnel for demonstration only. Real conversion needs matched lead-stage data.
+    new_leads = int(max(0, float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 4_000)))))
     contacted = int(new_leads * 0.86)
     qualified = int(contacted * 0.62)
     interested = int(qualified * 0.58)
-    purchased = int(min(round(scenario.monthly_units), interested))
+    purchased = int(min(round(_monthly_units(scenario)), interested))
     active = int(purchased * 0.95)
     stages = ["New Leads", "Contacted", "Qualified", "Interested", "Purchased", "Active Customer"]
     values = [new_leads, contacted, qualified, interested, purchased, active]
@@ -95,11 +162,11 @@ def lead_funnel(scenario: Scenario) -> pd.DataFrame:
 
 
 def backlog_capacity(scenario: Scenario) -> Dict[str, float]:
-    # Backlog cannot be translated into processing time from sales throughput alone.
-    monthly_sales = max(float(scenario.monthly_units), 0.0)
-    ratio = scenario.lead_backlog / monthly_sales if monthly_sales > 0 else np.inf
+    monthly_sales = max(float(_monthly_units(scenario)), 0.0)
+    backlog = float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 4_000)))
+    ratio = backlog / monthly_sales if monthly_sales > 0 else np.inf
     return {
-        "backlog": float(scenario.lead_backlog),
+        "backlog": backlog,
         "monthly_sales_flow": monthly_sales,
         "sales_volume_equivalent_months": ratio,
     }
@@ -156,16 +223,25 @@ def quality_table(datasets: Dict[str, pd.DataFrame]) -> pd.DataFrame:
 
 def content_metrics(scenario: Scenario) -> Dict[str, float]:
     snapshot = reel_snapshot_metrics()
+    stories = float(_sv(scenario, "stories_per_day", _baseline("stories_per_day", 9)))
+    reels = float(_sv(scenario, "reels_per_day", _baseline("reels_per_day", 1)))
+    sales_days = float(_sv(scenario, "sales_days_per_month", _baseline("sales_days_per_month", 30)))
+    estimated_sales = float(
+        _sv(scenario, "content_sales_per_day", _baseline("estimated_content_sales_per_day", 2.0))
+    )
+    followers = float(_sv(scenario, "instagram_followers", _baseline("instagram_followers", 207_000)))
+    team_size = float(_sv(scenario, "content_team_size", _baseline("content_team_size", 5)))
+    total_daily = stories + reels
     return {
-        "stories_per_day": float(scenario.stories_per_day),
-        "reels_per_day": float(scenario.reels_per_day),
-        "total_content_per_day": float(scenario.total_content_per_day),
-        "stories_per_month": float(scenario.stories_per_day * scenario.sales_days_per_month),
-        "reels_per_month": float(scenario.reels_per_day * scenario.sales_days_per_month),
-        "total_content_per_month": float(scenario.total_content_per_day * scenario.sales_days_per_month),
-        "estimated_sales_per_day": float(scenario.content_sales_per_day),
-        "estimated_sales_per_month": float(scenario.content_sales_per_day * scenario.sales_days_per_month),
-        "instagram_followers": float(scenario.instagram_followers),
-        "content_team_size": float(scenario.content_team_size),
+        "stories_per_day": stories,
+        "reels_per_day": reels,
+        "total_content_per_day": total_daily,
+        "stories_per_month": stories * sales_days,
+        "reels_per_month": reels * sales_days,
+        "total_content_per_month": total_daily * sales_days,
+        "estimated_sales_per_day": estimated_sales,
+        "estimated_sales_per_month": estimated_sales * sales_days,
+        "instagram_followers": followers,
+        "content_team_size": team_size,
         **snapshot,
     }

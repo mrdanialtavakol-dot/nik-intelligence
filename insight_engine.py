@@ -34,8 +34,8 @@ def generate_insights(
             "title": "درآمد ماهانه محاسبه‌شده",
             "text": (
                 f"با فرض {_fa(scenario.sales_days_per_month)} روز فروش، {_fa(scenario.daily_phone_sales)} فروش تلفنی در روز، "
-                f"{_fa(scenario.monthly_online_sales)} فروش آنلاین در ماه و Mix فعلی، فروش ماهانه {_fa(f'{kpis['monthly_units']:.0f}')} دستگاه می‌شود. "
-                "این عدد Derived است و فروش ثبت‌شده حسابداری نیست."
+                f"{_fa(scenario.monthly_online_sales)} فروش آنلاین در ماه و ترکیب فعلی طرح‌ها، فروش ماهانه {_fa(f'{kpis['monthly_units']:.0f}')} دستگاه می‌شود. "
+                "این عدد محاسبه‌شده است و فروش ثبت‌شده حسابداری نیست."
             ),
         }
     )
@@ -55,7 +55,7 @@ def generate_insights(
                 "title": "اندازه صف در برابر جریان فروش",
                 "text": (
                     f"صف {_fa(scenario.lead_backlog)} لید، از نظر حجم، معادل حدود {_fa(f'{kpis['backlog_months_of_sales']:.1f}')} برابر فروش ماهانه سناریوی فعلی است. "
-                    "این شاخص زمان تخلیه صف یا Conversion نیست؛ برای آن به Calls / Contacted / Qualified و زمان پردازش واقعی نیاز داریم."
+                    "این شاخص زمان تخلیه صف یا نرخ تبدیل نیست؛ برای آن به تعداد تماس، تماس موفق، لید واجد شرایط و زمان پردازش واقعی نیاز داریم."
                 ),
             }
         )
@@ -63,10 +63,10 @@ def generate_insights(
     insights.append(
         {
             "type": "محتوا",
-            "title": "Performance محتوا Hit-driven است",
+            "title": "عملکرد محتوا به چند ریلز پربازدید وابسته است",
             "text": (
-                f"در Snapshot ده ریلز، میانگین ویو {_fa(f'{reel['average_views']:.0f}')} ولی میانه فقط {_fa(f'{reel['median_views']:.0f}')} است؛ "
-                f"همچنین سه ریلز برتر {_pct(reel['top3_view_share'])} کل ویوها را ساخته‌اند. برای ارزیابی تیم، Median و توزیع عملکرد مهم‌تر از Average تنهاست."
+                f"در نمای داده ده ریلز، میانگین بازدید {_fa(f'{reel['average_views']:.0f}')} ولی میانه فقط {_fa(f'{reel['median_views']:.0f}')} است؛ "
+                f"همچنین سه ریلز برتر {_pct(reel['top3_view_share'])} کل ویوها را ساخته‌اند. برای ارزیابی تیم، میانه و توزیع عملکرد مهم‌تر از میانگین تنهاست."
             ),
         }
     )
@@ -76,15 +76,15 @@ def generate_insights(
             "type": "تعامل محتوا",
             "title": "کامنت + اشتراک‌گذاری",
             "text": (
-                f"در همان Snapshot، مجموع کامنت و اشتراک‌گذاری {_fa(f'{reel['total_interactions']:.0f}')} و نسبت آن به View حدود {_pct(reel['interaction_rate'])} است. "
-                "این شاخص Interaction Proxy است و جایگزین Reach، Saves یا Watch Time نیست."
+                f"در همان نمای داده، مجموع کامنت و اشتراک‌گذاری {_fa(f'{reel['total_interactions']:.0f}')} و نسبت آن به بازدید حدود {_pct(reel['interaction_rate'])} است. "
+                "این شاخص تقریبی تعامل است و جایگزین ریچ، ذخیره یا زمان تماشا نیست."
             ),
         }
     )
 
     insights.append(
         {
-            "type": "Attribution",
+            "type": "انتساب فروش",
             "title": "فروش منتسب به محتوا دوباره شماری نمی‌شود",
             "text": (
                 f"فروش منتسب به محتوا در مدل حدود {_fa(f'{kpis['content_monthly_sales_estimated']:.0f}')} دستگاه در ماه برآورد می‌شود، "
@@ -122,7 +122,7 @@ def generate_insights(
                 "type": "هشدار دمو",
                 "title": "سیگنال ناهنجاری",
                 "text": (
-                    f"Rolling Z-score در دیتای مصنوعی {_fa(sales_anomaly_count)} ناهنجاری فروش و "
+                    f"امتیاز Z متحرک در دیتای مصنوعی {_fa(sales_anomaly_count)} ناهنجاری فروش و "
                     f"{_fa(sms_anomaly_count)} ناهنجاری تحویل پیامک علامت‌گذاری کرده است."
                 ),
             }

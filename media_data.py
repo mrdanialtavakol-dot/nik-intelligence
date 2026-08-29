@@ -48,8 +48,8 @@ MEDIA_VIDEOS: List[MediaVideo] = [
         "کاربرد نیک‌پوز و باشگاه مشتریان",
         "video-01.mp4",
         43.05,
-        "Reel / Vertical",
-        "Retention / Customer Club",
+        "ریلز عمودی",
+        "بازگشت مشتری / باشگاه مشتریان",
         "کاربرد نیک‌پوز",
         "نمایش پنل و ثبت مشتری",
         "خرید و تست دستگاه",
@@ -60,8 +60,8 @@ MEDIA_VIDEOS: List[MediaVideo] = [
         "تراکت، کارت ویزیت و مسیر ارتباطی",
         "video-02.mp4",
         40.87,
-        "Story / Vertical",
-        "Traditional vs Smart Tools",
+        "استوری عمودی",
+        "ابزار سنتی در برابر ابزار هوشمند",
         "شروع در فضای واقعی کسب‌وکار",
         "نمایش نقشه، موبایل و دستگاه",
         "هدایت به لینک",
@@ -72,8 +72,8 @@ MEDIA_VIDEOS: List[MediaVideo] = [
         "منفعت استفاده از دستگاه",
         "video-03.mp4",
         57.94,
-        "Story / Vertical",
-        "Customer Retention",
+        "استوری عمودی",
+        "حفظ و بازگشت مشتری",
         "چند بار شده مشتری را از دست بدهی؟",
         "توضیح ارتباط دوباره با مشتری",
         "اقدام برای تهیه دستگاه",
@@ -84,8 +84,8 @@ MEDIA_VIDEOS: List[MediaVideo] = [
         "ارسال منطقه‌ای و جذب مشتری",
         "video-04.mp4",
         105.58,
-        "Long Reel / Vertical",
-        "Regional SMS",
+        "ریلز بلند عمودی",
+        "پیامک منطقه‌ای",
         "از پول تبلیغات چقدر استفاده می‌کنی؟",
         "نقشه ارسال منطقه‌ای و نمونه پنل",
         "تبدیل جذب به دیتابیس مشتری",
@@ -96,8 +96,8 @@ MEDIA_VIDEOS: List[MediaVideo] = [
         "بازار شماره مشتری و پیشنهاد خرید",
         "video-05.mp4",
         43.69,
-        "Reel / Vertical",
-        "Customer Data Value",
+        "ریلز عمودی",
+        "ارزش داده مشتری",
         "ارزش بازار شماره مشتری",
         "SMS، پنل و نمایش محصول",
         "کامنت / لینک خرید",
@@ -106,12 +106,12 @@ MEDIA_VIDEOS: List[MediaVideo] = [
 ]
 
 MEDIA_IMAGES: List[MediaImage] = [
-    MediaImage("I01", "تو شبیه کدومی؟", "cover-01.webp", "Reel Cover", "دو کاراکتر + تضاد انتخاب"),
-    MediaImage("I02", "مشتری VIP برای مغازه خودت", "cover-02.webp", "Reel Cover", "تمرکز روی محصول و تفاوت دستگاه"),
-    MediaImage("I03", "آچار فرانسه برای کسب‌وکار", "cover-03.webp", "Reel Cover", "Metaphor / ابزار همه‌کاره"),
-    MediaImage("I04", "کمپین زمانی", "cover-04.webp", "Story Cover", "Urgency / بازه تاریخی"),
-    MediaImage("I05", "وابستگی خطرناک", "cover-05.webp", "Reel Cover", "بحران اینترنت / Pain Point"),
-    MediaImage("I06", "تبلیغ با بودجه کم", "cover-06.webp", "Reel Cover", "Hook اقتصادی / شوک قیمتی"),
+    MediaImage("I01", "تو شبیه کدومی؟", "cover-01.webp", "کاور ریلز", "دو کاراکتر + تضاد انتخاب"),
+    MediaImage("I02", "مشتری VIP برای مغازه خودت", "cover-02.webp", "کاور ریلز", "تمرکز روی محصول و تفاوت دستگاه"),
+    MediaImage("I03", "آچار فرانسه برای کسب‌وکار", "cover-03.webp", "کاور ریلز", "استعاره / ابزار همه‌کاره"),
+    MediaImage("I04", "کمپین زمانی", "cover-04.webp", "کاور استوری", "فوریت / بازه تاریخی"),
+    MediaImage("I05", "وابستگی خطرناک", "cover-05.webp", "کاور ریلز", "بحران اینترنت / نقطه درد"),
+    MediaImage("I06", "تبلیغ با بودجه کم", "cover-06.webp", "کاور ریلز", "هوک اقتصادی / شوک قیمتی"),
 ]
 
 
@@ -166,11 +166,11 @@ def synthetic_video_timeline(video: MediaVideo) -> pd.DataFrame:
 def synthetic_video_events(video: MediaVideo) -> pd.DataFrame:
     d = video.duration
     rows = [
-        (max(1, round(d * 0.04)), "Hook", video.hook, "شروع توجه"),
-        (max(3, round(d * 0.22)), "Drop", "نقطه افت آزمایشی", "افت احتمالی"),
-        (max(5, round(d * 0.48)), "Proof", video.proof, "اوج تعامل"),
-        (max(7, round(d * 0.70)), "Rewatch", "بازگشت توجه / Replay Proxy", "تعامل"),
-        (max(9, round(d * 0.86)), "CTA", video.cta, "Click Proxy"),
+        (max(1, round(d * 0.04)), "هوک", video.hook, "شروع توجه"),
+        (max(3, round(d * 0.22)), "افت", "نقطه افت آزمایشی", "افت احتمالی"),
+        (max(5, round(d * 0.48)), "اثبات", video.proof, "اوج تعامل"),
+        (max(7, round(d * 0.70)), "بازپخش", "بازگشت توجه / شاخص بازپخش", "تعامل"),
+        (max(9, round(d * 0.86)), "دعوت به اقدام", video.cta, "شاخص کلیک"),
     ]
     return pd.DataFrame(rows, columns=["second", "event", "description", "signal"])
 

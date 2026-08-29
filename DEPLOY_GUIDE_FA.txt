@@ -1,0 +1,15 @@
+راهنمای خیلی سریع نصب NIK INTELLIGENCE V0.4
+
+1) فایل ZIP را Extract کن.
+2) وارد Repository فعلی nik-intelligence در GitHub شو.
+3) Add file > Upload files را بزن.
+4) همه فایل‌ها و پوشه assets داخل ZIP را آپلود/جایگزین کن.
+5) Commit changes را بزن.
+6) برو Streamlit Community Cloud.
+7) کنار App روی سه نقطه > Reboot بزن.
+8) بعد از بالا آمدن، صفحه را با Ctrl+F5 بازخوانی کن.
+
+مهم:
+- فقط app.py را آپلود نکن؛ تمام فایل‌ها باید یک نسخه باشند.
+- Main file path = app.py
+- اگر لوگو/ویدیو/عکس دیده نشد، پوشه assets روی GitHub آپلود نشده است.

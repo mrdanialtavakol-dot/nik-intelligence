@@ -1,35 +1,30 @@
-# NIK INTELLIGENCE V0.3
+# NIK INTELLIGENCE V0.4
 
-Management Data Intelligence Prototype for NIK SMS / NIKPOS.
+نسخه مدیریتی آزمایشی سامانه «نیک اس‌ام‌اس | تحلیل داده» برای NIKSMS / NIKPOS.
 
-> Prototype using aggregate baseline + synthetic/demo data. Not connected to NIK internal systems.
+> این نسخه با داده‌های مبنای Aggregate و داده‌های Synthetic / Demo ساخته شده و هنوز به سیستم‌های داخلی NIK متصل نیست.
 >
-> Forecasts, churn outputs and the Media Intelligence timeline are experimental/demo outputs and must not be used as production facts.
+> Forecast، Churn و Timeline ویدیو خروجی آزمایشی هستند و نباید به‌عنوان واقعیت Production یا داده قطعی اینستاگرام ارائه شوند.
 
-## What changed in V0.3
+## مهم‌ترین تغییرات V0.4
 
-- New executive-first CEO home page: 8 decision KPIs + 3 management signals.
-- Main visual theme rebuilt around `#ADCBFF` with dark blue gradients and glass surfaces.
-- Official NIKSMS logo included in the app.
-- New **Media Intelligence Lab** with:
-  - 5 supplied vertical videos.
-  - 6 supplied content images.
-  - interactive second selector.
-  - demo retention curve.
-  - demo click/interaction signal.
-  - synthetic event markers (Hook / Drop / Proof / Replay / CTA).
-  - temporary media upload preview.
-- API and n8n connector buttons remain visual placeholders only.
-- Fixed the V0.2 `Scenario(...)` TypeError risk and the anomaly-page column bug.
-- Scenario construction is defensive against short-lived mixed-file deployments during Streamlit rebuilds.
+- رفع خطاهای `AttributeError` مربوط به `instagram_followers` و `reels_per_day`.
+- اضافه‌شدن لایه Compatibility بین `app.py`، `Scenario` و Analytics تا اختلاف موقت نسخه فایل‌ها هنگام Deploy باعث Crash نشود.
+- اضافه‌شدن fallback امن برای KPIهای محتوا و Instagram Snapshot.
+- فارسی‌سازی گسترده رابط کاربری، جدول‌ها، عنوان نمودارها، KPIها و توضیحات مدیریتی.
+- بازطراحی Visual System با محور رنگ `#ADCBFF`، گرادینت آبی تیره، Glassmorphism و نورپردازی کنترل‌شده.
+- استفاده از لوگوی NIKSMS در Header و Sidebar.
+- حفظ صفحه اول CEO با 8 KPI تصمیم‌ساز و سیگنال‌های مدیریتی.
+- حفظ Media Intelligence Lab شامل ویدیوها، تصاویر، Timeline آزمایشی و Event Markerها.
+- دکمه‌های API و n8n همچنان Placeholder هستند و اتصال واقعی ندارند.
 
-## Important deployment note
+## نکته بسیار مهم برای Deploy
 
-V0.2 could fail if `app.py` was updated while `data_generator.py` remained from V0.1. The new `app.py` passes fields such as `reels_per_day`, `instagram_followers`, and `content_team_size`; an old `Scenario` class does not know those arguments.
+برای جلوگیری از تکرار خطاهای نسخه‌های قبلی، فقط `app.py` را جایگزین نکنید.
 
-**For V0.3 replace ALL project files, not only `app.py`.**
+**محتویات کامل ZIP را Extract کنید و همه فایل‌ها و پوشه‌ها را در Root همان Repository جایگزین کنید.**
 
-The repository root should contain:
+ساختار Repository باید به شکل زیر باشد:
 
 ```text
 app.py
@@ -42,14 +37,26 @@ ml_engine.py
 requirements.txt
 README.md
 VERSION.txt
+DEPLOY_GUIDE_FA.txt
 assets/
   images/
   videos/
 ```
 
-Then reboot the Streamlit app once.
+بعد از Commit در GitHub:
 
-## Run locally
+1. وارد Streamlit Community Cloud شوید.
+2. روی سه‌نقطه کنار App بزنید.
+3. `Reboot` را انتخاب کنید.
+4. بعد از اتمام Build، صفحه را Hard Refresh کنید.
+
+Main file path باید همچنان این باشد:
+
+```text
+app.py
+```
+
+## Run محلی
 
 ### Windows
 
@@ -69,33 +76,35 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## CEO first-screen KPIs
+## تست‌های V0.4
 
-The first screen intentionally prioritizes:
+- Syntax همه فایل‌های Python بررسی شده است.
+- تمام صفحات اصلی اپ در تست Runtime عبور کرده‌اند.
+- حالت Mixed Revision نیز تست شده؛ یعنی حتی اگر `data_generator.py` قدیمی و فاقد فیلدهای `instagram_followers` و `reels_per_day` باشد، صفحات اصلی دیگر با AttributeError از کار نمی‌افتند.
 
-1. Derived monthly revenue
-2. Derived monthly units
-3. Current lead backlog
-4. Daily phone sales baseline
-5. Average selling price
-6. Monthly online sales baseline
-7. Instagram follower snapshot
-8. Estimated content-attributed sales/day
+## وضعیت اتصال
 
-Technical ML metrics, anomaly details and experimental forecast are moved below the first-screen decision layer.
-
-## Media Intelligence truth labels
-
-The uploaded videos/images are real supplied assets. However, no per-second Instagram event stream was provided. Therefore the timeline curves and Click/Replay markers in V0.3 are explicitly labeled **DEMO / SYNTHETIC TIMELINE**.
-
-A future real pipeline could be:
+فعلاً:
 
 ```text
-Instagram / Website / Tracked Links / CRM
-    -> API / Webhooks
-    -> n8n
-    -> event/content tables
-    -> NIK Intelligence
+Demo / Synthetic Data
+API: Not connected
+Database: Not connected
+n8n: Not connected
 ```
 
-This will allow real attribution such as content -> click -> lead -> call -> purchase where tracking data exists.
+معماری آینده می‌تواند به شکل زیر باشد:
+
+```text
+NIK Database / Instagram / CRM / Tracked Links
+        ↓
+Read-only API / Webhook
+        ↓
+n8n / Data Pipeline
+        ↓
+Validation + Warehouse
+        ↓
+NIK Intelligence
+        ↓
+Dashboard / Alerts / AI Assistant
+```
