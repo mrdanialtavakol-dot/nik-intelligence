@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import base64
+import inspect
 import io
 import time
+from pathlib import Path
 from typing import Dict, Tuple
 
 import numpy as np
@@ -30,10 +33,18 @@ from business_data import (
 from data_generator import Scenario, generate_all
 from insight_engine import generate_insights
 from ml_engine import churn_risk_model, detect_anomalies, revenue_forecast, segment_customers
+from media_data import (
+    MEDIA_IMAGES,
+    MEDIA_VIDEOS,
+    get_video,
+    synthetic_video_events,
+    synthetic_video_metrics,
+    synthetic_video_timeline,
+)
 
 
 st.set_page_config(
-    page_title="نیک اس‌ام‌اس | تحلیل داده",
+    page_title="نیک اس‌ام‌اس | تحلیل داده V0.3",
     page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -41,12 +52,15 @@ st.set_page_config(
 
 
 # ---------- Visual system ----------
-ACCENT = "#1DCBFF"
-ACCENT_2 = "#006CFF"
-TEXT = "#F6F9FF"
-MUTED = "#94A3B8"
-BG = "#060A10"
+ACCENT = "#ADCBFF"
+ACCENT_2 = "#4D82B8"
+TEXT = "#F8FBFF"
+MUTED = "#A8B9CB"
+BG = "#07111D"
 BORDER = "rgba(255,255,255,.10)"
+BASE_DIR = Path(__file__).resolve().parent
+ASSET_DIR = BASE_DIR / "assets"
+LOGO_PATH = ASSET_DIR / "images" / "niksms-logo.png"
 
 PAGE_LABELS = {
     "Executive Overview": "نمای مدیریتی",
@@ -55,6 +69,7 @@ PAGE_LABELS = {
     "Customer Intelligence": "هوشمندی مشتریان",
     "NIKPOS Analytics": "تحلیل نیک‌پوز",
     "Content Analytics": "تحلیل محتوا و اینستاگرام",
+    "Media Intelligence": "آزمایشگاه تحلیل محتوا",
     "SMS Analytics": "تحلیل پیامک",
     "Anomaly Detection": "تشخیص ناهنجاری",
     "Predictions": "پیش‌بینی‌ها",
@@ -69,6 +84,7 @@ PAGE_ICONS = {
     "Customer Intelligence": "◎",
     "NIKPOS Analytics": "▣",
     "Content Analytics": "▶",
+    "Media Intelligence": "◉",
     "SMS Analytics": "✉",
     "Anomaly Detection": "⚡",
     "Predictions": "⌁",
@@ -188,10 +204,9 @@ st.markdown(
         direction: rtl;
         color: var(--nik-text);
         background:
-            radial-gradient(circle at 80% -10%, rgba(29,203,255,.16), transparent 30%),
-            radial-gradient(circle at 15% 20%, rgba(0,108,255,.12), transparent 27%),
-            radial-gradient(circle at 60% 80%, rgba(98,53,255,.08), transparent 25%),
-            #060A10;
+            radial-gradient(circle at 82% -8%, rgba(173,203,255,.42), transparent 30%),
+            radial-gradient(circle at 8% 22%, rgba(124,169,210,.20), transparent 28%),
+            linear-gradient(135deg, #07111D 0%, #0B2238 48%, #173D5C 100%);
     }}
     .block-container {{
         max-width: 1500px;
@@ -199,7 +214,7 @@ st.markdown(
         padding-bottom: 3rem;
     }}
     [data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, rgba(10,17,26,.94), rgba(5,10,17,.96));
+        background: linear-gradient(180deg, rgba(8,25,42,.96), rgba(5,14,25,.98));
         border-left: 1px solid rgba(255,255,255,.08);
         border-right: 0;
         backdrop-filter: blur(24px);
@@ -233,7 +248,7 @@ st.markdown(
         height: 90px;
         left: -35px;
         top: -45px;
-        background: radial-gradient(circle, rgba(29,203,255,.18), transparent 70%);
+        background: radial-gradient(circle, rgba(173,203,255,.18), transparent 70%);
         pointer-events: none;
     }}
     [data-testid="stMetricLabel"] {{
@@ -257,15 +272,15 @@ st.markdown(
     }}
     div.stButton > button {{
         border-radius: 14px;
-        border: 1px solid rgba(29,203,255,.23);
-        background: linear-gradient(145deg, rgba(29,203,255,.13), rgba(0,108,255,.08));
+        border: 1px solid rgba(173,203,255,.23);
+        background: linear-gradient(145deg, rgba(173,203,255,.13), rgba(77,130,184,.08));
         color: #EAF9FF;
         box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
         transition: all .18s ease;
     }}
     div.stButton > button:hover {{
-        border-color: rgba(29,203,255,.58);
-        background: linear-gradient(145deg, rgba(29,203,255,.22), rgba(0,108,255,.14));
+        border-color: rgba(173,203,255,.58);
+        background: linear-gradient(145deg, rgba(173,203,255,.22), rgba(77,130,184,.14));
         transform: translateY(-1px);
     }}
 
@@ -279,7 +294,7 @@ st.markdown(
         border-radius: 28px;
         background:
             linear-gradient(135deg, rgba(255,255,255,.085), rgba(255,255,255,.025)),
-            linear-gradient(90deg, rgba(29,203,255,.035), rgba(0,108,255,.02));
+            linear-gradient(90deg, rgba(173,203,255,.035), rgba(77,130,184,.02));
         box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 28px 80px rgba(0,0,0,.22);
         backdrop-filter: blur(28px) saturate(140%);
     }}
@@ -290,7 +305,7 @@ st.markdown(
         height: 180px;
         left: -90px;
         top: -100px;
-        background: radial-gradient(circle, rgba(29,203,255,.19), transparent 68%);
+        background: radial-gradient(circle, rgba(173,203,255,.19), transparent 68%);
         filter: blur(8px);
         pointer-events: none;
     }}
@@ -301,14 +316,14 @@ st.markdown(
         height: 250px;
         right: -100px;
         bottom: -170px;
-        background: radial-gradient(circle, rgba(0,108,255,.14), transparent 67%);
+        background: radial-gradient(circle, rgba(77,130,184,.14), transparent 67%);
         pointer-events: none;
     }}
     .eyebrow {{
         display: inline-flex;
         gap: 8px;
         align-items: center;
-        color: #8DDFFF;
+        color: #E4F0FF;
         font-size: .79rem;
         font-weight: 700;
         letter-spacing: .08em;
@@ -324,7 +339,7 @@ st.markdown(
         margin: 0 0 8px 0;
     }}
     .hero-title .accent {{
-        background: linear-gradient(90deg, #BDEFFF, #1DCBFF 55%, #75A9FF);
+        background: linear-gradient(90deg, #F2F7FF, #ADCBFF 55%, #8FB7DE);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }}
@@ -355,8 +370,8 @@ st.markdown(
         width:7px;
         height:7px;
         border-radius:50%;
-        background:#1DCBFF;
-        box-shadow:0 0 12px rgba(29,203,255,.7);
+        background:#ADCBFF;
+        box-shadow:0 0 12px rgba(173,203,255,.7);
     }}
 
     /* KPI cards */
@@ -377,7 +392,7 @@ st.markdown(
         width:115px;height:115px;
         left:-45px;bottom:-70px;
         border-radius:50%;
-        background:radial-gradient(circle, rgba(29,203,255,.16), transparent 70%);
+        background:radial-gradient(circle, rgba(173,203,255,.16), transparent 70%);
         pointer-events:none;
     }}
     .kpi-top {{
@@ -390,13 +405,13 @@ st.markdown(
         width:38px;height:38px;
         display:flex;align-items:center;justify-content:center;
         border-radius:13px;
-        background:linear-gradient(145deg,rgba(29,203,255,.15),rgba(0,108,255,.07));
-        border:1px solid rgba(29,203,255,.22);
+        background:linear-gradient(145deg,rgba(173,203,255,.15),rgba(77,130,184,.07));
+        border:1px solid rgba(173,203,255,.22);
         box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
     }}
     .kpi-icon svg {{
         width:20px;height:20px;
-        stroke:#86E3FF;
+        stroke:#E8F2FF;
         fill:none;
         stroke-width:1.7;
         stroke-linecap:round;
@@ -410,7 +425,7 @@ st.markdown(
         white-space:nowrap;
     }}
     .src-real {{ color:#8FF6C1;background:rgba(33,210,133,.09);border:1px solid rgba(33,210,133,.18); }}
-    .src-derived {{ color:#89E5FF;background:rgba(29,203,255,.09);border:1px solid rgba(29,203,255,.18); }}
+    .src-derived {{ color:#DCEAFF;background:rgba(173,203,255,.09);border:1px solid rgba(173,203,255,.18); }}
     .src-estimated {{ color:#FFD889;background:rgba(255,188,76,.09);border:1px solid rgba(255,188,76,.18); }}
     .src-synthetic {{ color:#C4AEFF;background:rgba(141,102,255,.09);border:1px solid rgba(141,102,255,.18); }}
     .kpi-label {{ color:#9AACBE;font-size:.80rem;margin-top:16px; }}
@@ -441,10 +456,10 @@ st.markdown(
         content:"";
         position:absolute;
         right:0;top:0;bottom:0;width:3px;
-        background:linear-gradient(#1DCBFF,#006CFF);
+        background:linear-gradient(#ADCBFF,#4D82B8);
     }}
     .insight-type {{
-        color:#73DCFF;
+        color:#D9E9FF;
         font-size:.68rem;
         font-weight:800;
         letter-spacing:.06em;
@@ -462,7 +477,7 @@ st.markdown(
         line-height:1.85;
     }}
     .section-kicker {{
-        color:#65D8FF;
+        color:#D9E9FF;
         font-size:.73rem;
         font-weight:800;
         letter-spacing:.05em;
@@ -495,8 +510,8 @@ st.markdown(
     .connector-status {{
         padding:9px 11px;
         border-radius:14px;
-        background:rgba(29,203,255,.055);
-        border:1px solid rgba(29,203,255,.13);
+        background:rgba(173,203,255,.055);
+        border:1px solid rgba(173,203,255,.13);
         color:#9FCFE0;
         font-size:.76rem;
         margin-top:8px;
@@ -507,6 +522,25 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+
+def asset_data_uri(path: Path) -> str:
+    if not path.exists():
+        return ""
+    suffix = path.suffix.lower().lstrip(".") or "png"
+    mime = "image/png" if suffix == "png" else f"image/{suffix}"
+    payload = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{payload}"
+
+
+def make_scenario(**kwargs) -> Scenario:
+    """Build Scenario defensively; avoids crash if an older module is temporarily cached."""
+    try:
+        accepted = set(inspect.signature(Scenario).parameters)
+    except Exception:
+        accepted = set(kwargs)
+    filtered = {k: v for k, v in kwargs.items() if k in accepted}
+    return Scenario(**filtered)
 
 def fa_digits(value) -> str:
     return str(value).translate(str.maketrans("0123456789,.%", "۰۱۲۳۴۵۶۷۸۹٬٫٪"))
@@ -594,16 +628,23 @@ def source_legend():
 
 
 def page_header(page_title: str, subtitle: str = ""):
+    logo_uri = asset_data_uri(LOGO_PATH)
+    logo_html = f'<img class="hero-logo" src="{logo_uri}" alt="NIKSMS">' if logo_uri else ""
     st.markdown(
         f"""
         <div class="hero-glass">
-            <div class="eyebrow"><span>◈</span> NIK INTELLIGENCE / V0.2</div>
-            <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| تحلیل داده</span></div>
-            <div class="hero-subtitle">{subtitle or "سامانه هوشمندی داده و تصمیم‌سازی مدیریتی؛ ترکیب Baseline واقعی، محاسبات قابل توضیح و مدل‌های آزمایشی."}</div>
+            <div class="hero-brand-row">
+                <div class="hero-brand-copy">
+                    <div class="eyebrow"><span>◈</span> NIK INTELLIGENCE / V0.3</div>
+                    <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| تحلیل داده</span></div>
+                    <div class="hero-subtitle">{subtitle or "سامانه هوشمندی داده و تصمیم‌سازی مدیریتی؛ ترکیب Baseline واقعی، محاسبات قابل توضیح و مدل‌های آزمایشی."}</div>
+                </div>
+                {logo_html}
+            </div>
             <div class="hero-meta">
                 <span class="meta-pill"><span class="meta-dot"></span> {page_title}</span>
                 <span class="meta-pill">Snapshot: ۲۹ اوت ۲۰۲۶</span>
-                <span class="meta-pill">Prototype / Proof of Concept</span>
+                <span class="meta-pill">Management Demo / V0.3</span>
             </div>
         </div>
         """,
@@ -613,10 +654,10 @@ def page_header(page_title: str, subtitle: str = ""):
     api_col, n8n_col, status_col = st.columns([1, 1, 4])
     with api_col:
         if st.button("اتصال API", use_container_width=True, key=f"api_{page_title}"):
-            st.toast("دکمه API برای نسخه اتصال واقعی آماده شده؛ در V0.2 هنوز هیچ اتصال خارجی ایجاد نمی‌شود.")
+            st.toast("دکمه اتصال Read-only API آماده است؛ در V0.3 هیچ Credential یا اتصال واقعی وجود ندارد.")
     with n8n_col:
         if st.button("اتصال n8n", use_container_width=True, key=f"n8n_{page_title}"):
-            st.toast("دکمه n8n فقط Placeholder است؛ Workflow اتصال در نسخه بعدی ساخته می‌شود.")
+            st.toast("این دکمه Placeholder معماری n8n است؛ Workflow واقعی بعداً ساخته می‌شود.")
     with status_col:
         st.markdown(
             '<div class="connector-status">وضعیت اتصال: <b>Demo Mode</b> — API / Database / n8n هنوز متصل نیست.</div>',
@@ -673,12 +714,14 @@ def validate_upload(name: str, df: pd.DataFrame) -> Tuple[bool, str]:
 
 
 def scenario_sidebar() -> Tuple[Scenario, str]:
+    if LOGO_PATH.exists():
+        st.sidebar.image(str(LOGO_PATH), width=185)
     st.sidebar.markdown(
         """
-        <div style="padding:12px 4px 4px">
-            <div style="font-size:.72rem;color:#67D8FF;font-weight:800;letter-spacing:.08em">NIK INTELLIGENCE</div>
-            <div style="font-size:1.25rem;color:#F5FAFF;font-weight:800;margin-top:3px">تحلیل داده نیک اس‌ام‌اس</div>
-            <div style="font-size:.74rem;color:#7E92A7;margin-top:4px">Executive Intelligence Prototype</div>
+        <div style="padding:2px 4px 4px">
+            <div style="font-size:.70rem;color:#DCEAFF;font-weight:800;letter-spacing:.08em">NIK INTELLIGENCE</div>
+            <div style="font-size:1.22rem;color:#F7FBFF;font-weight:850;margin-top:3px">تحلیل داده نیک اس‌ام‌اس</div>
+            <div style="font-size:.73rem;color:#8FA7BD;margin-top:4px">Management Intelligence Prototype · V0.3</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -686,11 +729,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
     st.sidebar.markdown("---")
 
     pages = list(PAGE_LABELS.keys())
-    page = st.sidebar.radio(
-        "منوی اصلی",
-        pages,
-        format_func=lambda x: f"{PAGE_ICONS[x]}   {PAGE_LABELS[x]}",
-    )
+    page = st.sidebar.radio("منوی اصلی", pages, format_func=lambda x: f"{PAGE_ICONS[x]}   {PAGE_LABELS[x]}")
 
     with st.sidebar.expander("کنترل سناریوی مدیریتی", expanded=True):
         price_a = st.number_input("قیمت طرح A (تومان)", 1_000_000, 200_000_000, int(BUSINESS_BASELINE["plan_a_price"]), 1_000_000)
@@ -704,14 +743,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
     with st.sidebar.expander("کنترل محتوا"):
         stories = st.number_input("استوری روزانه", 0, 100, int(BUSINESS_BASELINE["stories_per_day"]), 1)
         reels = st.number_input("ریلز روزانه", 0, 20, int(BUSINESS_BASELINE["reels_per_day"]), 1)
-        content_sales = st.number_input(
-            "فروش منتسب به محتوا / روز",
-            0.0,
-            100.0,
-            float(BUSINESS_BASELINE["estimated_content_sales_per_day"]),
-            0.5,
-            help="این عدد Estimated Attribution است و به فروش کل اضافه نمی‌شود.",
-        )
+        content_sales = st.number_input("فروش منتسب به محتوا / روز", 0.0, 100.0, float(BUSINESS_BASELINE["estimated_content_sales_per_day"]), 0.5, help="Estimated Attribution است و به فروش کل اضافه نمی‌شود.")
         followers = st.number_input("فالوئر اینستاگرام", 0, 10_000_000, int(BUSINESS_BASELINE["instagram_followers"]), 1_000)
         team_size = st.number_input("اندازه تیم محتوا", 1, 100, int(BUSINESS_BASELINE["content_team_size"]), 1)
 
@@ -720,158 +752,116 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         months = st.slider("ماه‌های داده تاریخی مصنوعی", 3, 36, 12, 1)
         seed = st.number_input("Seed", 1, 999_999, 42, 1)
 
-    scenario = Scenario(
-        price_plan_a=float(price_a),
-        price_plan_b=float(price_b),
-        plan_a_share=float(share_a_pct) / 100,
-        daily_phone_sales=int(phone),
-        monthly_online_sales=int(online),
-        lead_backlog=int(backlog),
-        stories_per_day=int(stories),
-        reels_per_day=int(reels),
-        content_sales_per_day=float(content_sales),
-        instagram_followers=int(followers),
-        content_team_size=int(team_size),
-        synthetic_customer_count=int(customers),
-        history_months=int(months),
-        sales_days_per_month=int(sales_days),
-        seed=int(seed),
+    scenario = make_scenario(
+        price_plan_a=float(price_a), price_plan_b=float(price_b), plan_a_share=float(share_a_pct) / 100,
+        daily_phone_sales=int(phone), monthly_online_sales=int(online), lead_backlog=int(backlog),
+        stories_per_day=int(stories), reels_per_day=int(reels), content_sales_per_day=float(content_sales),
+        instagram_followers=int(followers), content_team_size=int(team_size), synthetic_customer_count=int(customers),
+        history_months=int(months), sales_days_per_month=int(sales_days), seed=int(seed),
     )
 
     st.sidebar.markdown("---")
     if st.sidebar.button("اجرای تحلیل کامل", use_container_width=True, type="primary"):
-        stages = [
-            "بارگذاری داده",
-            "اعتبارسنجی داده",
-            "پاک‌سازی",
-            "محاسبه KPI",
-            "تحلیل روند",
-            "تشخیص ناهنجاری",
-            "اجرای مدل‌ها",
-            "تولید Insight",
-            "تحلیل کامل شد",
-        ]
+        stages = ["بارگذاری داده", "اعتبارسنجی داده", "پاک‌سازی", "محاسبه KPI", "تحلیل روند", "تشخیص ناهنجاری", "اجرای مدل‌ها", "تولید Insight", "تحلیل کامل شد"]
         progress = st.sidebar.progress(0)
         status = st.sidebar.empty()
         for i, stage in enumerate(stages, start=1):
             status.caption(stage)
             progress.progress(int(i / len(stages) * 100))
-            time.sleep(0.035)
+            time.sleep(0.025)
         status.success("تحلیل کامل شد")
 
-    st.sidebar.caption("V0.2 — Baseline واقعی تجمیعی + داده مصنوعی. بدون اتصال به سیستم داخلی NIK.")
+    st.sidebar.caption("V0.3 — Baseline واقعی تجمیعی + داده مصنوعی + Media Demo. بدون اتصال به سیستم داخلی NIK.")
     return scenario, page
 
 
 def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights):
     page_header(
         "نمای مدیریتی",
-        "Snapshot مدیریتی برای درک وضعیت فروش، صف لید، محتوا و ظرفیت فعلی در چند ثانیه. منبع اعتماد هر عدد روی همان کارت مشخص شده است.",
+        "صفحه اول برای مدیرعامل: هشت عدد تصمیم‌ساز، سه سیگنال مدیریتی و یک نگاه سریع به فروش و محتوا؛ مدل‌های آزمایشی عمداً پایین‌تر قرار گرفته‌اند.",
     )
 
-    section_heading("EXECUTIVE SNAPSHOT", "وضعیت فعلی کسب‌وکار", "اعداد واقعی از Baseline از محاسبات Derived جدا شده‌اند.")
+    section_heading("5-SECOND BOARD", "تصویر کسب‌وکار در ۵ ثانیه", "هر کارت دقیقاً مشخص می‌کند Baseline واقعی است، محاسبه شده یا تخمینی.")
 
     row1 = st.columns(4)
     with row1[0]:
-        kpi_card("درآمد ماهانه", f"{toman(kpis['monthly_revenue'])} تومان", "derived", "revenue", f"فرض {fa_num(scenario.sales_days_per_month)} روز فروش")
+        kpi_card("درآمد ماهانه مدل", f"{toman(kpis['monthly_revenue'])} تومان", "derived", "revenue", f"Derived · فرض {fa_num(scenario.sales_days_per_month)} روز")
     with row1[1]:
-        kpi_card("فروش ماهانه", f"{fa_num(kpis['monthly_units'])} دستگاه", "derived", "sales", "تلفنی + آنلاین؛ بر اساس سناریوی فعلی")
+        kpi_card("فروش ماهانه مدل", f"{fa_num(kpis['monthly_units'])} دستگاه", "derived", "sales", "فروش تلفنی + آنلاین")
     with row1[2]:
-        kpi_card("صف فعلی لید", fa_num(scenario.lead_backlog), "real", "leads", "Stock فعلی؛ Conversion واقعی نیست")
+        kpi_card("صف فعلی لید", fa_num(scenario.lead_backlog), "real", "leads", "Stock فعلی؛ Conversion نیست")
     with row1[3]:
-        kpi_card("فروش تلفنی روزانه", fa_num(scenario.daily_phone_sales), "real", "phone", "Baseline عملیاتی فعلی")
+        kpi_card("فروش تلفنی / روز", fa_num(scenario.daily_phone_sales), "real", "phone", "Baseline عملیاتی")
 
     st.write("")
     row2 = st.columns(4)
     with row2[0]:
-        kpi_card("میانگین قیمت فروش", f"{toman(scenario.average_selling_price)} تومان", "derived", "price", f"Mix: {fa_num(scenario.plan_a_share*100)}٪ / {fa_num(scenario.plan_b_share*100)}٪")
+        kpi_card("میانگین قیمت فروش", f"{toman(scenario.average_selling_price)} تومان", "derived", "price", f"Mix {fa_num(scenario.plan_a_share*100)}٪ / {fa_num(scenario.plan_b_share*100)}٪")
     with row2[1]:
-        kpi_card("فروش آنلاین ماهانه", fa_num(scenario.monthly_online_sales), "real", "online", "Baseline فعلی")
+        kpi_card("فروش آنلاین / ماه", fa_num(scenario.monthly_online_sales), "real", "online", "Baseline فعلی")
     with row2[2]:
-        kpi_card("فالوئر Instagram", fa_num(scenario.instagram_followers), "real", "followers", "Snapshot حدود ۱۷ اوت ۲۰۲۶")
+        kpi_card("فالوئر اینستاگرام", fa_num(scenario.instagram_followers), "real", "followers", "Snapshot ثبت‌شده")
     with row2[3]:
-        kpi_card("خروجی محتوا / روز", fa_num(scenario.total_content_per_day), "real", "content", f"{fa_num(scenario.stories_per_day)} استوری + {fa_num(scenario.reels_per_day)} ریلز")
+        kpi_card("فروش منتسب به محتوا / روز", fa_num(scenario.content_sales_per_day, 1), "estimated", "content", "Estimated Attribution؛ Double Count نشود")
 
-    st.write("")
-    source_legend()
+    m = reel_snapshot_metrics()
+    st.markdown(
+        f'''<div class="executive-strip">
+            <div class="strip-item"><div class="strip-label">سهم فروش تلفنی</div><div class="strip-value">{pct(kpis['phone_share'])}</div></div>
+            <div class="strip-item"><div class="strip-label">خروجی محتوا / روز</div><div class="strip-value">{fa_num(scenario.total_content_per_day)} محتوا</div></div>
+            <div class="strip-item"><div class="strip-label">Median ویو ۱۰ ریلز</div><div class="strip-value">{fa_num(m['median_views'])}</div></div>
+            <div class="strip-item"><div class="strip-label">سهم ۳ ریلز برتر</div><div class="strip-value">{pct(m['top3_view_share'])}</div></div>
+        </div>''', unsafe_allow_html=True,
+    )
 
-    left, right = st.columns([1.55, 1])
+    section_heading("MANAGEMENT SIGNALS", "سه چیزی که نیازمند توجه مدیریتی است", "به جای شلوغ کردن صفحه با مدل‌های فنی، سؤال تصمیم برجسته می‌شود.")
+    sig1, sig2, sig3 = st.columns(3)
+    with sig1:
+        st.markdown(f'''<div class="insight-card"><div class="insight-type">SALES CHANNEL</div><div class="insight-title">فروش هنوز شدیداً تلفنی است</div><div class="insight-text">حدود {pct(kpis['phone_share'])} تعداد فروش مدل از کانال تلفنی می‌آید. برای قضاوت درباره ظرفیت واقعی، Calls / Answered / Qualified لازم است.</div></div>''', unsafe_allow_html=True)
+    with sig2:
+        st.markdown(f'''<div class="insight-card"><div class="insight-type">CONTENT</div><div class="insight-title">محتوا Hit-driven است</div><div class="insight-text">سه ریلز برتر {pct(m['top3_view_share'])} کل View ده ریلز را ساخته‌اند؛ Median View برای سنجش عملکرد عادی از Average مهم‌تر است.</div></div>''', unsafe_allow_html=True)
+    with sig3:
+        st.markdown('''<div class="insight-card"><div class="insight-type">LEAD CAPACITY</div><div class="insight-title">صف لید بدون داده Call Center قابل تفسیر کامل نیست</div><div class="insight-text">۴۰۰۰ Lead یک Stock است. برای تخمین زمان تخلیه صف باید Calls/Day، Answered، Qualified و Sale به تفکیک روز وارد سیستم شوند.</div></div>''', unsafe_allow_html=True)
+
+    left, right = st.columns([1.45, 1])
     with left:
-        section_heading("SALES MODEL", "روند درآمد دمو", "تاریخچه این نمودار مصنوعی است و با Scenario Controls بازتولید می‌شود.")
-        fig = px.area(
-            monthly,
-            x="month",
-            y="revenue",
-            markers=True,
-            labels={"month": "ماه", "revenue": "درآمد"},
-        )
-        fig.update_traces(line_color=ACCENT, fillcolor="rgba(29,203,255,.09)")
-        st.plotly_chart(style_fig(fig, 390), use_container_width=True)
+        section_heading("SALES PULSE", "روند درآمد مدل", "Historical series مصنوعی است؛ سطح فروش از Scenario فعلی تأثیر می‌گیرد.")
+        fig = px.area(monthly, x="month", y="revenue", markers=True, labels={"month": "ماه", "revenue": "درآمد"})
+        fig.update_traces(line_color=ACCENT, fillcolor="rgba(173,203,255,.12)")
+        st.plotly_chart(style_fig(fig, 385), use_container_width=True)
     with right:
-        section_heading("CHANNEL MIX", "ترکیب فروش فعلی", "سهم کانال‌ها از تعداد فروش محاسبه‌شده.")
-        channel = pd.DataFrame(
-            {
-                "کانال": ["فروش تلفنی", "فروش آنلاین"],
-                "تعداد": [kpis["monthly_phone_units"], kpis["monthly_online_units"]],
-            }
-        )
-        fig = px.pie(
-            channel,
-            names="کانال",
-            values="تعداد",
-            hole=0.68,
-            color_discrete_sequence=[ACCENT, "#5877FF"],
-        )
+        section_heading("CHANNEL MIX", "ترکیب فروش", "بر اساس تعداد دستگاه در سناریوی فعلی.")
+        channel = pd.DataFrame({"کانال": ["فروش تلفنی", "فروش آنلاین"], "تعداد": [kpis["monthly_phone_units"], kpis["monthly_online_units"]]})
+        fig = px.pie(channel, names="کانال", values="تعداد", hole=0.68, color_discrete_sequence=[ACCENT, "#4D82B8"])
         fig.update_traces(textposition="inside", textinfo="percent")
-        st.plotly_chart(style_fig(fig, 390), use_container_width=True)
+        st.plotly_chart(style_fig(fig, 385), use_container_width=True)
 
-    f1, f2 = st.columns([1, 1.4])
-    with f1:
-        section_heading("DEMO FUNNEL", "قیف مصنوعی لید", "نرخ‌های مراحل هنوز داده واقعی Call Center نیستند.")
-        fig = go.Figure(
-            go.Funnel(
-                y=funnel["stage"].map(FUNNEL_FA),
-                x=funnel["count"],
-                textinfo="value+percent initial",
-                marker={"color": ["#1DCBFF", "#27B5F4", "#339FEA", "#4188DE", "#5470CF", "#6B5ABF"]},
-            )
-        )
-        st.plotly_chart(style_fig(fig, 440), use_container_width=True)
-    with f2:
-        section_heading("EXPERIMENTAL FORECAST", "پیش‌بینی ۳ ماه آینده", "Linear Regression روی داده تاریخی مصنوعی؛ صرفاً برای نمایش معماری.")
-        forecast_show = forecast.copy()
-        forecast_show["series"] = forecast_show["series"].map(FORECAST_SERIES_FA).fillna(forecast_show["series"])
-        fig = px.line(
-            forecast_show,
-            x="month",
-            y="revenue",
-            color="series",
-            markers=True,
-            labels={"month": "ماه", "revenue": "درآمد", "series": "نوع داده"},
-            color_discrete_sequence=[ACCENT, "#8B73FF"],
-        )
-        st.plotly_chart(style_fig(fig, 440), use_container_width=True)
+    section_heading("CONTENT PULSE", "Snapshot واقعی ۱۰ ریلز", "برای مدیریت توزیع عملکرد؛ Watch Time و Reach هنوز وارد نشده‌اند.")
+    reel_plot = REEL_SNAPSHOT.copy()
+    fig = px.bar(reel_plot, x="reel", y="views", labels={"reel": "محتوا", "views": "View"}, color="views", color_continuous_scale=["#173149", "#ADCBFF"])
+    fig.add_hline(y=m["median_views"], line_dash="dash", line_color="#E1EBF7", annotation_text=f"Median: {fa_num(m['median_views'])}")
+    fig.update_layout(coloraxis_showscale=False)
+    st.plotly_chart(style_fig(fig, 360), use_container_width=True)
 
-    section_heading("MANAGEMENT SIGNALS", "سیگنال‌های مدیریتی", "Insightهای قانون‌محور؛ با تغییر Scenario دوباره محاسبه می‌شوند.")
-    cols = st.columns(2)
-    for i, item in enumerate(insights[:6]):
-        with cols[i % 2]:
-            st.markdown(
-                f"""
-                <div class="insight-card">
-                    <div class="insight-type">{item["type"]}</div>
-                    <div class="insight-title">{item["title"]}</div>
-                    <div class="insight-text">{item["text"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+    with st.expander("تحلیل‌های آزمایشی پایین صفحه — Funnel / Forecast / ML", expanded=False):
+        st.caption("این خروجی‌ها برای نمایش معماری‌اند و عمداً در ۵ ثانیه اول مدیرعامل دیده نمی‌شوند.")
+        f1, f2 = st.columns(2)
+        with f1:
+            fig = go.Figure(go.Funnel(y=funnel["stage"].map(FUNNEL_FA), x=funnel["count"], textinfo="value+percent initial", marker={"color": ["#ADCBFF", "#93B9DE", "#769FC8", "#5D86AF", "#496E97", "#385775"]}))
+            st.plotly_chart(style_fig(fig, 420), use_container_width=True)
+        with f2:
+            forecast_show = forecast.copy()
+            forecast_show["series"] = forecast_show["series"].map(FORECAST_SERIES_FA).fillna(forecast_show["series"])
+            fig = px.line(forecast_show, x="month", y="revenue", color="series", markers=True, labels={"month": "ماه", "revenue": "درآمد", "series": "نوع داده"}, color_discrete_sequence=[ACCENT, "#8CA7D8"])
+            st.plotly_chart(style_fig(fig, 420), use_container_width=True)
+
+    source_legend()
 
 
 def data_center_page(data: Dict[str, pd.DataFrame]):
     page_header(
         "مرکز داده",
-        "لایه ورود داده برای CSV امروز و API / Database / n8n در نسخه بعدی. هیچ داده‌ای در V0.2 به سیستم داخلی NIK متصل نیست.",
+        "لایه ورود داده برای CSV امروز و API / Database / n8n در نسخه بعدی. هیچ داده‌ای در V0.3 به سیستم داخلی NIK متصل نیست.",
     )
     source_legend()
 
@@ -996,7 +986,7 @@ def sales_analytics_page(scenario, data, kpis, daily, monthly):
     with right:
         section_heading("SYNTHETIC TREND", "درآمد ماهانه دمو", "برای نمایش رفتار Dynamic و Forecast.")
         fig = px.area(monthly, x="month", y="revenue", labels={"month": "ماه", "revenue": "درآمد"})
-        fig.update_traces(line_color=ACCENT, fillcolor="rgba(29,203,255,.08)")
+        fig.update_traces(line_color=ACCENT, fillcolor="rgba(173,203,255,.08)")
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
     sales = data["sales"].copy()
@@ -1194,7 +1184,7 @@ def content_page(scenario):
             y="views",
             labels={"reel": "محتوا", "views": "View"},
             color="views",
-            color_continuous_scale=["#123750", "#1DCBFF"],
+            color_continuous_scale=["#123750", "#ADCBFF"],
         )
         fig.add_hline(
             y=m["median_views"],
@@ -1214,7 +1204,7 @@ def content_page(scenario):
             hover_name="reel",
             labels={"views": "View", "interactions": "کامنت + اشتراک‌گذاری"},
             color="interaction_rate",
-            color_continuous_scale=["#44556A", "#1DCBFF"],
+            color_continuous_scale=["#44556A", "#ADCBFF"],
         )
         fig.update_layout(coloraxis_showscale=False)
         st.plotly_chart(style_fig(fig, 430), use_container_width=True)
@@ -1260,6 +1250,82 @@ def content_page(scenario):
     st.dataframe(table, use_container_width=True, hide_index=True)
 
 
+def media_intelligence_page():
+    page_header(
+        "آزمایشگاه تحلیل محتوا",
+        "۵ ویدیوی واقعی و ۶ تصویر ارسالی داخل اپ قرار گرفته‌اند. Timeline فعلی Synthetic/Demo است تا تجربه محصول را تست کنیم؛ بعداً Retention و Eventهای واقعی از Source Tracking جایگزین می‌شوند.",
+    )
+
+    video_tab, image_tab, upload_tab = st.tabs(["ویدیو و Timeline", "گالری تصاویر", "آپلود تست"])
+
+    with video_tab:
+        section_heading("VIDEO INTELLIGENCE", "Timeline تحلیلی ویدیو", "Retention و Eventهای Click/Replay فعلاً شبیه‌سازی‌شده‌اند و داده واقعی Instagram نیستند.")
+        options = {f"{v.media_id} — {v.title}": v.media_id for v in MEDIA_VIDEOS}
+        selected_label = st.selectbox("ویدیوی مورد بررسی", list(options.keys()))
+        video = get_video(options[selected_label])
+        timeline = synthetic_video_timeline(video)
+        events = synthetic_video_events(video)
+        metrics = synthetic_video_metrics(video)
+
+        selected_second = st.slider("ثانیه بررسی روی Timeline", 0, int(round(video.duration)), min(3, int(round(video.duration))), 1)
+        sec_row = timeline.iloc[(timeline["second"] - selected_second).abs().idxmin()]
+
+        left, right = st.columns([0.82, 1.58])
+        with left:
+            st.markdown('<div class="demo-badge">DEMO / SYNTHETIC TIMELINE</div>', unsafe_allow_html=True)
+            st.video(str(video.path), start_time=int(selected_second))
+            st.markdown(f'''<div class="glass-panel"><div style="font-weight:800">{video.title}</div><div class="media-meta">{video.format}<br>{video.topic}<br>مدت: {fa_digits(f"{video.duration:.1f}")} ثانیه</div></div>''', unsafe_allow_html=True)
+        with right:
+            k1, k2, k3, k4 = st.columns(4)
+            k1.metric("Hook Hold / Demo", pct(metrics["hook_hold"]))
+            k2.metric("Avg Watch / Demo", f"{fa_num(metrics['avg_watch_time'], 1)} ثانیه")
+            k3.metric("Completion / Demo", pct(metrics["completion_rate"]))
+            k4.metric("Peak Interaction", f"ثانیه {fa_num(metrics['interaction_peak_second'])}")
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=timeline["second"], y=timeline["retention"], mode="lines", name="Retention / Demo", line=dict(color=ACCENT, width=3), fill="tozeroy", fillcolor="rgba(173,203,255,.10)"))
+            fig.add_trace(go.Scatter(x=timeline["second"], y=timeline["click_signal"], mode="lines", name="Click Signal / Demo", line=dict(color="#F3D39A", width=2, dash="dot"), yaxis="y2"))
+            for _, ev in events.iterrows():
+                fig.add_vline(x=float(ev["second"]), line_width=1, line_dash="dot", line_color="rgba(255,255,255,.30)")
+                fig.add_annotation(x=float(ev["second"]), y=0.98, yref="paper", text=str(ev["event"]), showarrow=False, font=dict(size=9, color="#E9F2FF"), textangle=-90)
+            fig.add_vline(x=selected_second, line_width=2, line_color="#FFFFFF")
+            fig.update_layout(yaxis=dict(title="Retention", tickformat=".0%", range=[0,1.05]), yaxis2=dict(title="Click Signal", overlaying="y", side="right", showgrid=False, range=[0,1.15]))
+            st.plotly_chart(style_fig(fig, 430), use_container_width=True)
+
+            r1, r2, r3 = st.columns(3)
+            r1.metric("Retention در این ثانیه", pct(float(sec_row["retention"])))
+            r2.metric("Interaction Signal", fa_num(float(sec_row["interaction_signal"]), 2))
+            r3.metric("Click Signal", fa_num(float(sec_row["click_signal"]), 2))
+
+        section_heading("EVENT MARKERS", "رویدادهای آزمایشی روی ویدیو", "در آینده می‌توانند از Link Tracking / CRM / n8n تغذیه شوند.")
+        ev_show = events.copy()
+        ev_show["second"] = ev_show["second"].map(lambda x: f"00:{int(x):02d}" if int(x) < 60 else f"{int(x)//60:02d}:{int(x)%60:02d}")
+        ev_show = ev_show.rename(columns={"second":"زمان", "event":"رویداد", "description":"شرح", "signal":"نوع سیگنال"})
+        st.dataframe(ev_show, use_container_width=True, hide_index=True)
+        st.info("جمله «مخاطب در ثانیه ۱۸ کلیک کرد» فقط زمانی داده واقعی محسوب می‌شود که Event Tracking واقعی داشته باشیم. فعلاً Click Signal و Timeline این بخش صریحاً Demo هستند.")
+
+    with image_tab:
+        section_heading("IMAGE LIBRARY", "گالری تصویری نمونه", "۶ تصویر واقعی ارسالی برای تست Card View و اتصال آینده به Performance هر Creative.")
+        cols = st.columns(3)
+        for i, item in enumerate(MEDIA_IMAGES):
+            with cols[i % 3]:
+                st.image(str(item.path), use_container_width=True)
+                st.markdown(f"**{item.title}**")
+                st.caption(f"{item.category} · {item.visual_note}")
+        st.caption("مرحله بعد: Views / Reach / CTR / Lead / Sale هر Creative با content_id به همین کارت متصل می‌شود تا مشخص شود کدام طراحی فقط زیباست و کدام واقعاً فروش می‌سازد.")
+
+    with upload_tab:
+        section_heading("QUICK TEST", "آپلود موقت مدیا", "برای تست جلسه؛ فایل آپلودشده ذخیره دائمی نمی‌شود و به دیتابیس متصل نیست.")
+        uploaded = st.file_uploader("ویدیو یا تصویر", type=["mp4", "mov", "m4v", "jpg", "jpeg", "png", "webp"])
+        if uploaded is not None:
+            name = uploaded.name.lower()
+            if name.endswith((".mp4", ".mov", ".m4v")):
+                st.video(uploaded)
+                st.success("Preview آماده است. برای Timeline واقعی این فایل باید metadata و event data نیز وارد شود.")
+            else:
+                st.image(uploaded, use_container_width=True)
+                st.success("Preview آماده است. بعداً Performance این Creative با content_id به دیتای انتشار متصل می‌شود.")
+
 def sms_page(data):
     page_header(
         "تحلیل پیامک",
@@ -1299,7 +1365,7 @@ def anomaly_page(sales_anomalies, sms_anomalies):
         flagged = sales_anomalies[sales_anomalies["is_anomaly"]]
         fig.add_scatter(x=flagged["date"], y=flagged["revenue"], mode="markers", name="ناهنجاری", marker=dict(size=9, color="#FF7A90"))
         st.plotly_chart(style_fig(fig), use_container_width=True)
-    with right:
+    with r:
         fig = px.line(sms_anomalies, x="date", y="delivery_rate", labels={"date": "تاریخ", "delivery_rate": "نرخ تحویل"})
         flagged = sms_anomalies[sms_anomalies["is_anomaly"]]
         fig.add_scatter(x=flagged["date"], y=flagged["delivery_rate"], mode="markers", name="ناهنجاری", marker=dict(size=9, color="#FF7A90"))
@@ -1309,7 +1375,7 @@ def anomaly_page(sales_anomalies, sms_anomalies):
 def predictions_page(forecast, forecast_stats, customers_model, risk_stats):
     page_header(
         "پیش‌بینی‌ها",
-        "مدل‌ها ساده و Explainable نگه داشته شده‌اند؛ هیچ Forecast یا Churn Output در V0.2 Production-grade نیست.",
+        "مدل‌ها ساده و Explainable نگه داشته شده‌اند؛ هیچ Forecast یا Churn Output در V0.3 Production-grade نیست.",
     )
     c1, c2 = st.columns(2)
     c1.metric("R² روند درآمد / دمو", fa_digits(f"{forecast_stats['r2']:.3f}"))
@@ -1396,7 +1462,7 @@ def pipeline_page():
                 with col:
                     st.markdown(f'<div class="pipeline-step">{fa_num(idx + 1)}<br>{stages[idx]}</div>', unsafe_allow_html=True)
         if i + 4 < len(stages):
-            st.markdown("<div style='text-align:center;color:#1DCBFF;font-size:1.35rem;margin:4px 0'>↓</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align:center;color:#ADCBFF;font-size:1.35rem;margin:4px 0'>↓</div>", unsafe_allow_html=True)
 
     st.write("")
     section_heading("FUTURE INPUT", "معماری اتصال بعدی")
@@ -1404,15 +1470,15 @@ def pipeline_page():
         """
         <div class="glass-panel" style="text-align:center;line-height:2.1;font-weight:650">
             NIK Database / CRM / Panel
-            <span style="color:#1DCBFF"> → </span>
+            <span style="color:#ADCBFF"> → </span>
             Read-only API
-            <span style="color:#1DCBFF"> → </span>
+            <span style="color:#ADCBFF"> → </span>
             n8n / Data Pipeline
-            <span style="color:#1DCBFF"> → </span>
+            <span style="color:#ADCBFF"> → </span>
             Validation
-            <span style="color:#1DCBFF"> → </span>
+            <span style="color:#ADCBFF"> → </span>
             Analytics Engine
-            <span style="color:#1DCBFF"> → </span>
+            <span style="color:#ADCBFF"> → </span>
             NIK Intelligence
         </div>
         """,
@@ -1481,6 +1547,8 @@ def main():
         nikpos_page(scenario, data)
     elif page == "Content Analytics":
         content_page(scenario)
+    elif page == "Media Intelligence":
+        media_intelligence_page()
     elif page == "SMS Analytics":
         sms_page(data)
     elif page == "Anomaly Detection":
@@ -1495,7 +1563,7 @@ def main():
         settings_page(scenario, kpis)
 
     st.markdown("---")
-    st.caption("NIK INTELLIGENCE V0.2 — Prototype using aggregate baseline + synthetic/demo data. Not connected to NIK internal systems.")
+    st.caption("NIK INTELLIGENCE V0.3 — Prototype using aggregate baseline + synthetic/demo data. Not connected to NIK internal systems.")
     st.caption("Forecasts and ML outputs are experimental and should not be used for production decisions.")
 
 
