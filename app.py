@@ -44,7 +44,7 @@ from media_data import (
 
 
 st.set_page_config(
-    page_title="نیک اس‌ام‌اس | تحلیل داده V0.4",
+    page_title="نیک اس‌ام‌اس | تحلیل داده V0.5",
     page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -83,7 +83,7 @@ SCENARIO_DEFAULTS = {
 }
 
 PAGE_LABELS = {
-    "Executive Overview": "نمای مدیریتی",
+    "Executive Overview": "مرکز فرمان مدیرعامل",
     "Data Center": "مرکز داده",
     "Sales Analytics": "تحلیل فروش",
     "Customer Intelligence": "هوشمندی مشتریان",
@@ -683,6 +683,137 @@ st.markdown(
 )
 
 
+st.markdown(
+    """
+    <style>
+    /* V0.5 — Executive Command Center */
+    .ceo-command {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1.25fr 1fr;
+        gap: 22px;
+        padding: 24px;
+        margin: 8px 0 18px;
+        border-radius: 26px;
+        border: 1px solid rgba(173,203,255,.18);
+        background:
+            radial-gradient(460px 220px at 100% 0%, rgba(173,203,255,.14), transparent 68%),
+            linear-gradient(135deg, rgba(173,203,255,.095), rgba(255,255,255,.018));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 24px 70px rgba(0,0,0,.18);
+        backdrop-filter: blur(26px) saturate(140%);
+    }
+    .ceo-command::after {
+        content:"";
+        position:absolute;
+        width:240px;height:240px;
+        left:-120px;bottom:-165px;
+        border-radius:50%;
+        background:radial-gradient(circle,rgba(173,203,255,.18),transparent 70%);
+        pointer-events:none;
+    }
+    .ceo-overline { color:#BFD7F5; font-size:.70rem; font-weight:850; letter-spacing:.09em; margin-bottom:8px; }
+    .ceo-status-line { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .ceo-status-title { color:#FFFFFF; font-size:1.65rem; font-weight:850; letter-spacing:-.025em; }
+    .ceo-status-copy { color:#A9BBCD; font-size:.86rem; line-height:1.9; margin-top:8px; max-width:720px; }
+    .ceo-status-badge {
+        display:inline-flex;align-items:center;gap:7px;
+        padding:6px 10px;border-radius:999px;
+        font-size:.72rem;font-weight:850;
+        border:1px solid rgba(255,255,255,.10);
+    }
+    .ceo-status-badge::before { content:""; width:7px;height:7px;border-radius:50%; }
+    .ceo-watch { color:#FFE0A3;background:rgba(244,180,79,.09);border-color:rgba(244,180,79,.18); }
+    .ceo-watch::before { background:#F4B44F; box-shadow:0 0 13px rgba(244,180,79,.60); }
+    .ceo-good { color:#A9F5CF;background:rgba(48,205,135,.08);border-color:rgba(48,205,135,.17); }
+    .ceo-good::before { background:#30CD87; box-shadow:0 0 13px rgba(48,205,135,.55); }
+    .ceo-alert { color:#FFB2BE;background:rgba(255,91,118,.08);border-color:rgba(255,91,118,.18); }
+    .ceo-alert::before { background:#FF5B76; box-shadow:0 0 13px rgba(255,91,118,.55); }
+    .ceo-command-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; align-content:start; }
+    .ceo-command-cell {
+        min-width:0;padding:13px 14px;border-radius:17px;
+        background:rgba(4,16,28,.30);border:1px solid rgba(255,255,255,.07);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .ceo-command-label { color:#8297AB;font-size:.68rem;margin-bottom:4px; }
+    .ceo-command-value { color:#F8FBFF;font-size:1.12rem;font-weight:820;letter-spacing:-.02em; }
+    .ceo-command-foot { color:#6F8295;font-size:.61rem;margin-top:3px;line-height:1.5; }
+
+    .command-metric {
+        position:relative;overflow:hidden;min-height:138px;
+        padding:16px 17px;border-radius:20px;
+        background:linear-gradient(145deg,rgba(255,255,255,.066),rgba(255,255,255,.018));
+        border:1px solid rgba(255,255,255,.095);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.065),0 16px 45px rgba(0,0,0,.12);
+    }
+    .command-metric::after { content:"";position:absolute;width:95px;height:95px;left:-40px;bottom:-58px;border-radius:50%;background:radial-gradient(circle,rgba(173,203,255,.13),transparent 70%); }
+    .command-metric-top { display:flex;align-items:center;justify-content:space-between;gap:8px; }
+    .command-metric-label { color:#91A5B9;font-size:.74rem;font-weight:650; }
+    .command-metric-value { color:#FFFFFF;font-size:1.45rem;font-weight:850;letter-spacing:-.035em;margin-top:10px; }
+    .command-metric-note { color:#73879A;font-size:.64rem;line-height:1.6;margin-top:4px; }
+    .trend-pill { display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:.64rem;font-weight:800;white-space:nowrap; }
+    .trend-up { color:#9EF1C5;background:rgba(50,205,137,.08);border:1px solid rgba(50,205,137,.15); }
+    .trend-down { color:#FFA9B7;background:rgba(255,91,118,.08);border:1px solid rgba(255,91,118,.15); }
+    .trend-flat { color:#D6E5F8;background:rgba(173,203,255,.08);border:1px solid rgba(173,203,255,.15); }
+
+    .priority-card {
+        min-height:184px;position:relative;overflow:hidden;
+        padding:18px;border-radius:21px;
+        background:linear-gradient(145deg,rgba(255,255,255,.058),rgba(255,255,255,.018));
+        border:1px solid rgba(255,255,255,.09);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .priority-number { color:#ADCBFF;font-size:.72rem;font-weight:900;letter-spacing:.08em;margin-bottom:9px; }
+    .priority-title { color:#F8FBFF;font-size:1rem;font-weight:820;line-height:1.65; }
+    .priority-text { color:#93A6B8;font-size:.78rem;line-height:1.9;margin-top:7px; }
+    .priority-footer { position:absolute;right:18px;left:18px;bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:8px; }
+    .severity-pill { font-size:.62rem;font-weight:850;padding:4px 7px;border-radius:999px; }
+    .sev-high { color:#FFB2BE;background:rgba(255,91,118,.08);border:1px solid rgba(255,91,118,.15); }
+    .sev-med { color:#FFE0A3;background:rgba(244,180,79,.08);border:1px solid rgba(244,180,79,.15); }
+    .sev-info { color:#DDEBFF;background:rgba(173,203,255,.08);border:1px solid rgba(173,203,255,.15); }
+    .priority-source { color:#6F8397;font-size:.61rem; }
+
+    .money-summary { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:4px 0 12px; }
+    .money-chip { padding:11px 12px;border-radius:15px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07); }
+    .money-chip-label { color:#8296AA;font-size:.64rem; }
+    .money-chip-value { color:#F8FBFF;font-size:1rem;font-weight:820;margin-top:3px; }
+
+    .leverage-card {
+        min-height:146px;padding:17px 18px;border-radius:20px;
+        background:linear-gradient(145deg,rgba(173,203,255,.075),rgba(255,255,255,.018));
+        border:1px solid rgba(173,203,255,.12);
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .leverage-kicker { color:#ADCBFF;font-size:.67rem;font-weight:850;letter-spacing:.07em; }
+    .leverage-title { color:#F6FAFF;font-size:.92rem;font-weight:780;margin-top:6px; }
+    .leverage-value { color:#FFFFFF;font-size:1.35rem;font-weight:880;letter-spacing:-.03em;margin-top:7px; }
+    .leverage-note { color:#7F93A7;font-size:.65rem;line-height:1.65;margin-top:4px; }
+
+    .gap-row {
+        display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:12px;
+        padding:12px 13px;margin-bottom:8px;border-radius:16px;
+        background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.065);
+    }
+    .gap-index { width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:rgba(173,203,255,.08);border:1px solid rgba(173,203,255,.13);color:#DCEAFF;font-size:.73rem;font-weight:850; }
+    .gap-title { color:#F1F7FF;font-size:.82rem;font-weight:760; }
+    .gap-text { color:#758A9E;font-size:.64rem;margin-top:2px;line-height:1.55; }
+    .gap-status { color:#FFD99A;font-size:.62rem;font-weight:820;padding:4px 7px;border-radius:999px;background:rgba(244,180,79,.07);border:1px solid rgba(244,180,79,.13);white-space:nowrap; }
+
+    @media (max-width: 900px) {
+        .ceo-command { grid-template-columns:1fr; }
+        .money-summary { grid-template-columns:1fr; }
+    }
+    @media (max-width: 640px) {
+        .ceo-command-grid { grid-template-columns:1fr 1fr; }
+        .gap-row { grid-template-columns:38px 1fr; }
+        .gap-status { grid-column:2; justify-self:start; }
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 def asset_data_uri(path: Path) -> str:
     if not path.exists():
@@ -902,7 +1033,7 @@ def page_header(page_title: str, subtitle: str = ""):
         <div class="hero-glass">
             <div class="hero-brand-row">
                 <div class="hero-brand-copy">
-                    <div class="eyebrow"><span>◈</span> NIK INTELLIGENCE / V0.4</div>
+                    <div class="eyebrow"><span>◈</span> NIK INTELLIGENCE / V0.5</div>
                     <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| تحلیل داده</span></div>
                     <div class="hero-subtitle">{subtitle or "سامانه هوشمندی داده و تصمیم‌سازی مدیریتی؛ ترکیب داده مبنای واقعی، محاسبات قابل توضیح و مدل‌های آزمایشی."}</div>
                 </div>
@@ -911,7 +1042,7 @@ def page_header(page_title: str, subtitle: str = ""):
             <div class="hero-meta">
                 <span class="meta-pill"><span class="meta-dot"></span> {page_title}</span>
                 <span class="meta-pill">نمای داده: ۲۹ اوت ۲۰۲۶</span>
-                <span class="meta-pill">دموی مدیریتی / V0.4</span>
+                <span class="meta-pill">دموی مدیریتی / V0.5</span>
             </div>
         </div>
         """,
@@ -921,7 +1052,7 @@ def page_header(page_title: str, subtitle: str = ""):
     api_col, n8n_col, status_col = st.columns([1, 1, 4])
     with api_col:
         if st.button("اتصال API", use_container_width=True, key=f"api_{page_title}"):
-            st.toast("دکمه اتصال API فقط‌خواندنی آماده است؛ در V0.4 هیچ اطلاعات دسترسی یا اتصال واقعی وجود ندارد.")
+            st.toast("دکمه اتصال API فقط‌خواندنی آماده است؛ در V0.5 هیچ اطلاعات دسترسی یا اتصال واقعی وجود ندارد.")
     with n8n_col:
         if st.button("اتصال n8n", use_container_width=True, key=f"n8n_{page_title}"):
             st.toast("این دکمه جایگاه آماده اتصال n8n است؛ گردش‌کار واقعی بعداً ساخته می‌شود.")
@@ -990,7 +1121,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         <div style="padding:2px 4px 4px">
             <div style="font-size:.70rem;color:#DCEAFF;font-weight:800;letter-spacing:.08em">NIK INTELLIGENCE</div>
             <div style="font-size:1.22rem;color:#F7FBFF;font-weight:850;margin-top:3px">تحلیل داده نیک اس‌ام‌اس</div>
-            <div style="font-size:.73rem;color:#8FA7BD;margin-top:4px">نسخه مدیریتی آزمایشی · V0.4</div>
+            <div style="font-size:.73rem;color:#8FA7BD;margin-top:4px">نسخه مدیریتی آزمایشی · V0.5</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1040,98 +1171,318 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
             time.sleep(0.025)
         status.success("تحلیل کامل شد")
 
-    st.sidebar.caption("V0.4 — داده مبنا + تحلیل آزمایشی + آزمایشگاه محتوا. بدون اتصال به سیستم داخلی نیک.")
+    st.sidebar.caption("V0.5 — داده مبنا + تحلیل آزمایشی + آزمایشگاه محتوا. بدون اتصال به سیستم داخلی نیک.")
     return scenario, page
 
 
-def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights):
-    sm = scenario_summary(scenario)
-    page_header(
-        "نمای مدیریتی",
-        "صفحه اول برای مدیرعامل: هشت عدد تصمیم‌ساز، سه سیگنال مدیریتی و یک نگاه سریع به فروش و محتوا؛ مدل‌های آزمایشی عمداً پایین‌تر قرار گرفته‌اند.",
-    )
+def _safe_mom_growth(monthly: pd.DataFrame) -> float:
+    try:
+        if monthly is None or monthly.empty or len(monthly) < 2:
+            return 0.0
+        ordered = monthly.sort_values("month").copy()
+        if "mom_growth" in ordered.columns:
+            value = ordered["mom_growth"].iloc[-1]
+            if pd.notna(value) and np.isfinite(float(value)):
+                return float(value)
+        prev = float(ordered["revenue"].iloc[-2])
+        cur = float(ordered["revenue"].iloc[-1])
+        return (cur - prev) / prev if prev else 0.0
+    except Exception:
+        return 0.0
 
-    section_heading("برد مدیریتی ۵ ثانیه‌ای", "تصویر کسب‌وکار در ۵ ثانیه", "هر کارت دقیقاً مشخص می‌کند داده مبنای واقعی است، محاسبه شده یا تخمینی.")
 
-    row1 = st.columns(4)
-    with row1[0]:
-        kpi_card("درآمد ماهانه مدل", f"{toman(kpis['monthly_revenue'])} تومان", "derived", "revenue", f"محاسبه‌شده · فرض {fa_num(sm["sales_days"])} روز")
-    with row1[1]:
-        kpi_card("فروش ماهانه مدل", f"{fa_num(kpis['monthly_units'])} دستگاه", "derived", "sales", "فروش تلفنی + آنلاین")
-    with row1[2]:
-        kpi_card("صف فعلی لید", fa_num(sm["lead_backlog"]), "real", "leads", "موجودی فعلی لید؛ نرخ تبدیل نیست")
-    with row1[3]:
-        kpi_card("فروش تلفنی / روز", fa_num(sm["phone_daily"]), "real", "phone", "مبنای عملیاتی")
+def _safe_anomaly_count(df: pd.DataFrame) -> int:
+    try:
+        if df is None or df.empty or "is_anomaly" not in df.columns:
+            return 0
+        return int(df["is_anomaly"].fillna(False).astype(bool).sum())
+    except Exception:
+        return 0
 
-    st.write("")
-    row2 = st.columns(4)
-    with row2[0]:
-        kpi_card("میانگین قیمت فروش", f"{toman(sm["asp"])} تومان", "derived", "price", f"ترکیب طرح A: {fa_num(sm["share_a"]*100)}٪ / طرح B: {fa_num(sm["share_b"]*100)}٪")
-    with row2[1]:
-        kpi_card("فروش آنلاین / ماه", fa_num(sm["online_monthly"]), "real", "online", "مبنای فعلی")
-    with row2[2]:
-        kpi_card("فالوئر اینستاگرام", fa_num(sm["followers"]), "real", "followers", "نمای ثبت‌شده")
-    with row2[3]:
-        kpi_card("فروش منتسب به محتوا / روز", fa_num(sm["content_sales"], 1), "estimated", "content", "انتساب تخمینی؛ دوباره در فروش کل شمرده نشود")
 
-    m = reel_snapshot_metrics()
+def _safe_high_risk_share(risk_stats: dict) -> float:
+    try:
+        value = float((risk_stats or {}).get("high_or_very_high_share", 0.0))
+        return value if np.isfinite(value) else 0.0
+    except Exception:
+        return 0.0
+
+
+def command_metric(label: str, value: str, note: str, trend_text: str = "", trend_kind: str = "flat", source: str = "derived"):
+    trend_class = {"up": "trend-up", "down": "trend-down", "flat": "trend-flat"}.get(trend_kind, "trend-flat")
+    trend_html = f'<span class="trend-pill {trend_class}">{trend_text}</span>' if trend_text else ""
+    source_html = f'<span class="source-tag {SOURCE_CLASSES.get(source, "src-derived")}">{SOURCE_LABELS.get(source, "محاسبه‌شده")}</span>'
     st.markdown(
-        f'''<div class="executive-strip">
-            <div class="strip-item"><div class="strip-label">سهم فروش تلفنی</div><div class="strip-value">{pct(kpis['phone_share'])}</div></div>
-            <div class="strip-item"><div class="strip-label">خروجی محتوا / روز</div><div class="strip-value">{fa_num(sm["total_content"])} محتوا</div></div>
-            <div class="strip-item"><div class="strip-label">میانه بازدید ۱۰ ریلز</div><div class="strip-value">{fa_num(m['median_views'])}</div></div>
-            <div class="strip-item"><div class="strip-label">سهم ۳ ریلز برتر</div><div class="strip-value">{pct(m['top3_view_share'])}</div></div>
-        </div>''', unsafe_allow_html=True,
+        f'''<div class="command-metric">
+            <div class="command-metric-top"><div class="command-metric-label">{label}</div>{trend_html or source_html}</div>
+            <div class="command-metric-value">{value}</div>
+            <div class="command-metric-note">{note}</div>
+        </div>''',
+        unsafe_allow_html=True,
     )
 
-    section_heading("سیگنال‌های مدیریتی", "سه چیزی که نیازمند توجه مدیریتی است", "به جای شلوغ کردن صفحه با مدل‌های فنی، سؤال تصمیم برجسته می‌شود.")
-    sig1, sig2, sig3 = st.columns(3)
-    with sig1:
-        st.markdown(f'''<div class="insight-card"><div class="insight-type">کانال فروش</div><div class="insight-title">فروش هنوز شدیداً تلفنی است</div><div class="insight-text">حدود {pct(kpis['phone_share'])} تعداد فروش مدل از کانال تلفنی می‌آید. برای قضاوت درباره ظرفیت واقعی، تماس‌ها / پاسخ‌داده‌شده / واجدشرایط لازم است.</div></div>''', unsafe_allow_html=True)
-    with sig2:
-        st.markdown(f'''<div class="insight-card"><div class="insight-type">محتوا</div><div class="insight-title">عملکرد محتوا به چند ریلز پربازدید وابسته است</div><div class="insight-text">سه ریلز برتر {pct(m['top3_view_share'])} کل بازدید ده ریلز را ساخته‌اند؛ میانه بازدید برای سنجش عملکرد معمول از میانگین مهم‌تر است.</div></div>''', unsafe_allow_html=True)
-    with sig3:
-        st.markdown('''<div class="insight-card"><div class="insight-type">ظرفیت لید</div><div class="insight-title">صف لید بدون داده مرکز تماس قابل تفسیر کامل نیست</div><div class="insight-text">۴۰۰۰ لید یک موجودی در صف است. برای تخمین زمان تخلیه صف باید تعداد تماس روزانه، پاسخ، واجدشرایط و فروش به تفکیک روز وارد سیستم شوند.</div></div>''', unsafe_allow_html=True)
 
-    left, right = st.columns([1.45, 1])
-    with left:
-        section_heading("نبض فروش", "روند درآمد مدل", "سری تاریخی مصنوعی است؛ سطح فروش از سناریوی فعلی تأثیر می‌گیرد.")
-        fig = px.area(monthly, x="month", y="revenue", markers=True, labels={"month": "ماه", "revenue": "درآمد"})
-        fig.update_traces(line_color=ACCENT, fillcolor="rgba(173,203,255,.12)")
-        st.plotly_chart(style_fig(fig, 385), use_container_width=True)
-    with right:
-        section_heading("ترکیب کانال فروش", "ترکیب فروش", "بر اساس تعداد دستگاه در سناریوی فعلی.")
-        channel = pd.DataFrame({"کانال": ["فروش تلفنی", "فروش آنلاین"], "تعداد": [kpis["monthly_phone_units"], kpis["monthly_online_units"]]})
-        fig = px.pie(channel, names="کانال", values="تعداد", hole=0.68, color_discrete_sequence=[ACCENT, "#4D82B8"])
+def priority_card(index: int, title: str, text: str, severity: str, source_text: str):
+    sev_label = {"high": "اولویت بالا", "med": "نیازمند توجه", "info": "نیازمند داده"}.get(severity, "نیازمند توجه")
+    sev_class = {"high": "sev-high", "med": "sev-med", "info": "sev-info"}.get(severity, "sev-med")
+    st.markdown(
+        f'''<div class="priority-card">
+            <div class="priority-number">اولویت {fa_num(index)}</div>
+            <div class="priority-title">{title}</div>
+            <div class="priority-text">{text}</div>
+            <div class="priority-footer"><span class="severity-pill {sev_class}">{sev_label}</span><span class="priority-source">{source_text}</span></div>
+        </div>''',
+        unsafe_allow_html=True,
+    )
+
+
+def _executive_priorities(scenario, kpis, sales_anomalies, sms_anomalies, risk_stats):
+    sm = scenario_summary(scenario)
+    reel = reel_snapshot_metrics()
+    priorities = []
+
+    phone_share = float(kpis.get("phone_share", 0.0))
+    if phone_share >= 0.85:
+        priorities.append({
+            "weight": 100,
+            "severity": "high" if phone_share >= 0.92 else "med",
+            "title": "وابستگی فروش به کانال تلفنی بالاست",
+            "text": f"حدود {pct(phone_share)} از تعداد فروش مدل از کانال تلفنی می‌آید. رشد فروش آنلاین یا کانال‌های قابل رهگیری می‌تواند ریسک تمرکز کانال را کاهش دهد.",
+            "source": "محاسبه‌شده از داده مبنا",
+        })
+
+    top3 = float(reel.get("top3_view_share", 0.0))
+    if top3 >= 0.65:
+        priorities.append({
+            "weight": 85,
+            "severity": "med",
+            "title": "عملکرد محتوا به چند محتوای پربازدید وابسته است",
+            "text": f"سه ریلز برتر {pct(top3)} از کل بازدید ۱۰ ریلز ثبت‌شده را ساخته‌اند. برای ارزیابی تیم، میانه بازدید و تبدیل به لید مهم‌تر از میانگین خام است.",
+            "source": "نمای واقعی محتوا",
+        })
+
+    if sm["lead_backlog"] >= 3_000:
+        priorities.append({
+            "weight": 80,
+            "severity": "info",
+            "title": "صف لید بزرگ است؛ اما سرعت پردازش را هنوز نمی‌دانیم",
+            "text": f"در حال حاضر {fa_num(sm['lead_backlog'])} لید در داده مبنا ثبت شده است. بدون تعداد تماس / پاسخ / واجد شرایط نمی‌توان زمان واقعی تخلیه صف یا گلوگاه تیم فروش را محاسبه کرد.",
+            "source": "داده مبنای واقعی + شکاف داده",
+        })
+
+    anomaly_count = _safe_anomaly_count(sales_anomalies) + _safe_anomaly_count(sms_anomalies)
+    if anomaly_count > 0:
+        priorities.append({
+            "weight": 55,
+            "severity": "med",
+            "title": "مدل آزمایشی چند تغییر غیرعادی دیده است",
+            "text": f"در داده مصنوعی فعلی {fa_num(anomaly_count)} نقطه غیرعادی در فروش/پیامک علامت خورده است. این هشدار واقعی شرکت نیست و فقط سازوکار Alert آینده را نمایش می‌دهد.",
+            "source": "مصنوعی / دمو",
+        })
+
+    high_risk = _safe_high_risk_share(risk_stats)
+    if high_risk >= 0.20:
+        priorities.append({
+            "weight": 40,
+            "severity": "med",
+            "title": "مدل ریزش نیاز به داده رفتار واقعی دارد",
+            "text": f"مدل آزمایشی {pct(high_risk)} مشتری مصنوعی را پرریسک تشخیص داده است. قبل از استفاده عملیاتی باید فعالیت و تمدید واقعی وارد شود.",
+            "source": "مدل مصنوعی",
+        })
+
+    priorities.sort(key=lambda x: x["weight"], reverse=True)
+    if len(priorities) < 3:
+        priorities.append({"weight": 0, "severity": "info", "title": "اتصال داده واقعی اولویت بعدی است", "text": "برای تبدیل این Command Center از نمونه اولیه به ابزار تصمیم‌گیری، اتصال Read-only به داده فروش و مرکز تماس بیشترین ارزش را دارد.", "source": "پیشنهاد معماری"})
+    return priorities[:3]
+
+
+def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights, customers_model=None, risk_stats=None, sales_anomalies=None, sms_anomalies=None):
+    sm = scenario_summary(scenario)
+    reel = reel_snapshot_metrics()
+    mom = _safe_mom_growth(monthly)
+    sales_anomaly_count = _safe_anomaly_count(sales_anomalies)
+    sms_anomaly_count = _safe_anomaly_count(sms_anomalies)
+    anomaly_count = sales_anomaly_count + sms_anomaly_count
+    high_risk_share = _safe_high_risk_share(risk_stats or {})
+    priorities = _executive_priorities(scenario, kpis, sales_anomalies, sms_anomalies, risk_stats or {})
+
+    # Status is rule-based and intentionally excludes synthetic ML/anomaly output from real-business alarm logic.
+    real_attention = 0
+    if float(kpis.get("phone_share", 0.0)) >= 0.85:
+        real_attention += 1
+    if float(reel.get("top3_view_share", 0.0)) >= 0.65:
+        real_attention += 1
+    if sm["lead_backlog"] >= 3_000:
+        real_attention += 1
+    if real_attention >= 3:
+        status_label, status_class = "نیازمند توجه مدیریتی", "ceo-watch"
+        status_copy = "سه موضوع در داده مبنای فعلی برجسته است: تمرکز فروش روی تلفن، تمرکز عملکرد محتوا روی چند محتوای پربازدید و نبود داده عملیاتی کافی برای تفسیر صف لید."
+    elif real_attention >= 1:
+        status_label, status_class = "پایدار با چند نقطه قابل پیگیری", "ceo-watch"
+        status_copy = "وضعیت کلی قابل کنترل است، اما چند سیگنال نیازمند بررسی مدیریتی یا تکمیل داده هستند."
+    else:
+        status_label, status_class = "پایدار در داده موجود", "ceo-good"
+        status_copy = "در داده مبنای فعلی سیگنال پررنگی دیده نمی‌شود؛ برای نتیجه قطعی هنوز اتصال به داده واقعی لازم است."
+
+    page_header(
+        "مرکز فرمان مدیرعامل",
+        "یک صفحه تصمیم‌محور برای پاسخ به چهار سؤال: الان وضعیت چیست؟ چه چیزی تغییر کرده؟ پول کجا ساخته می‌شود؟ و مدیر باید امروز به چه چیزی توجه کند؟",
+    )
+
+    mom_arrow = "↑" if mom > 0.002 else "↓" if mom < -0.002 else "—"
+    anomaly_label = f"{fa_num(anomaly_count)} هشدار دمو" if anomaly_count else "بدون هشدار دمو"
+
+    st.markdown(
+        f'''<div class="ceo-command">
+            <div>
+                <div class="ceo-overline">مرکز فرمان مدیرعامل · تصمیم‌یار V0.5</div>
+                <div class="ceo-status-line"><div class="ceo-status-title">{status_label}</div><span class="ceo-status-badge {status_class}">وضعیت قاعده‌محور</span></div>
+                <div class="ceo-status-copy">{status_copy} این وضعیت «امتیاز سلامت شرکت» نیست؛ جمع‌بندی توضیح‌پذیر از داده‌های فعلی نمونه اولیه است.</div>
+            </div>
+            <div class="ceo-command-grid">
+                <div class="ceo-command-cell"><div class="ceo-command-label">درآمد ماهانه مدل</div><div class="ceo-command-value">{toman(kpis['monthly_revenue'])} تومان</div><div class="ceo-command-foot">محاسبه‌شده از فروش و میانگین قیمت</div></div>
+                <div class="ceo-command-cell"><div class="ceo-command-label">تغییر ماه‌به‌ماه مدل</div><div class="ceo-command-value">{mom_arrow} {pct(abs(mom))}</div><div class="ceo-command-foot">روند مصنوعی / سناریویی</div></div>
+                <div class="ceo-command-cell"><div class="ceo-command-label">هشدارهای مدل</div><div class="ceo-command-value">{anomaly_label}</div><div class="ceo-command-foot">ناهنجاری فروش + پیامک، مصنوعی</div></div>
+                <div class="ceo-command-cell"><div class="ceo-command-label">وضعیت اتصال داده</div><div class="ceo-command-value">حالت دمو</div><div class="ceo-command-foot">API / DB / n8n هنوز متصل نیست</div></div>
+            </div>
+        </div>''',
+        unsafe_allow_html=True,
+    )
+
+    section_heading("نبض لحظه‌ای", "شش عددی که باید اول دیده شوند", "اعداد واقعی، محاسبه‌شده و تخمینی عمداً از هم تفکیک شده‌اند.")
+    row = st.columns(6)
+    with row[0]:
+        command_metric("فروش ماهانه", f"{fa_num(kpis['monthly_units'])} دستگاه", "تلفنی + آنلاین", source="derived")
+    with row[1]:
+        command_metric("صف لید", fa_num(sm["lead_backlog"]), "موجودی لید؛ نه نرخ تبدیل", source="real")
+    with row[2]:
+        command_metric("فروش تلفنی / روز", fa_num(sm["phone_daily"]), f"سهم ماهانه: {pct(kpis['phone_share'])}", source="real")
+    with row[3]:
+        command_metric("فروش آنلاین / ماه", fa_num(sm["online_monthly"]), f"سهم ماهانه: {pct(kpis['online_share'])}", source="real")
+    with row[4]:
+        command_metric("میانه بازدید ریلز", fa_num(reel["median_views"]), "نمای ثبت‌شده از ۱۰ ریلز", source="real")
+    with row[5]:
+        command_metric("فروش منتسب به محتوا", f"{fa_num(sm['content_sales'], 1)} / روز", "تخمینی؛ دوباره‌شماری نشود", source="estimated")
+
+    section_heading("صف تصمیم", "سه موضوعی که امروز باید روی میز مدیرعامل باشد", "اولویت‌ها با قواعد قابل توضیح ساخته می‌شوند؛ خروجی ML مصنوعی جای داده واقعی را نمی‌گیرد.")
+    pcols = st.columns(3)
+    for idx, item in enumerate(priorities, start=1):
+        with pcols[idx - 1]:
+            priority_card(idx, item["title"], item["text"], item["severity"], item["source"])
+
+    # Money map — all values derived from the current scenario, never hard-coded.
+    try:
+        plans = plan_performance(scenario).copy()
+    except Exception:
+        plans = pd.DataFrame({"plan": ["Plan A", "Plan B"], "units": [kpis["monthly_units"] * sm["share_a"], kpis["monthly_units"] * sm["share_b"]], "revenue": [kpis["monthly_units"] * sm["share_a"] * sm["price_a"], kpis["monthly_units"] * sm["share_b"] * sm["price_b"]]})
+    plans["طرح"] = plans["plan"].map(PLAN_FA).fillna(plans["plan"])
+    total_plan_revenue = float(plans["revenue"].sum()) if not plans.empty else float(kpis["monthly_revenue"])
+    plan_b_revenue = float(plans.loc[plans["plan"] == "Plan B", "revenue"].sum()) if "plan" in plans else 0.0
+    plan_b_rev_share = plan_b_revenue / total_plan_revenue if total_plan_revenue else 0.0
+    phone_revenue = float(kpis["monthly_phone_units"]) * sm["asp"]
+    online_revenue = float(kpis["monthly_online_units"]) * sm["asp"]
+
+    section_heading("نقشه پول", "پول کجا ساخته می‌شود؟", "درآمدهای این بخش محاسبه‌شده‌اند؛ فرض می‌شود ترکیب طرح‌ها در کانال تلفنی و آنلاین یکسان است تا وقتی داده واقعی کانال × طرح وارد شود.")
+    money_left, money_right = st.columns([1.05, 1])
+    with money_left:
+        st.markdown(
+            f'''<div class="money-summary">
+                <div class="money-chip"><div class="money-chip-label">سهم درآمد طرح B</div><div class="money-chip-value">{pct(plan_b_rev_share)}</div></div>
+                <div class="money-chip"><div class="money-chip-label">درآمد تلفنی مدل</div><div class="money-chip-value">{toman(phone_revenue)}</div></div>
+                <div class="money-chip"><div class="money-chip-label">درآمد آنلاین مدل</div><div class="money-chip-value">{toman(online_revenue)}</div></div>
+            </div>''',
+            unsafe_allow_html=True,
+        )
+        fig = px.bar(
+            plans,
+            x="revenue",
+            y="طرح",
+            orientation="h",
+            text=plans["revenue"].map(lambda x: toman(float(x))),
+            labels={"revenue": "درآمد", "طرح": "طرح"},
+            color="revenue",
+            color_continuous_scale=["#28465F", "#ADCBFF"],
+        )
+        fig.update_traces(textposition="inside")
+        fig.update_layout(coloraxis_showscale=False)
+        st.plotly_chart(style_fig(fig, 330), use_container_width=True)
+    with money_right:
+        channel_df = pd.DataFrame({
+            "کانال": ["فروش تلفنی", "فروش آنلاین"],
+            "تعداد": [float(kpis["monthly_phone_units"]), float(kpis["monthly_online_units"])],
+            "درآمد مدل": [phone_revenue, online_revenue],
+        })
+        fig = px.pie(channel_df, names="کانال", values="درآمد مدل", hole=.70, color_discrete_sequence=[ACCENT, "#4D82B8"])
         fig.update_traces(textposition="inside", textinfo="percent")
-        st.plotly_chart(style_fig(fig, 385), use_container_width=True)
+        fig.update_layout(annotations=[dict(text="ترکیب درآمد", x=.5, y=.5, font_size=14, showarrow=False, font_color="#EAF3FF")])
+        st.plotly_chart(style_fig(fig, 330), use_container_width=True)
+        st.markdown(
+            f'''<div class="glass-panel" style="margin-top:-4px"><div class="section-kicker">برداشت مدیریتی</div><div style="font-weight:780;color:#F8FBFF;margin-top:5px">طرح B با {pct(sm['share_b'])} از تعداد فروش، حدود {pct(plan_b_rev_share)} از درآمد مدل را می‌سازد.</div><div class="kpi-note">این نتیجه از اختلاف قیمت طرح‌ها به دست می‌آید و با تغییر Mix در Sidebar زنده تغییر می‌کند.</div></div>''',
+            unsafe_allow_html=True,
+        )
 
-    section_heading("نبض محتوا", "نمای واقعی ۱۰ ریلز", "برای مدیریت توزیع عملکرد؛ زمان تماشا و ریچ هنوز وارد نشده‌اند.")
-    reel_plot = REEL_SNAPSHOT.copy()
-    fig = px.bar(reel_plot, x="reel", y="views", labels={"reel": "محتوا", "views": "بازدید"}, color="views", color_continuous_scale=["#173149", "#ADCBFF"])
-    fig.add_hline(y=m["median_views"], line_dash="dash", line_color="#E1EBF7", annotation_text=f"میانه: {fa_num(m['median_views'])}")
-    fig.update_layout(coloraxis_showscale=False)
-    st.plotly_chart(style_fig(fig, 360), use_container_width=True)
+    section_heading("اهرم رشد", "اگر فقط یک متغیر را تکان بدهیم چه می‌شود؟", "تحلیل حساسیت ساده و قابل توضیح؛ پیش‌بینی قطعی نیست.")
+    plus_one_revenue = sm["sales_days"] * sm["asp"]
+    plus_five_revenue = 5 * plus_one_revenue
+    extra_online_10 = 10 * sm["asp"]
+    shift = min(0.10, max(0.0, sm["share_a"]))
+    mix_delta_asp = max(0.0, sm["price_b"] - sm["price_a"]) * shift
+    mix_delta_revenue = kpis["monthly_units"] * mix_delta_asp
+    levers = st.columns(4)
+    with levers[0]:
+        st.markdown(f'''<div class="leverage-card"><div class="leverage-kicker">اهرم ۱</div><div class="leverage-title">+۱ فروش تلفنی در روز</div><div class="leverage-value">+{toman(plus_one_revenue)}</div><div class="leverage-note">اثر ماهانه مدل با فرض {fa_num(sm['sales_days'])} روز و ASP ثابت.</div></div>''', unsafe_allow_html=True)
+    with levers[1]:
+        st.markdown(f'''<div class="leverage-card"><div class="leverage-kicker">اهرم ۲</div><div class="leverage-title">+۵ فروش تلفنی در روز</div><div class="leverage-value">+{toman(plus_five_revenue)}</div><div class="leverage-note">تحلیل سناریو، نه پیش‌بینی عملیاتی.</div></div>''', unsafe_allow_html=True)
+    with levers[2]:
+        st.markdown(f'''<div class="leverage-card"><div class="leverage-kicker">اهرم ۳</div><div class="leverage-title">+۱۰ فروش آنلاین در ماه</div><div class="leverage-value">+{toman(extra_online_10)}</div><div class="leverage-note">با ترکیب طرح‌ها و متوسط قیمت فعلی.</div></div>''', unsafe_allow_html=True)
+    with levers[3]:
+        st.markdown(f'''<div class="leverage-card"><div class="leverage-kicker">اهرم ۴</div><div class="leverage-title">۱۰٪ جابه‌جایی سهم از A به B</div><div class="leverage-value">+{toman(mix_delta_revenue)}</div><div class="leverage-note">با فرض ثابت ماندن تعداد فروش؛ فقط اثر ترکیب طرح‌ها.</div></div>''', unsafe_allow_html=True)
 
-    with st.expander("تحلیل‌های آزمایشی پایین صفحه — قیف فروش / پیش‌بینی / یادگیری ماشین", expanded=False):
-        st.caption("این خروجی‌ها برای نمایش معماری‌اند و عمداً در ۵ ثانیه اول مدیرعامل دیده نمی‌شوند.")
-        f1, f2 = st.columns(2)
-        with f1:
+    gap_left, gap_right = st.columns([1.1, .9])
+    with gap_left:
+        section_heading("شکاف داده", "چه چیزی هنوز برای تصمیم واقعی کم داریم؟", "این چهار اتصال بیشترین فاصله بین نمونه اولیه و Intelligence واقعی را کم می‌کنند.")
+        gaps = [
+            ("داده خام فروش روزانه", "تاریخ، کانال، طرح، مبلغ و وضعیت سفارش برای درآمد و تغییر ماه‌به‌ماه واقعی."),
+            ("داده مرکز تماس", "تعداد تماس، پاسخ، واجد شرایط، پیگیری و فروش برای فهم واقعی صف لید و ظرفیت تیم."),
+            ("انتساب محتوا به فروش", "UTM / CTA / منبع لید / CRM برای تشخیص اینکه کدام محتوا واقعاً فروش می‌سازد."),
+            ("استفاده نیک‌پوز و پیامک", "دستگاه فعال، ثبت شماره، ارسال/تحویل پیامک و تمدید برای Retention و Churn واقعی."),
+        ]
+        for idx, (title, detail) in enumerate(gaps, start=1):
+            st.markdown(f'''<div class="gap-row"><div class="gap-index">{fa_num(idx)}</div><div><div class="gap-title">{title}</div><div class="gap-text">{detail}</div></div><div class="gap-status">در انتظار اتصال</div></div>''', unsafe_allow_html=True)
+    with gap_right:
+        section_heading("رادار آزمایشی", "هشدارها و ریسک مدل", "این ستون کاملاً Demo/Synthetic است و نباید به‌عنوان وضعیت واقعی شرکت ارائه شود.")
+        st.markdown(
+            f'''<div class="glass-panel">
+                <div class="money-summary">
+                    <div class="money-chip"><div class="money-chip-label">ناهنجاری فروش</div><div class="money-chip-value">{fa_num(sales_anomaly_count)}</div></div>
+                    <div class="money-chip"><div class="money-chip-label">ناهنجاری پیامک</div><div class="money-chip-value">{fa_num(sms_anomaly_count)}</div></div>
+                    <div class="money-chip"><div class="money-chip-label">مشتری پرریسک</div><div class="money-chip-value">{pct(high_risk_share)}</div></div>
+                </div>
+                <div class="kpi-note">هدف این بخش فقط نشان دادن معماری هشدار و امتیازدهی ریسک آینده است. با اتصال داده واقعی، همین جایگاه از Synthetic به Real تبدیل می‌شود.</div>
+            </div>''',
+            unsafe_allow_html=True,
+        )
+
+    with st.expander("جزئیات تحلیلی — روند، قیف و پیش‌بینی آزمایشی", expanded=False):
+        st.caption("این خروجی‌ها عمداً از نمای ۵ ثانیه‌ای خارج شده‌اند تا صفحه اول مدیرعامل شلوغ و فنی نشود.")
+        a, b = st.columns(2)
+        with a:
+            fig = px.area(monthly, x="month", y="revenue", markers=True, labels={"month": "ماه", "revenue": "درآمد"})
+            fig.update_traces(line_color=ACCENT, fillcolor="rgba(173,203,255,.10)")
+            st.plotly_chart(style_fig(fig, 360), use_container_width=True)
+        with b:
             fig = go.Figure(go.Funnel(y=funnel["stage"].map(FUNNEL_FA), x=funnel["count"], textinfo="value+percent initial", marker={"color": ["#ADCBFF", "#93B9DE", "#769FC8", "#5D86AF", "#496E97", "#385775"]}))
-            st.plotly_chart(style_fig(fig, 420), use_container_width=True)
-        with f2:
-            forecast_show = forecast.copy()
-            forecast_show["series"] = forecast_show["series"].map(FORECAST_SERIES_FA).fillna(forecast_show["series"])
-            fig = px.line(forecast_show, x="month", y="revenue", color="series", markers=True, labels={"month": "ماه", "revenue": "درآمد", "series": "نوع داده"}, color_discrete_sequence=[ACCENT, "#8CA7D8"])
-            st.plotly_chart(style_fig(fig, 420), use_container_width=True)
+            st.plotly_chart(style_fig(fig, 360), use_container_width=True)
+        forecast_show = forecast.copy()
+        forecast_show["series"] = forecast_show["series"].map(FORECAST_SERIES_FA).fillna(forecast_show["series"])
+        fig = px.line(forecast_show, x="month", y="revenue", color="series", markers=True, labels={"month": "ماه", "revenue": "درآمد", "series": "نوع داده"}, color_discrete_sequence=[ACCENT, "#8CA7D8"])
+        st.plotly_chart(style_fig(fig, 360), use_container_width=True)
 
     source_legend()
-
-
 def data_center_page(data: Dict[str, pd.DataFrame]):
     page_header(
         "مرکز داده",
-        "لایه ورود داده برای فایل CSV امروز و API، پایگاه داده و n8n در نسخه بعدی. هیچ داده‌ای در V0.4 به سیستم داخلی نیک متصل نیست.",
+        "لایه ورود داده برای فایل CSV امروز و API، پایگاه داده و n8n در نسخه بعدی. هیچ داده‌ای در V0.5 به سیستم داخلی نیک متصل نیست.",
     )
     source_legend()
 
@@ -1647,7 +1998,7 @@ def anomaly_page(sales_anomalies, sms_anomalies):
 def predictions_page(forecast, forecast_stats, customers_model, risk_stats):
     page_header(
         "پیش‌بینی‌ها",
-        "مدل‌ها ساده و قابل توضیح نگه داشته شده‌اند؛ هیچ خروجی پیش‌بینی یا ریزش در V0.4 در سطح عملیاتی نهایی نیست.",
+        "مدل‌ها ساده و قابل توضیح نگه داشته شده‌اند؛ هیچ خروجی پیش‌بینی یا ریزش در V0.5 در سطح عملیاتی نهایی نیست.",
     )
     c1, c2 = st.columns(2)
     c1.metric("R² روند درآمد / دمو", fa_digits(f"{forecast_stats['r2']:.3f}"))
@@ -1809,7 +2160,7 @@ def main():
     insights = generate_insights(scenario, kpis, monthly, risk_stats, sales_anomalies, sms_anomalies)
 
     if page == "Executive Overview":
-        executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights)
+        executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights, customers_model, risk_stats, sales_anomalies, sms_anomalies)
     elif page == "Data Center":
         data_center_page(data)
     elif page == "Sales Analytics":
@@ -1836,7 +2187,7 @@ def main():
         settings_page(scenario, kpis)
 
     st.markdown("---")
-    st.caption("NIK INTELLIGENCE V0.4 — نمونه مدیریتی با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
+    st.caption("NIK INTELLIGENCE V0.5 — نمونه مدیریتی با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
     st.caption("پیش‌بینی‌ها و خروجی‌های یادگیری ماشین آزمایشی‌اند و نباید مبنای تصمیم قطعی عملیاتی قرار گیرند.")
 
 

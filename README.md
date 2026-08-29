@@ -1,30 +1,49 @@
-# NIK INTELLIGENCE V0.4
+# NIK INTELLIGENCE V0.5
 
 نسخه مدیریتی آزمایشی سامانه «نیک اس‌ام‌اس | تحلیل داده» برای NIKSMS / NIKPOS.
 
 > این نسخه با داده‌های مبنای Aggregate و داده‌های Synthetic / Demo ساخته شده و هنوز به سیستم‌های داخلی NIK متصل نیست.
 >
-> Forecast، Churn و Timeline ویدیو خروجی آزمایشی هستند و نباید به‌عنوان واقعیت Production یا داده قطعی اینستاگرام ارائه شوند.
+> پیش‌بینی، Churn، Anomaly Detection و Timeline ویدیو آزمایشی هستند و نباید به‌عنوان واقعیت عملیاتی شرکت ارائه شوند.
 
-## مهم‌ترین تغییرات V0.4
+## تغییر اصلی V0.5 — مرکز فرمان مدیرعامل
 
-- رفع خطاهای `AttributeError` مربوط به `instagram_followers` و `reels_per_day`.
-- اضافه‌شدن لایه Compatibility بین `app.py`، `Scenario` و Analytics تا اختلاف موقت نسخه فایل‌ها هنگام Deploy باعث Crash نشود.
-- اضافه‌شدن fallback امن برای KPIهای محتوا و Instagram Snapshot.
-- فارسی‌سازی گسترده رابط کاربری، جدول‌ها، عنوان نمودارها، KPIها و توضیحات مدیریتی.
-- بازطراحی Visual System با محور رنگ `#ADCBFF`، گرادینت آبی تیره، Glassmorphism و نورپردازی کنترل‌شده.
-- استفاده از لوگوی NIKSMS در Header و Sidebar.
-- حفظ صفحه اول CEO با 8 KPI تصمیم‌ساز و سیگنال‌های مدیریتی.
-- حفظ Media Intelligence Lab شامل ویدیوها، تصاویر، Timeline آزمایشی و Event Markerها.
-- دکمه‌های API و n8n همچنان Placeholder هستند و اتصال واقعی ندارند.
+صفحه اول از یک Dashboard عمومی به **Executive Command Center** تبدیل شده است و چهار سؤال مدیریتی را پاسخ می‌دهد:
 
-## نکته بسیار مهم برای Deploy
+1. الان وضعیت چیست؟
+2. چه چیزی تغییر کرده یا نیازمند توجه است؟
+3. پول کجا ساخته می‌شود؟
+4. مدیر باید امروز روی چه چیزی تمرکز کند؟
 
-برای جلوگیری از تکرار خطاهای نسخه‌های قبلی، فقط `app.py` را جایگزین نکنید.
+### اجزای جدید صفحه اول
 
-**محتویات کامل ZIP را Extract کنید و همه فایل‌ها و پوشه‌ها را در Root همان Repository جایگزین کنید.**
+- وضعیت مدیریتی قاعده‌محور با توضیح شفاف منبع داده.
+- ۶ KPI اصلی در نمای ۵ ثانیه‌ای.
+- صف تصمیم با سه اولویت پویا.
+- نقشه پول بر اساس Channel و Plan.
+- نمایش سهم درآمد Plan B و سهم کانال تلفنی/آنلاین.
+- تحلیل حساسیت و «اهرم رشد»:
+  - اثر +۱ فروش تلفنی در روز.
+  - اثر +۵ فروش تلفنی در روز.
+  - اثر +۱۰ فروش آنلاین در ماه.
+  - اثر تغییر ۱۰ واحد درصدی Mix از A به B.
+- بخش «شکاف داده» برای مشخص‌کردن چهار اتصال حیاتی بعدی.
+- رادار آزمایشی Anomaly و Churn جدا از وضعیت واقعی کسب‌وکار.
+- Forecast و Funnel به بخش جمع‌شونده منتقل شده‌اند تا صفحه اول فنی و شلوغ نشود.
 
-ساختار Repository باید به شکل زیر باشد:
+## اصل مهم V0.5
+
+هشدارهای Synthetic و مدل Churn **وضعیت واقعی شرکت را قرمز نمی‌کنند**. وضعیت صفحه اول فقط از داده‌های مبنا و محاسبات قابل توضیح ساخته می‌شود. خروجی‌های ML/Anomaly با برچسب آزمایشی جدا نمایش داده می‌شوند.
+
+## پایداری
+
+V0.5 بر پایه Compatibility Layer نسخه V0.4 ساخته شده و موتورهای قبلی دستکاری اساسی نشده‌اند. Media Intelligence Lab، Sales Analytics، Customer Intelligence، SMS، Forecast و سایر صفحات حفظ شده‌اند.
+
+## Deploy
+
+برای کمترین ریسک، ZIP کامل را Extract و تمام فایل‌ها را در Root همان Repository جایگزین کنید.
+
+ساختار باید شامل این موارد باشد:
 
 ```text
 app.py
@@ -43,48 +62,32 @@ assets/
   videos/
 ```
 
-بعد از Commit در GitHub:
+سپس:
 
-1. وارد Streamlit Community Cloud شوید.
-2. روی سه‌نقطه کنار App بزنید.
-3. `Reboot` را انتخاب کنید.
-4. بعد از اتمام Build، صفحه را Hard Refresh کنید.
+1. Commit changes در GitHub.
+2. Streamlit Community Cloud → سه‌نقطه کنار App → Reboot.
+3. بعد از Build یک Hard Refresh انجام دهید.
 
-Main file path باید همچنان این باشد:
+Main file path:
 
 ```text
 app.py
 ```
 
-## Run محلی
+## تست V0.5
 
-### Windows
-
-```bat
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-### macOS / Linux
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-## تست‌های V0.4
-
-- Syntax همه فایل‌های Python بررسی شده است.
-- تمام صفحات اصلی اپ در تست Runtime عبور کرده‌اند.
-- حالت Mixed Revision نیز تست شده؛ یعنی حتی اگر `data_generator.py` قدیمی و فاقد فیلدهای `instagram_followers` و `reels_per_day` باشد، صفحات اصلی دیگر با AttributeError از کار نمی‌افتند.
+- `app.py` با `py_compile` بررسی شده است.
+- Command Center با داده واقعیِ مبنا + داده Synthetic موتور فعلی اجرا شده است.
+- سناریوی پیش‌فرض همچنان:
+  - Monthly Units = 320
+  - ASP = 22.5M Toman
+  - Monthly Revenue = 7.2B Toman
+- Priority Engine در سناریوی پیش‌فرض سه موضوع زیر را شناسایی می‌کند:
+  - تمرکز بالای کانال تلفنی.
+  - تمرکز عملکرد محتوا روی چند محتوای پربازدید.
+  - نیاز به داده Call Center برای تفسیر علمی Lead Backlog.
 
 ## وضعیت اتصال
-
-فعلاً:
 
 ```text
 Demo / Synthetic Data
@@ -93,7 +96,7 @@ Database: Not connected
 n8n: Not connected
 ```
 
-معماری آینده می‌تواند به شکل زیر باشد:
+معماری آینده:
 
 ```text
 NIK Database / Instagram / CRM / Tracked Links
@@ -106,5 +109,5 @@ Validation + Warehouse
         ↓
 NIK Intelligence
         ↓
-Dashboard / Alerts / AI Assistant
+Executive Command Center / Alerts / AI Assistant
 ```
