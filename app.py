@@ -39,12 +39,60 @@ BG = "#090A0C"
 CARD = "#111318"
 BORDER = "#262A31"
 
+PAGE_LABELS = {
+    "Executive Overview": "نمای کلی مدیریتی",
+    "Data Center": "مرکز داده",
+    "Sales Analytics": "تحلیل فروش",
+    "Customer Intelligence": "هوشمندی مشتریان",
+    "NIKPOS Analytics": "تحلیل نیک‌پوز",
+    "Content Analytics": "تحلیل محتوا",
+    "SMS Analytics": "تحلیل پیامک",
+    "Anomaly Detection": "تشخیص ناهنجاری",
+    "Predictions": "پیش‌بینی‌ها",
+    "Automated Insights": "بینش‌های خودکار",
+    "Analysis Pipeline": "خط لوله تحلیل",
+    "Settings / Scenario Controls": "تنظیمات و سناریو",
+}
+SEGMENT_FA = {
+    "High Value": "باارزش", "Growth": "در حال رشد", "Regular": "عادی",
+    "At Risk": "در معرض ریزش", "Inactive": "غیرفعال",
+}
+RISK_FA = {"Low": "کم", "Medium": "متوسط", "High": "زیاد", "Very High": "بسیار زیاد"}
+PLAN_FA = {"Plan A": "طرح A", "Plan B": "طرح B"}
+CHANNEL_FA = {"Phone": "فروش تلفنی", "Online": "فروش آنلاین", "phone": "فروش تلفنی", "online": "فروش آنلاین"}
+FUNNEL_FA = {
+    "New Leads": "سرنخ‌های جدید", "Contacted": "تماس گرفته‌شده",
+    "Qualified": "واجد شرایط", "Interested": "علاقه‌مند",
+    "Purchased": "خرید کرده", "Active Customer": "مشتری فعال",
+}
+QUALITY_STATUS_FA = {"Healthy": "سالم", "Watch": "نیازمند پایش", "Needs Review": "نیازمند بررسی"}
+DATASET_FA = {"Sales": "فروش", "Customers": "مشتریان", "Leads": "سرنخ‌ها", "Sms": "پیامک", "Nikpos": "نیک‌پوز"}
+FORECAST_SERIES_FA = {"Historical": "تاریخی", "Forecast": "پیش‌بینی"}
+DATAFRAME_COL_FA = {
+    "date":"تاریخ", "month":"ماه", "channel":"کانال", "plan":"طرح", "units":"تعداد", "revenue":"درآمد",
+    "customer_id":"شناسه مشتری", "signup_date":"تاریخ عضویت", "city":"شهر", "industry":"صنعت", "last_activity":"آخرین فعالیت",
+    "purchase_count":"تعداد خرید", "sms_usage":"مصرف پیامک", "nikpos_usage":"استفاده از نیک‌پوز", "recency":"روز از آخرین فعالیت",
+    "frequency":"تکرار خرید", "monetary_value":"ارزش مالی", "lead_source":"منبع سرنخ", "customer_status":"وضعیت مشتری",
+    "lead_id":"شناسه سرنخ", "created_date":"تاریخ ایجاد", "stage":"مرحله", "sent":"ارسال‌شده", "delivered":"تحویل‌شده",
+    "delivery_rate":"نرخ تحویل", "clicks":"کلیک", "device_id":"شناسه دستگاه", "activation_date":"تاریخ فعال‌سازی",
+    "active_device":"دستگاه فعال", "captures_30d":"ثبت شماره ۳۰ روزه", "z_score":"امتیاز Z", "is_anomaly":"ناهنجاری",
+    "rolling_mean":"میانگین متحرک", "series":"نوع داده", "risk_score":"امتیاز ریسک", "risk_level":"سطح ریسک",
+}
+
+def fa_digits(value) -> str:
+    return str(value).translate(str.maketrans("0123456789,.%", "۰۱۲۳۴۵۶۷۸۹٬٫٪"))
+
+def fa_num(value: float, decimals: int = 0) -> str:
+    return fa_digits(f"{value:,.{decimals}f}")
+
 
 st.markdown(
     f"""
     <style>
-    .stApp {{ background: {BG}; color: #F5F5F5; }}
-    [data-testid="stSidebar"] {{ background: #0D0F13; border-right: 1px solid {BORDER}; }}
+    .stApp {{ background: {BG}; color: #F5F5F5; direction: rtl; font-family: Tahoma, "Segoe UI", Arial, sans-serif; }}
+    [data-testid="stSidebar"] {{ background: #0D0F13; border-left: 1px solid {BORDER}; border-right: 0; direction: rtl; }}
+    [data-testid="stSidebar"] * {{ text-align: right; }}
+    .stMarkdown, .stCaption, .stAlert, .stHeader, .stSubheader {{ direction: rtl; text-align: right; }}
     [data-testid="stMetric"] {{
         background: linear-gradient(180deg, #14171D 0%, #101216 100%);
         border: 1px solid {BORDER};
@@ -99,14 +147,14 @@ st.markdown(
 
 def toman(value: float) -> str:
     if abs(value) >= 1_000_000_000:
-        return f"{value / 1_000_000_000:.2f}B T"
+        return f"{fa_num(value / 1_000_000_000, 2)} میلیارد تومان"
     if abs(value) >= 1_000_000:
-        return f"{value / 1_000_000:.1f}M T"
-    return f"{value:,.0f} T"
+        return f"{fa_num(value / 1_000_000, 1)} میلیون تومان"
+    return f"{fa_num(value)} تومان"
 
 
 def pct(value: float) -> str:
-    return f"{value:.1%}"
+    return fa_digits(f"{value:.1%}")
 
 
 def style_fig(fig, height: int = 380):
@@ -155,17 +203,17 @@ def validate_upload(name: str, df: pd.DataFrame) -> Tuple[bool, str]:
     }
     missing = schemas[name] - set(df.columns)
     if missing:
-        return False, "Missing expected columns: " + ", ".join(sorted(missing))
-    return True, "Schema accepted"
+        return False, "ستون‌های مورد انتظار وجود ندارند: " + ", ".join(sorted(missing))
+    return True, "ساختار فایل تأیید شد"
 
 
 def scenario_sidebar() -> Tuple[Scenario, str]:
     st.sidebar.markdown("## NIK INTELLIGENCE")
-    st.sidebar.caption("Automated Data Intelligence Platform | V0.1")
+    st.sidebar.caption("پلتفرم خودکار هوشمندی داده | نسخه ۰.۱")
     st.sidebar.markdown("---")
 
     page = st.sidebar.radio(
-        "Navigate",
+        "منوی اصلی",
         [
             "Executive Overview",
             "Data Center",
@@ -180,22 +228,23 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
             "Analysis Pipeline",
             "Settings / Scenario Controls",
         ],
+        format_func=lambda x: PAGE_LABELS[x],
     )
 
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### Scenario Controls")
-    price_a = st.sidebar.number_input("Price Plan A (Toman)", 1_000_000, 200_000_000, 15_000_000, 1_000_000)
-    price_b = st.sidebar.number_input("Price Plan B (Toman)", 1_000_000, 300_000_000, 30_000_000, 1_000_000)
-    share_a_pct = st.sidebar.slider("Plan A Share", 0, 100, 50, 5)
-    phone = st.sidebar.number_input("Daily Phone Sales", 0, 500, 10, 1)
-    online = st.sidebar.number_input("Monthly Online Sales", 0, 5_000, 20, 5)
-    backlog = st.sidebar.number_input("Lead Backlog", 0, 500_000, 4_000, 100)
-    stories = st.sidebar.number_input("Stories per Day", 0, 100, 9, 1)
-    content_sales = st.sidebar.number_input("Content-attributed Sales / Day", 0.0, 100.0, 2.0, 0.5)
-    customers = st.sidebar.number_input("Synthetic Customer Count", 500, 50_000, 5_000, 500)
-    months = st.sidebar.slider("Months of Historical Data", 3, 36, 12, 1)
-    sales_days = st.sidebar.slider("Sales Days / Month", 20, 31, 30, 1)
-    seed = st.sidebar.number_input("Seed", 1, 999_999, 42, 1)
+    st.sidebar.markdown("### کنترل سناریو")
+    price_a = st.sidebar.number_input("قیمت طرح A (تومان)", 1_000_000, 200_000_000, 15_000_000, 1_000_000)
+    price_b = st.sidebar.number_input("قیمت طرح B (تومان)", 1_000_000, 300_000_000, 30_000_000, 1_000_000)
+    share_a_pct = st.sidebar.slider("سهم طرح A", 0, 100, 50, 5)
+    phone = st.sidebar.number_input("فروش تلفنی روزانه", 0, 500, 10, 1)
+    online = st.sidebar.number_input("فروش آنلاین ماهانه", 0, 5_000, 20, 5)
+    backlog = st.sidebar.number_input("تعداد سرنخ‌های در صف", 0, 500_000, 4_000, 100)
+    stories = st.sidebar.number_input("تعداد استوری روزانه", 0, 100, 9, 1)
+    content_sales = st.sidebar.number_input("فروش منتسب به محتوا در روز", 0.0, 100.0, 2.0, 0.5)
+    customers = st.sidebar.number_input("تعداد مشتری آزمایشی", 500, 50_000, 5_000, 500)
+    months = st.sidebar.slider("ماه‌های داده تاریخی", 3, 36, 12, 1)
+    sales_days = st.sidebar.slider("روزهای فروش در ماه", 20, 31, 30, 1)
+    seed = st.sidebar.number_input("بذر تولید داده", 1, 999_999, 42, 1)
 
     scenario = Scenario(
         price_plan_a=float(price_a),
@@ -213,17 +262,17 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
     )
 
     st.sidebar.markdown("---")
-    if st.sidebar.button("RUN ANALYSIS", use_container_width=True, type="primary"):
+    if st.sidebar.button("اجرای تحلیل", use_container_width=True, type="primary"):
         stages = [
-            "Loading Data",
-            "Validating Data",
-            "Cleaning Data",
-            "Calculating KPIs",
-            "Analyzing Trends",
-            "Detecting Anomalies",
-            "Running Models",
-            "Generating Insights",
-            "Analysis Complete",
+            "بارگذاری داده",
+            "اعتبارسنجی داده",
+            "پاک‌سازی داده",
+            "محاسبه شاخص‌های کلیدی",
+            "تحلیل روندها",
+            "تشخیص ناهنجاری‌ها",
+            "اجرای مدل‌ها",
+            "تولید بینش‌ها",
+            "تحلیل کامل شد",
         ]
         progress = st.sidebar.progress(0)
         status = st.sidebar.empty()
@@ -232,77 +281,79 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
             progress.progress(int(i / len(stages) * 100))
             time.sleep(0.04)
         st.session_state["analysis_complete"] = True
-        status.success("Analysis Complete")
+        status.success("تحلیل کامل شد")
 
-    st.sidebar.caption("Prototype using synthetic/demo data. Not connected to NIK internal systems.")
+    st.sidebar.caption("نسخه آزمایشی با داده‌های مصنوعی/دمو؛ بدون اتصال به سیستم‌های داخلی NIK.")
     return scenario, page
 
 
 def page_header(title: str, subtitle: str = ""):
     st.markdown('<div class="nik-title">NIK INTELLIGENCE</div>', unsafe_allow_html=True)
-    st.markdown('<div class="nik-subtitle">Automated Data Intelligence Platform | V0.1 | Prototype / Proof of Concept</div>', unsafe_allow_html=True)
-    st.markdown('<div class="demo-banner">DEMO / SYNTHETIC DATA — No NIK internal system connection</div>', unsafe_allow_html=True)
+    st.markdown('<div class="nik-subtitle">پلتفرم خودکار هوشمندی داده | نسخه ۰.۱ | نمونه اولیه</div>', unsafe_allow_html=True)
+    st.markdown('<div class="demo-banner">دمو / داده مصنوعی — بدون اتصال به سیستم‌های داخلی NIK</div>', unsafe_allow_html=True)
     st.header(title)
     if subtitle:
         st.caption(subtitle)
 
 
 def executive_overview(scenario, data, customers_model, kpis, monthly, funnel, forecast, insights):
-    page_header("Executive Overview", "Designed for a five-second management read.")
+    page_header("نمای کلی مدیریتی", "خلاصه‌ای که مدیر در چند ثانیه وضعیت کسب‌وکار را درک کند.")
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Monthly Revenue", toman(kpis["monthly_revenue"]))
-    c2.metric("Monthly Units", f"{kpis['monthly_units']:,.0f}")
-    c3.metric("Active Customers", f"{kpis['active_customers']:,}")
+    c1.metric("درآمد ماهانه", toman(kpis["monthly_revenue"]))
+    c2.metric("تعداد فروش ماهانه", fa_num(kpis["monthly_units"]))
+    c3.metric("مشتریان فعال", fa_num(kpis["active_customers"]))
     c4, c5, c6 = st.columns(3)
-    c4.metric("Lead Pool", f"{kpis['lead_pool']:,.0f}")
-    c5.metric("Average Selling Price", toman(kpis["average_selling_price"]))
-    c6.metric("Lead -> Purchase", pct(kpis["lead_purchase_conversion"]))
+    c4.metric("مخزن سرنخ‌ها", fa_num(kpis["lead_pool"]))
+    c5.metric("میانگین قیمت فروش", toman(kpis["average_selling_price"]))
+    c6.metric("تبدیل سرنخ به خرید", pct(kpis["lead_purchase_conversion"]))
 
     left, right = st.columns([1.45, 1])
     with left:
-        fig = px.line(monthly, x="month", y="revenue", markers=True, title="Synthetic Revenue Trend")
+        fig = px.line(monthly, x="month", y="revenue", markers=True, title="روند درآمد آزمایشی", labels={"month":"ماه","revenue":"درآمد"})
         fig.update_traces(line_color=GOLD)
         st.plotly_chart(style_fig(fig), use_container_width=True)
     with right:
         channel = pd.DataFrame(
             {
-                "Channel": ["Phone", "Online"],
-                "Units": [kpis["monthly_phone_units"], kpis["monthly_online_units"]],
+                "کانال": ["فروش تلفنی", "فروش آنلاین"],
+                "تعداد": [kpis["monthly_phone_units"], kpis["monthly_online_units"]],
             }
         )
-        fig = px.pie(channel, names="Channel", values="Units", hole=0.58, title="Current Channel Mix")
+        fig = px.pie(channel, names="کانال", values="تعداد", hole=0.58, title="ترکیب فعلی کانال‌های فروش")
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
     f1, f2 = st.columns([1, 1.25])
     with f1:
-        fig = go.Figure(go.Funnel(y=funnel["stage"], x=funnel["count"], textinfo="value+percent initial"))
-        fig.update_layout(title="Synthetic Lead Funnel")
+        fig = go.Figure(go.Funnel(y=funnel["stage"].map(FUNNEL_FA), x=funnel["count"], textinfo="value+percent initial"))
+        fig.update_layout(title="قیف آزمایشی سرنخ تا خرید")
         st.plotly_chart(style_fig(fig, 430), use_container_width=True)
     with f2:
-        fig = px.line(forecast, x="month", y="revenue", color="series", markers=True, title="Revenue History + 3-Month Forecast")
+        forecast_show = forecast.copy()
+        forecast_show["series"] = forecast_show["series"].map(FORECAST_SERIES_FA).fillna(forecast_show["series"])
+        fig = px.line(forecast_show, x="month", y="revenue", color="series", markers=True, title="تاریخچه درآمد و پیش‌بینی ۳ ماه آینده", labels={"month":"ماه","revenue":"درآمد","series":"نوع داده"})
         st.plotly_chart(style_fig(fig, 430), use_container_width=True)
 
-    st.subheader("Management Signals")
+    st.subheader("سیگنال‌های مدیریتی")
     for item in insights[:5]:
         st.markdown(
             f'<div class="insight-card"><div class="insight-type">{item["type"]}</div><b>{item["title"]}</b><br>{item["text"]}</div>',
             unsafe_allow_html=True,
         )
 
-    st.caption("Forecasts and ML outputs are experimental and should not be used for production decisions.")
+    st.caption("پیش‌بینی‌ها و خروجی مدل‌های یادگیری ماشین آزمایشی هستند و نباید مبنای تصمیم‌گیری عملیاتی قطعی قرار گیرند.")
 
 
 def data_center_page(data: Dict[str, pd.DataFrame]):
-    page_header("Data Center", "Synthetic datasets are active by default. Manual CSV upload is local-only for this prototype.")
-    st.info("CSV uploads are not sent to any NIK API or database. V0.1 replaces a synthetic dataset only when the uploaded schema matches the expected prototype schema.")
+    page_header("مرکز داده", "به‌صورت پیش‌فرض داده‌های مصنوعی فعال هستند؛ امکان بارگذاری CSV نیز برای نمونه اولیه وجود دارد.")
+    st.info("فایل‌های CSV به هیچ API یا دیتابیس NIK ارسال نمی‌شوند. فقط اگر ساختار فایل با الگوی مورد انتظار سازگار باشد، داده مصنوعی همان بخش جایگزین می‌شود.")
 
     names = ["sales", "customers", "leads", "sms", "nikpos"]
     uploaded = {}
     cols = st.columns(5)
     for col, name in zip(cols, names):
         with col:
-            uploaded[name] = st.file_uploader(f"Upload {name.title()} CSV", type=["csv"], key=f"up_{name}")
+            uploaded[name] = st.file_uploader(f"بارگذاری فایل CSV مربوط به { {"sales":"فروش","customers":"مشتریان","leads":"سرنخ‌ها","sms":"پیامک","nikpos":"نیک‌پوز"}[name] }", type=["csv"], key=f"up_{name}")
 
     active = data.copy()
     for name, up in uploaded.items():
@@ -312,216 +363,250 @@ def data_center_page(data: Dict[str, pd.DataFrame]):
                 valid, msg = validate_upload(name, df)
                 if valid:
                     active[name] = df
-                    st.success(f"{name.title()}: {msg}. Uploaded dataset active in Data Center.")
+                    st.success(f"{msg}. فایل بارگذاری‌شده فعال شد.")
                 else:
-                    st.warning(f"{name.title()}: {msg}. Synthetic dataset remains active.")
+                    st.warning(f"{msg}. داده مصنوعی همچنان فعال است.")
             except Exception as exc:
-                st.error(f"Could not read {name} CSV: {exc}")
+                st.error(f"خواندن فایل CSV ممکن نبود: {exc}")
 
     q = quality_table(active)
     q_show = q.copy()
-    q_show["Quality Score"] = q_show["Quality Score"].map(lambda x: f"{x:.1%}")
-    st.subheader("Data Quality")
+    q_show["Dataset"] = q_show["Dataset"].map(DATASET_FA).fillna(q_show["Dataset"])
+    q_show["Status"] = q_show["Status"].map(QUALITY_STATUS_FA).fillna(q_show["Status"])
+    q_show["Quality Score"] = q_show["Quality Score"].map(pct)
+    q_show = q_show.rename(columns={"Dataset":"مجموعه داده","Record Count":"تعداد رکورد","Missing Values":"مقادیر خالی","Duplicate Records":"رکورد تکراری","Invalid Values":"مقادیر نامعتبر","Quality Score":"امتیاز کیفیت","Status":"وضعیت"})
+    st.subheader("کیفیت داده")
     st.dataframe(q_show, use_container_width=True, hide_index=True)
 
-    st.subheader("Dataset Explorer")
-    selected = st.selectbox("Dataset", list(active.keys()))
-    st.dataframe(active[selected].head(200), use_container_width=True, hide_index=True)
-    st.caption(f"Showing first 200 rows of {len(active[selected]):,} records.")
+    st.subheader("مرور داده‌ها")
+    selected = st.selectbox("مجموعه داده", list(active.keys()), format_func=lambda x: {"sales":"فروش","customers":"مشتریان","leads":"سرنخ‌ها","sms":"پیامک","nikpos":"نیک‌پوز","subscriptions":"اشتراک‌ها"}.get(x, x))
+    preview = active[selected].head(200).copy()
+    if "channel" in preview.columns:
+        preview["channel"] = preview["channel"].map(CHANNEL_FA).fillna(preview["channel"])
+    if "plan" in preview.columns:
+        preview["plan"] = preview["plan"].map(PLAN_FA).fillna(preview["plan"])
+    if "stage" in preview.columns:
+        preview["stage"] = preview["stage"].map(FUNNEL_FA).fillna(preview["stage"])
+    if "risk_level" in preview.columns:
+        preview["risk_level"] = preview["risk_level"].map(RISK_FA).fillna(preview["risk_level"])
+    preview = preview.rename(columns={c: DATAFRAME_COL_FA.get(c, c) for c in preview.columns})
+    st.dataframe(preview, use_container_width=True, hide_index=True)
+    st.caption(f"نمایش ۲۰۰ ردیف اول از {fa_num(len(active[selected]))} رکورد.")
 
 
 def sales_analytics_page(scenario, data, kpis, daily, monthly):
-    page_header("Sales Analytics")
+    page_header("تحلیل فروش")
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Daily Phone Sales", f"{scenario.daily_phone_sales}")
-    c2.metric("Monthly Phone Units", f"{kpis['monthly_phone_units']:.0f}")
-    c3.metric("Monthly Online Units", f"{kpis['monthly_online_units']:.0f}")
-    c4.metric("Current Scenario Revenue", toman(kpis["monthly_revenue"]))
+    c1.metric("فروش تلفنی روزانه", fa_num(scenario.daily_phone_sales))
+    c2.metric("فروش تلفنی ماهانه", fa_num(kpis["monthly_phone_units"]))
+    c3.metric("فروش آنلاین ماهانه", fa_num(kpis["monthly_online_units"]))
+    c4.metric("درآمد سناریوی فعلی", toman(kpis["monthly_revenue"]))
 
     if len(monthly) >= 2:
         mom = monthly.iloc[-1]["revenue"] / monthly.iloc[-2]["revenue"] - 1 if monthly.iloc[-2]["revenue"] else 0
-        st.metric("Synthetic Month-over-Month Revenue Change", pct(mom))
+        st.metric("تغییر درآمد نسبت به ماه قبل", pct(mom))
 
     left, right = st.columns(2)
     with left:
-        fig = px.line(daily.tail(90), x="date", y="units", title="Daily Units — Last 90 Days")
+        fig = px.line(daily.tail(90), x="date", y="units", title="فروش روزانه — ۹۰ روز اخیر", labels={"date":"تاریخ","units":"تعداد فروش"})
         fig.update_traces(line_color=GOLD)
         st.plotly_chart(style_fig(fig), use_container_width=True)
     with right:
-        fig = px.line(monthly, x="month", y="revenue", markers=True, title="Monthly Revenue")
+        fig = px.line(monthly, x="month", y="revenue", markers=True, title="درآمد ماهانه", labels={"month":"ماه","revenue":"درآمد"})
         fig.update_traces(line_color=GOLD)
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
     sales = data["sales"].copy()
     if not sales.empty:
         by_channel = sales.groupby("channel", as_index=False).agg(units=("units", "sum"), revenue=("revenue", "sum"))
+        by_channel["channel"] = by_channel["channel"].map(CHANNEL_FA).fillna(by_channel["channel"])
         by_plan = sales.groupby("plan", as_index=False).agg(units=("units", "sum"), revenue=("revenue", "sum"))
+        by_plan["plan"] = by_plan["plan"].map(PLAN_FA).fillna(by_plan["plan"])
         l, r = st.columns(2)
         with l:
-            fig = px.bar(by_channel, x="channel", y="units", title="Historical Units by Channel")
+            fig = px.bar(by_channel, x="channel", y="units", title="تعداد فروش تاریخی بر اساس کانال", labels={"channel":"کانال","units":"تعداد فروش"})
             st.plotly_chart(style_fig(fig), use_container_width=True)
         with r:
-            fig = px.bar(by_plan, x="plan", y="revenue", title="Historical Revenue by Plan")
+            fig = px.bar(by_plan, x="plan", y="revenue", title="درآمد تاریخی بر اساس طرح", labels={"plan":"طرح","revenue":"درآمد"})
             st.plotly_chart(style_fig(fig), use_container_width=True)
 
-    st.subheader("Current Plan Economics")
+    st.subheader("اقتصاد طرح‌های فعلی")
     pp = plan_performance(scenario).copy()
-    pp["share"] = pp["share"].map(lambda x: f"{x:.1%}")
+    pp["plan"] = pp["plan"].map(PLAN_FA).fillna(pp["plan"])
+    pp["share"] = pp["share"].map(pct)
     pp["unit_price"] = pp["unit_price"].map(toman)
     pp["revenue"] = pp["revenue"].map(toman)
+    pp["units"] = pp["units"].map(lambda x: fa_num(x))
+    pp = pp.rename(columns={"plan":"طرح","units":"تعداد","share":"سهم","unit_price":"قیمت واحد","revenue":"درآمد"})
     st.dataframe(pp, use_container_width=True, hide_index=True)
 
 
 def customer_intelligence_page(customers_model, segment_profile, risk_stats):
-    page_header("Customer Intelligence", "RFM-style segmentation plus an experimental churn-risk prototype.")
+    page_header("هوشمندی مشتریان", "بخش‌بندی مشتریان به روش RFM و مدل آزمایشی ریسک ریزش.")
     c1, c2, c3 = st.columns(3)
-    c1.metric("Synthetic Customers", f"{len(customers_model):,}")
-    c2.metric("High / Very High Risk", pct(risk_stats["high_or_very_high_share"]))
-    c3.metric("Synthetic Holdout AUC", f"{risk_stats['synthetic_holdout_auc']:.3f}")
+    c1.metric("مشتریان آزمایشی", fa_num(len(customers_model)))
+    c2.metric("ریسک زیاد / بسیار زیاد", pct(risk_stats["high_or_very_high_share"]))
+    c3.metric("AUC آزمایشی مدل", fa_digits(f"{risk_stats['synthetic_holdout_auc']:.3f}"))
 
     left, right = st.columns(2)
     with left:
         seg = customers_model["segment"].value_counts().rename_axis("segment").reset_index(name="customers")
-        fig = px.bar(seg, x="segment", y="customers", title="Prototype RFM Segments")
+        seg["segment"] = seg["segment"].map(SEGMENT_FA).fillna(seg["segment"])
+        fig = px.bar(seg, x="segment", y="customers", title="بخش‌بندی آزمایشی مشتریان با RFM", labels={"segment": "بخش مشتری", "customers": "تعداد مشتری"})
         st.plotly_chart(style_fig(fig), use_container_width=True)
     with right:
         risk = customers_model["risk_level"].value_counts().rename_axis("risk_level").reset_index(name="customers")
-        fig = px.pie(risk, names="risk_level", values="customers", hole=0.55, title="Prototype Churn Risk")
+        risk["risk_level"] = risk["risk_level"].map(RISK_FA).fillna(risk["risk_level"])
+        fig = px.pie(risk, names="risk_level", values="customers", hole=0.55, title="ریسک آزمایشی ریزش مشتری")
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
-    st.subheader("Segment Profiles")
+    st.subheader("پروفایل بخش‌های مشتریان")
     profile = segment_profile[["segment", "customers", "recency", "frequency", "monetary_value"]].copy()
+    profile["segment"] = profile["segment"].map(SEGMENT_FA).fillna(profile["segment"])
     profile["recency"] = profile["recency"].round(1)
     profile["frequency"] = profile["frequency"].round(2)
     profile["monetary_value"] = profile["monetary_value"].map(toman)
+    profile = profile.rename(columns={"segment":"بخش مشتری","customers":"تعداد مشتری","recency":"روز از آخرین فعالیت","frequency":"تکرار خرید","monetary_value":"ارزش مالی"})
     st.dataframe(profile, use_container_width=True, hide_index=True)
 
-    st.subheader("Customers Requiring Attention")
+    st.subheader("مشتریان نیازمند توجه")
     cols = ["customer_id", "city", "industry", "segment", "recency", "frequency", "monetary_value", "risk_score", "risk_level"]
     risk_table = customers_model.sort_values("risk_score", ascending=False)[cols].head(100).copy()
+    risk_table["segment"] = risk_table["segment"].map(SEGMENT_FA).fillna(risk_table["segment"])
+    risk_table["risk_level"] = risk_table["risk_level"].map(RISK_FA).fillna(risk_table["risk_level"])
     risk_table["monetary_value"] = risk_table["monetary_value"].map(toman)
+    risk_table = risk_table.rename(columns={"customer_id":"شناسه مشتری","city":"شهر","industry":"صنعت","segment":"بخش مشتری","recency":"روز از آخرین فعالیت","frequency":"تکرار خرید","monetary_value":"ارزش مالی","risk_score":"امتیاز ریسک","risk_level":"سطح ریسک"})
     st.dataframe(risk_table, use_container_width=True, hide_index=True)
-    st.warning("Prototype Churn Risk Model: Logistic Regression trained on a synthetic risk label. The AUC above is illustrative only and is not production validation.")
+    st.warning("مدل آزمایشی ریسک ریزش: رگرسیون لجستیک روی برچسب‌های مصنوعی آموزش دیده است. AUC نمایش‌داده‌شده فقط برای دمو است و اعتبارسنجی عملیاتی محسوب نمی‌شود.")
 
 
 def nikpos_page(scenario, data):
-    page_header("NIKPOS Analytics")
+    page_header("تحلیل نیک‌پوز")
     plans = plan_performance(scenario)
     devices = data["nikpos"]
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Plan A Units", f"{plans.loc[plans.plan == 'Plan A', 'units'].iloc[0]:.0f}")
-    c2.metric("Plan B Units", f"{plans.loc[plans.plan == 'Plan B', 'units'].iloc[0]:.0f}")
-    c3.metric("Average Selling Price", toman(scenario.average_selling_price))
-    c4.metric("Active Synthetic Devices", pct(devices["active_device"].mean()))
+    c1.metric("تعداد فروش طرح A", fa_num(plans.loc[plans.plan == "Plan A", "units"].iloc[0]))
+    c2.metric("تعداد فروش طرح B", fa_num(plans.loc[plans.plan == "Plan B", "units"].iloc[0]))
+    c3.metric("میانگین قیمت فروش", toman(scenario.average_selling_price))
+    c4.metric("دستگاه‌های آزمایشی فعال", pct(devices["active_device"].mean()))
 
     l, r = st.columns(2)
     with l:
-        fig = px.bar(plans, x="plan", y="revenue", title="Current Scenario Revenue by Plan")
+        plans_show = plans.copy()
+        plans_show["plan"] = plans_show["plan"].map(PLAN_FA).fillna(plans_show["plan"])
+        fig = px.bar(plans_show, x="plan", y="revenue", title="درآمد سناریوی فعلی بر اساس طرح", labels={"plan":"طرح","revenue":"درآمد"})
         st.plotly_chart(style_fig(fig), use_container_width=True)
     with r:
         city = devices.groupby("city", as_index=False).agg(devices=("device_id", "count"), captures_30d=("captures_30d", "sum"))
         city = city.sort_values("captures_30d", ascending=False).head(10)
-        fig = px.bar(city, x="city", y="captures_30d", title="Synthetic 30-Day Captures by City")
+        fig = px.bar(city, x="city", y="captures_30d", title="ثبت شماره آزمایشی ۳۰ روزه بر اساس شهر", labels={"city":"شهر","captures_30d":"تعداد ثبت شماره"})
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
     monthly = data["sales"].copy()
     if not monthly.empty:
         monthly["month"] = pd.to_datetime(monthly["date"]).dt.to_period("M").dt.to_timestamp()
         trend = monthly.groupby(["month", "plan"], as_index=False).agg(units=("units", "sum"))
-        fig = px.line(trend, x="month", y="units", color="plan", markers=True, title="NIKPOS Monthly Unit Trend by Plan")
+        trend["plan"] = trend["plan"].map(PLAN_FA).fillna(trend["plan"])
+        fig = px.line(trend, x="month", y="units", color="plan", markers=True, title="روند ماهانه فروش نیک‌پوز بر اساس طرح", labels={"month":"ماه","units":"تعداد","plan":"طرح"})
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
 
 def content_page(scenario):
-    page_header("Content Analytics", "Attribution is intentionally labeled as estimated/synthetic.")
+    page_header("تحلیل محتوا", "انتساب فروش به محتوا در این نسخه فقط تخمینی و آزمایشی است.")
     m = content_metrics(scenario)
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Stories / Day", f"{m['stories_per_day']:.0f}")
-    c2.metric("Stories / Month", f"{m['stories_per_month']:.0f}")
-    c3.metric("Estimated Sales / Day", f"{m['estimated_sales_per_day']:.1f}")
-    c4.metric("Estimated Sales / Month", f"{m['estimated_sales_per_month']:.0f}")
+    c1.metric("استوری در روز", fa_num(m["stories_per_day"]))
+    c2.metric("استوری در ماه", fa_num(m["stories_per_month"]))
+    c3.metric("فروش تخمینی روزانه", fa_num(m["estimated_sales_per_day"], 1))
+    c4.metric("فروش تخمینی ماهانه", fa_num(m["estimated_sales_per_month"]))
 
     st.markdown(
-        f'<div class="insight-card"><div class="insight-type">Estimated / Synthetic Attribution</div>'
-        f'<b>Content Sales Rate proxy</b><br>Estimated sales per story: {m["sales_per_story"]:.2f}. '
-        'This is not a marketing conversion rate because story reach, exposures, source IDs, and attribution windows are not available.</div>',
+        f'<div class="insight-card"><div class="insight-type">انتساب تخمینی / آزمایشی</div>'
+        f'<b>شاخص تقریبی فروش منتسب به محتوا</b><br>فروش تخمینی به ازای هر استوری: {fa_num(m["sales_per_story"], 2)}. '
+        'این عدد نرخ تبدیل بازاریابی قطعی نیست؛ چون Reach، تعداد نمایش، شناسه منبع و بازه Attribution در دسترس نیست.</div>',
         unsafe_allow_html=True,
     )
 
     days = pd.DataFrame({"day": np.arange(1, scenario.sales_days_per_month + 1)})
     days["stories"] = scenario.stories_per_day
     days["estimated_sales"] = scenario.content_sales_per_day
-    fig = px.line(days, x="day", y=["stories", "estimated_sales"], title="Scenario Content Activity — 30-day-style Assumption")
+    fig = px.line(days.rename(columns={"day":"روز","stories":"استوری","estimated_sales":"فروش تخمینی"}), x="روز", y=["استوری", "فروش تخمینی"], title="فعالیت محتوایی سناریو با فرض ماهانه", labels={"value":"مقدار","variable":"شاخص"})
     st.plotly_chart(style_fig(fig), use_container_width=True)
-    st.caption("Real content attribution requires source tracking, campaign IDs, channel tagging, and an explicit attribution model.")
+    st.caption("برای انتساب واقعی فروش به محتوا باید منبع ورودی، شناسه کمپین، برچسب کانال و مدل Attribution مشخص وجود داشته باشد.")
 
 
 def sms_page(data):
-    page_header("SMS Analytics")
+    page_header("تحلیل پیامک")
     sms = data["sms"].copy()
     c1, c2, c3 = st.columns(3)
-    c1.metric("Synthetic Messages Sent", f"{sms['sent'].sum():,}")
-    c2.metric("Synthetic Delivery Rate", pct(sms["delivered"].sum() / sms["sent"].sum()))
-    c3.metric("Synthetic Click Rate", pct(sms["clicks"].sum() / max(sms["delivered"].sum(), 1)))
+    c1.metric("پیامک‌های آزمایشی ارسال‌شده", fa_num(sms["sent"].sum()))
+    c2.metric("نرخ تحویل آزمایشی", pct(sms["delivered"].sum() / sms["sent"].sum()))
+    c3.metric("نرخ کلیک آزمایشی", pct(sms["clicks"].sum() / max(sms["delivered"].sum(), 1)))
 
     l, r = st.columns(2)
     with l:
-        fig = px.line(sms.tail(90), x="date", y="delivery_rate", title="SMS Delivery Rate — Last 90 Days")
+        fig = px.line(sms.tail(90), x="date", y="delivery_rate", title="نرخ تحویل پیامک — ۹۰ روز اخیر", labels={"date":"تاریخ","delivery_rate":"نرخ تحویل"})
         fig.update_traces(line_color=GOLD)
         st.plotly_chart(style_fig(fig), use_container_width=True)
     with r:
-        fig = px.line(sms.tail(90), x="date", y="sent", title="SMS Volume — Last 90 Days")
+        fig = px.line(sms.tail(90), x="date", y="sent", title="حجم پیامک — ۹۰ روز اخیر", labels={"date":"تاریخ","sent":"تعداد پیامک"})
         fig.update_traces(line_color=GOLD)
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
 
 def anomaly_page(sales_anomalies, sms_anomalies):
-    page_header("Anomaly Detection", "Explainable Rolling Mean + Z-score method; threshold = |Z| >= 2.5.")
+    page_header("تشخیص ناهنجاری", "روش قابل توضیح میانگین متحرک و Z-score؛ آستانه تشخیص |Z| ≥ ۲.۵ است.")
     c1, c2 = st.columns(2)
-    c1.metric("Sales Revenue Anomalies", int(sales_anomalies["is_anomaly"].sum()))
-    c2.metric("SMS Delivery Anomalies", int(sms_anomalies["is_anomaly"].sum()))
+    c1.metric("ناهنجاری‌های درآمد فروش", fa_num(int(sales_anomalies["is_anomaly"].sum())))
+    c2.metric("ناهنجاری‌های تحویل پیامک", fa_num(int(sms_anomalies["is_anomaly"].sum())))
 
     l, r = st.columns(2)
     with l:
-        fig = px.line(sales_anomalies, x="date", y="revenue", title="Daily Revenue with Flagged Points")
+        fig = px.line(sales_anomalies, x="date", y="revenue", title="درآمد روزانه و نقاط غیرعادی", labels={"date":"تاریخ","revenue":"درآمد"})
         flagged = sales_anomalies[sales_anomalies["is_anomaly"]]
-        fig.add_scatter(x=flagged["date"], y=flagged["revenue"], mode="markers", name="Anomaly", marker=dict(size=10, color=GOLD))
+        fig.add_scatter(x=flagged["date"], y=flagged["revenue"], mode="markers", name="ناهنجاری", marker=dict(size=10, color=GOLD))
         st.plotly_chart(style_fig(fig), use_container_width=True)
     with right:
-        fig = px.line(sms_anomalies, x="date", y="delivery_rate", title="SMS Delivery Rate with Flagged Points")
+        fig = px.line(sms_anomalies, x="date", y="delivery_rate", title="نرخ تحویل پیامک و نقاط غیرعادی", labels={"date":"تاریخ","delivery_rate":"نرخ تحویل"})
         flagged = sms_anomalies[sms_anomalies["is_anomaly"]]
-        fig.add_scatter(x=flagged["date"], y=flagged["delivery_rate"], mode="markers", name="Anomaly", marker=dict(size=10, color=GOLD))
+        fig.add_scatter(x=flagged["date"], y=flagged["delivery_rate"], mode="markers", name="ناهنجاری", marker=dict(size=10, color=GOLD))
         st.plotly_chart(style_fig(fig), use_container_width=True)
 
-    st.subheader("Flagged Observations")
-    tab1, tab2 = st.tabs(["Sales", "SMS"])
+    st.subheader("موارد علامت‌گذاری‌شده")
+    tab1, tab2 = st.tabs(["فروش", "پیامک"])
     with tab1:
-        st.dataframe(sales_anomalies[sales_anomalies["is_anomaly"]].sort_values("date", ascending=False), use_container_width=True, hide_index=True)
+        sales_flags = sales_anomalies[sales_anomalies["is_anomaly"]].sort_values("date", ascending=False).rename(columns={c: DATAFRAME_COL_FA.get(c, c) for c in sales_anomalies.columns})
+        st.dataframe(sales_flags, use_container_width=True, hide_index=True)
     with tab2:
-        st.dataframe(sms_anomalies[sms_anomalies["is_anomaly"]].sort_values("date", ascending=False), use_container_width=True, hide_index=True)
+        sms_flags = sms_anomalies[sms_anomalies["is_anomaly"]].sort_values("date", ascending=False).rename(columns={c: DATAFRAME_COL_FA.get(c, c) for c in sms_anomalies.columns})
+        st.dataframe(sms_flags, use_container_width=True, hide_index=True)
 
 
 def predictions_page(forecast, forecast_stats, customers_model, risk_stats):
-    page_header("Predictions", "Simple, explainable prototype models only.")
+    page_header("پیش‌بینی‌ها", "فقط مدل‌های ساده، قابل توضیح و آزمایشی.")
     c1, c2 = st.columns(2)
-    c1.metric("Revenue Trend Model R2", f"{forecast_stats['r2']:.3f}")
-    c2.metric("Synthetic Churn Holdout AUC", f"{risk_stats['synthetic_holdout_auc']:.3f}")
+    c1.metric("R² مدل روند درآمد", fa_digits(f"{forecast_stats['r2']:.3f}"))
+    c2.metric("AUC آزمایشی ریزش", fa_digits(f"{risk_stats['synthetic_holdout_auc']:.3f}"))
 
-    fig = px.line(forecast, x="month", y="revenue", color="series", markers=True, title="Historical Revenue + Next 3 Months")
+    forecast_show = forecast.copy()
+    forecast_show["series"] = forecast_show["series"].map(FORECAST_SERIES_FA).fillna(forecast_show["series"])
+    fig = px.line(forecast_show, x="month", y="revenue", color="series", markers=True, title="درآمد تاریخی و ۳ ماه آینده", labels={"month":"ماه","revenue":"درآمد","series":"نوع داده"})
     st.plotly_chart(style_fig(fig, 470), use_container_width=True)
 
-    st.subheader("Prototype Churn Risk Model")
+    st.subheader("مدل آزمایشی ریسک ریزش")
     top = customers_model.sort_values("risk_score", ascending=False)[
         ["customer_id", "recency", "frequency", "monetary_value", "sms_usage", "nikpos_usage", "risk_score", "risk_level"]
     ].head(50).copy()
+    top["risk_level"] = top["risk_level"].map(RISK_FA).fillna(top["risk_level"])
     top["monetary_value"] = top["monetary_value"].map(toman)
+    top = top.rename(columns={"customer_id":"شناسه مشتری","recency":"روز از آخرین فعالیت","frequency":"تکرار خرید","monetary_value":"ارزش مالی","sms_usage":"مصرف پیامک","nikpos_usage":"استفاده از نیک‌پوز","risk_score":"امتیاز ریسک","risk_level":"سطح ریسک"})
     st.dataframe(top, use_container_width=True, hide_index=True)
-    st.warning("Forecasts and ML outputs are experimental and should not be used for production decisions.")
+    st.warning("پیش‌بینی‌ها و خروجی مدل‌های یادگیری ماشین آزمایشی هستند و نباید مبنای تصمیم‌گیری عملیاتی قطعی قرار گیرند.")
 
 
 def insights_page(insights):
-    page_header("Automated Insights", "Automated Rule-based Insights generated from the current scenario and synthetic analysis outputs.")
+    page_header("بینش‌های خودکار", "بینش‌های قانون‌محور که از سناریوی فعلی و خروجی تحلیل آزمایشی تولید می‌شوند.")
     for item in insights:
         st.markdown(
             f'<div class="insight-card"><div class="insight-type">{item["type"]}</div><b>{item["title"]}</b><br>{item["text"]}</div>',
@@ -530,19 +615,19 @@ def insights_page(insights):
 
 
 def pipeline_page():
-    page_header("Analysis Pipeline")
+    page_header("خط لوله تحلیل")
     stages = [
-        "Data Import",
-        "Data Validation",
-        "Data Cleaning",
-        "KPI Calculation",
-        "Trend Analysis",
-        "Anomaly Detection",
-        "Customer Segmentation",
-        "Risk Scoring",
-        "Forecast",
-        "Insight Generation",
-        "Dashboard Update",
+        "ورود داده",
+        "اعتبارسنجی داده",
+        "پاک‌سازی داده",
+        "محاسبه KPI",
+        "تحلیل روند",
+        "تشخیص ناهنجاری",
+        "بخش‌بندی مشتریان",
+        "امتیازدهی ریسک",
+        "پیش‌بینی",
+        "تولید بینش",
+        "به‌روزرسانی داشبورد",
     ]
     for i in range(0, len(stages), 3):
         cols = st.columns(3)
@@ -556,42 +641,42 @@ def pipeline_page():
 
     st.markdown("---")
     st.code(
-        "INPUT -> DATA -> ANALYSIS -> KPI -> CHART -> MODEL -> INSIGHT -> DASHBOARD UPDATE",
+        "ورودی ← داده ← تحلیل ← KPI ← نمودار ← مدل ← بینش ← به‌روزرسانی داشبورد",
         language="text",
     )
-    st.caption("RUN ANALYSIS in the sidebar demonstrates the pipeline sequence. Inputs also trigger Streamlit's live rerun behavior immediately.")
+    st.caption("دکمه «اجرای تحلیل» در نوار کناری ترتیب مراحل تحلیل را نمایش می‌دهد. تغییر ورودی‌ها نیز بلافاصله کل برنامه را دوباره محاسبه می‌کند.")
 
 
 def settings_page(scenario, kpis):
-    page_header("Settings / Scenario Controls", "All core values below are derived from the editable sidebar scenario.")
+    page_header("تنظیمات و کنترل سناریو", "تمام مقادیر اصلی از ورودی‌های قابل تغییر نوار کناری محاسبه می‌شوند.")
     rows = [
-        ("Price Plan A", toman(scenario.price_plan_a)),
-        ("Price Plan B", toman(scenario.price_plan_b)),
-        ("Plan A Share", pct(scenario.plan_a_share)),
-        ("Plan B Share", pct(scenario.plan_b_share)),
-        ("Daily Phone Sales", f"{scenario.daily_phone_sales}"),
-        ("Monthly Online Sales", f"{scenario.monthly_online_sales}"),
-        ("Lead Backlog", f"{scenario.lead_backlog:,}"),
-        ("Stories / Day", f"{scenario.stories_per_day}"),
-        ("Content-attributed Sales / Day", f"{scenario.content_sales_per_day:.1f}"),
-        ("Synthetic Customers", f"{scenario.synthetic_customer_count:,}"),
-        ("Historical Months", f"{scenario.history_months}"),
-        ("Sales Days / Month", f"{scenario.sales_days_per_month}"),
-        ("Seed", f"{scenario.seed}"),
+        ("قیمت طرح A", toman(scenario.price_plan_a)),
+        ("قیمت طرح B", toman(scenario.price_plan_b)),
+        ("سهم طرح A", pct(scenario.plan_a_share)),
+        ("سهم طرح B", pct(scenario.plan_b_share)),
+        ("فروش تلفنی روزانه", fa_num(scenario.daily_phone_sales)),
+        ("فروش آنلاین ماهانه", fa_num(scenario.monthly_online_sales)),
+        ("تعداد سرنخ‌های در صف", fa_num(scenario.lead_backlog)),
+        ("استوری در روز", fa_num(scenario.stories_per_day)),
+        ("فروش منتسب به محتوا در روز", fa_num(scenario.content_sales_per_day, 1)),
+        ("مشتریان آزمایشی", fa_num(scenario.synthetic_customer_count)),
+        ("ماه‌های تاریخی", fa_num(scenario.history_months)),
+        ("روزهای فروش در ماه", fa_num(scenario.sales_days_per_month)),
+        ("بذر تولید داده", fa_num(scenario.seed)),
     ]
-    st.dataframe(pd.DataFrame(rows, columns=["Setting", "Current Value"]), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(rows, columns=["تنظیم", "مقدار فعلی"]), use_container_width=True, hide_index=True)
 
-    st.subheader("Live Dependency Check")
+    st.subheader("بررسی وابستگی زنده")
     st.code(
-        f"Daily Phone Sales = {scenario.daily_phone_sales}\n"
-        f"Monthly Phone Units = {kpis['monthly_phone_units']:.0f}\n"
-        f"Monthly Total Units = {kpis['monthly_units']:.0f}\n"
-        f"Average Selling Price = {scenario.average_selling_price:,.0f} Toman\n"
-        f"Monthly Revenue = {kpis['monthly_revenue']:,.0f} Toman\n"
-        f"Lead -> Purchase = {kpis['lead_purchase_conversion']:.2%}",
+        f"فروش تلفنی روزانه = {fa_num(scenario.daily_phone_sales)}\n"
+        f"فروش تلفنی ماهانه = {fa_num(kpis['monthly_phone_units'])}\n"
+        f"کل فروش ماهانه = {fa_num(kpis['monthly_units'])}\n"
+        f"میانگین قیمت فروش = {toman(scenario.average_selling_price)}\n"
+        f"درآمد ماهانه = {toman(kpis['monthly_revenue'])}\n"
+        f"تبدیل سرنخ به خرید = {pct(kpis['lead_purchase_conversion'])}",
         language="text",
     )
-    st.success("Demo test: change Daily Phone Sales from 10 to 15 in the sidebar. Revenue, units, funnel, historical trend, forecast, channel mix, and automated insights recalculate on rerun.")
+    st.success("برای تست دمو، فروش تلفنی روزانه را از ۱۰ به ۱۵ تغییر بده؛ درآمد، تعداد فروش، قیف، روند تاریخی، پیش‌بینی، ترکیب کانال‌ها و بینش‌های خودکار بلافاصله دوباره محاسبه می‌شوند.")
 
 
 def main():
@@ -636,8 +721,8 @@ def main():
         settings_page(scenario, kpis)
 
     st.markdown("---")
-    st.caption("Prototype using synthetic/demo data. Not connected to NIK internal systems.")
-    st.caption("Forecasts and ML outputs are experimental and should not be used for production decisions.")
+    st.caption("نسخه آزمایشی با داده‌های مصنوعی/دمو؛ بدون اتصال به سیستم‌های داخلی NIK.")
+    st.caption("پیش‌بینی‌ها و خروجی مدل‌های یادگیری ماشین آزمایشی هستند و نباید مبنای تصمیم‌گیری عملیاتی قطعی قرار گیرند.")
 
 
 if __name__ == "__main__":

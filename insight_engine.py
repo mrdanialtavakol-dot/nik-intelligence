@@ -8,6 +8,14 @@ import pandas as pd
 from data_generator import Scenario
 
 
+def _fa(value) -> str:
+    return str(value).translate(str.maketrans("0123456789,.%", "۰۱۲۳۴۵۶۷۸۹٬٫٪"))
+
+
+def _pct(value: float) -> str:
+    return _fa(f"{value:.1%}")
+
+
 def generate_insights(
     scenario: Scenario,
     kpis: Dict[str, float],
@@ -22,61 +30,61 @@ def generate_insights(
         current = monthly_sales.iloc[-1]["revenue"]
         previous = monthly_sales.iloc[-2]["revenue"]
         change = (current / previous - 1) if previous else 0
-        direction = "increased" if change >= 0 else "decreased"
+        direction = "افزایش یافته" if change >= 0 else "کاهش یافته"
         insights.append(
             {
-                "type": "Trend",
-                "title": "Revenue movement",
-                "text": f"Synthetic historical revenue {direction} {abs(change):.1%} versus the previous month.",
+                "type": "روند",
+                "title": "تغییر درآمد",
+                "text": f"درآمد تاریخی آزمایشی نسبت به ماه قبل {_pct(abs(change))} {direction} است.",
             }
         )
 
     insights.append(
         {
-            "type": "Channel Mix",
-            "title": "Phone channel concentration",
-            "text": f"Phone sales represent approximately {kpis['phone_share']:.1%} of current scenario units.",
+            "type": "ترکیب کانال",
+            "title": "تمرکز فروش تلفنی",
+            "text": f"فروش تلفنی حدود {_pct(kpis['phone_share'])} از تعداد فروش سناریوی فعلی را تشکیل می‌دهد.",
         }
     )
 
     days_to_process = scenario.lead_backlog / scenario.daily_phone_sales if scenario.daily_phone_sales > 0 else np.inf
     if np.isfinite(days_to_process):
-        severity = "high" if days_to_process > 90 else "moderate" if days_to_process > 30 else "manageable"
+        severity = "زیاد" if days_to_process > 90 else "متوسط" if days_to_process > 30 else "قابل مدیریت"
         insights.append(
             {
-                "type": "Capacity Proxy",
-                "title": "Lead backlog vs sales capacity",
+                "type": "شاخص ظرفیت",
+                "title": "صف سرنخ‌ها در برابر ظرفیت فروش",
                 "text": (
-                    f"The backlog-to-daily-phone-sales ratio is {days_to_process:.0f} days, which appears {severity}. "
-                    "This is a capacity proxy, not a true lead-processing SLA."
+                    f"نسبت تعداد سرنخ‌های در صف به فروش تلفنی روزانه حدود {_fa(f'{days_to_process:.0f}')} روز است و در این مدل «{severity}» ارزیابی می‌شود. "
+                    "این عدد فقط یک شاخص تقریبی ظرفیت است و زمان واقعی پردازش سرنخ‌ها محسوب نمی‌شود."
                 ),
             }
         )
 
     insights.append(
         {
-            "type": "Conversion",
-            "title": "Lead to purchase scenario rate",
-            "text": f"Current scenario lead-to-purchase conversion is approximately {kpis['lead_purchase_conversion']:.1%}.",
+            "type": "نرخ تبدیل",
+            "title": "تبدیل سرنخ به خرید",
+            "text": f"نرخ تبدیل سرنخ به خرید در سناریوی فعلی حدود {_pct(kpis['lead_purchase_conversion'])} است.",
         }
     )
 
     insights.append(
         {
-            "type": "Content",
-            "title": "Estimated / Synthetic Attribution",
+            "type": "محتوا",
+            "title": "انتساب تخمینی / آزمایشی",
             "text": (
-                f"Content-attributed sales are modeled at about {kpis['content_monthly_sales']:.0f} units per month. "
-                "Real attribution requires source tracking and a defined attribution model."
+                f"فروش منتسب به محتوا در این مدل حدود {_fa(f'{kpis['content_monthly_sales']:.0f}')} دستگاه در ماه برآورد می‌شود. "
+                "برای Attribution واقعی باید منبع ورودی و مدل انتساب مشخص وجود داشته باشد."
             ),
         }
     )
 
     insights.append(
         {
-            "type": "Customer Risk",
-            "title": "Prototype churn risk",
-            "text": f"High or very-high risk customers represent {risk_stats['high_or_very_high_share']:.1%} of the synthetic customer base.",
+            "type": "ریسک مشتری",
+            "title": "ریسک آزمایشی ریزش",
+            "text": f"مشتریان با ریسک زیاد یا بسیار زیاد حدود {_pct(risk_stats['high_or_very_high_share'])} از مشتریان مصنوعی را تشکیل می‌دهند.",
         }
     )
 
@@ -85,17 +93,17 @@ def generate_insights(
     if sales_anomaly_count:
         insights.append(
             {
-                "type": "Alert",
-                "title": "Sales anomaly detected",
-                "text": f"Rolling Z-score detection flagged {sales_anomaly_count} unusual sales-revenue observations in the synthetic history.",
+                "type": "هشدار",
+                "title": "ناهنجاری در فروش شناسایی شد",
+                "text": f"روش Rolling Z-score تعداد {_fa(sales_anomaly_count)} مشاهده غیرعادی در درآمد فروش آزمایشی شناسایی کرده است.",
             }
         )
     if sms_anomaly_count:
         insights.append(
             {
-                "type": "Alert",
-                "title": "SMS delivery anomaly detected",
-                "text": f"Rolling Z-score detection flagged {sms_anomaly_count} unusual SMS delivery-rate observations.",
+                "type": "هشدار",
+                "title": "ناهنجاری در تحویل پیامک شناسایی شد",
+                "text": f"روش Rolling Z-score تعداد {_fa(sms_anomaly_count)} مشاهده غیرعادی در نرخ تحویل پیامک شناسایی کرده است.",
             }
         )
 
