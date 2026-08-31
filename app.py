@@ -1594,7 +1594,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         <div style="padding:3px 4px 7px">
             <div style="font-size:.69rem;color:#557493;font-weight:900;letter-spacing:.08em">NIK EXECUTIVE MANAGEMENT OS</div>
             <div style="font-size:1.18rem;color:#173A5D;font-weight:900;margin-top:4px">پنل مدیریتی نیک اس‌ام‌اس</div>
-            <div style="font-size:.70rem;color:#7A91A7;margin-top:4px">Management OS + Growth Intelligence · V0.10</div>
+            <div style="font-size:.70rem;color:#7A91A7;margin-top:4px">Management OS + Growth Intelligence · V0.10.1</div>
             <div style="font-size:.66rem;color:#4B7DB3;margin-top:6px;font-weight:800">طراحی اختصاصی برای کیوان میرزایی</div>
         </div>
         """,
@@ -1665,7 +1665,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         for i, stage in enumerate(stages, start=1):
             status.caption(stage); progress.progress(int(i / len(stages) * 100)); time.sleep(0.012)
         status.success("تحلیل به‌روز شد")
-    st.sidebar.caption("V0.10 · دو تجربه مجزا: Management OS داخلی نیک + Growth Intelligence برای مشتریان کسب‌وکار.")
+    st.sidebar.caption("V0.10.1 · دو تجربه مجزا: Management OS داخلی نیک + Growth Intelligence برای مشتریان کسب‌وکار.")
     if st.session_state.presentation_mode:
         page = "Executive Overview"
     return scenario, page
@@ -1935,10 +1935,10 @@ def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights
         })
         fig = px.pie(channel_df, names="کانال", values="درآمد مدل", hole=.70, color_discrete_sequence=[ACCENT, "#4D82B8"])
         fig.update_traces(textposition="inside", textinfo="percent")
-        fig.update_layout(annotations=[dict(text="ترکیب درآمد", x=.5, y=.5, font_size=14, showarrow=False, font_color="#EAF3FF")])
+        fig.update_layout(annotations=[dict(text="ترکیب درآمد", x=.5, y=.5, font_size=14, showarrow=False, font_color="#173A5D")])
         st.plotly_chart(style_fig(fig, 330), use_container_width=True)
         st.markdown(
-            f'''<div class="glass-panel" style="margin-top:-4px"><div class="section-kicker">برداشت مدیریتی</div><div style="font-weight:780;color:#F8FBFF;margin-top:5px">طرح B با {pct(sm['share_b'])} از تعداد فروش، حدود {pct(plan_b_rev_share)} از درآمد مدل را می‌سازد.</div><div class="kpi-note">این نتیجه از اختلاف قیمت طرح‌ها به دست می‌آید و با تغییر Mix در Sidebar زنده تغییر می‌کند.</div></div>''',
+            f'''<div class="glass-panel" style="margin-top:-4px"><div class="section-kicker">برداشت مدیریتی</div><div style="font-weight:800;color:#173A5D;margin-top:5px">طرح B با {pct(sm['share_b'])} از تعداد فروش، حدود {pct(plan_b_rev_share)} از درآمد مدل را می‌سازد.</div><div class="kpi-note">این نتیجه از اختلاف قیمت طرح‌ها به دست می‌آید و با تغییر Mix در Sidebar زنده تغییر می‌کند.</div></div>''',
             unsafe_allow_html=True,
         )
 
@@ -2621,7 +2621,7 @@ def pipeline_page():
                 with col:
                     st.markdown(f'<div class="pipeline-step">{fa_num(idx + 1)}<br>{stages[idx]}</div>', unsafe_allow_html=True)
         if i + 4 < len(stages):
-            st.markdown("<div style='text-align:center;color:#ADCBFF;font-size:1.35rem;margin:4px 0'>↓</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align:center;color:#356FAE;font-size:1.35rem;margin:4px 0'>↓</div>", unsafe_allow_html=True)
 
     st.write("")
     section_heading("ورودی آینده", "معماری اتصال بعدی")
@@ -2629,15 +2629,15 @@ def pipeline_page():
         """
         <div class="glass-panel" style="text-align:center;line-height:2.1;font-weight:650">
             پایگاه داده / CRM / پنل نیک
-            <span style="color:#ADCBFF"> → </span>
+            <span style="color:#356FAE;font-weight:900"> → </span>
             API فقط‌خواندنی
-            <span style="color:#ADCBFF"> → </span>
+            <span style="color:#356FAE;font-weight:900"> → </span>
             n8n / خط لوله داده
-            <span style="color:#ADCBFF"> → </span>
+            <span style="color:#356FAE;font-weight:900"> → </span>
             اعتبارسنجی
-            <span style="color:#ADCBFF"> → </span>
+            <span style="color:#356FAE;font-weight:900"> → </span>
             موتور تحلیل
-            <span style="color:#ADCBFF"> → </span>
+            <span style="color:#356FAE;font-weight:900"> → </span>
             NIK Intelligence
         </div>
         """,
@@ -2676,7 +2676,7 @@ def revenue_intelligence_page(scenario, kpis):
         df = pd.DataFrame({"کانال":["فروش تلفنی","فروش آنلاین"],"درآمد":[phone_revenue,online_revenue]})
         fig = px.pie(df, names="کانال", values="درآمد", hole=.72, color_discrete_sequence=[ACCENT,"#5C8EBC"])
         fig.update_traces(textinfo="percent")
-        fig.update_layout(annotations=[dict(text="Revenue Mix",x=.5,y=.5,showarrow=False,font_color="#EAF4FF",font_size=13)])
+        fig.update_layout(annotations=[dict(text="Revenue Mix",x=.5,y=.5,showarrow=False,font_color="#173A5D",font_size=13)])
         st.plotly_chart(style_fig(fig, 360), use_container_width=True)
 
     section_heading("حساسیت درآمد", "اثر حرکت یک متغیر", "این تحلیل What-if است؛ پیش‌بینی نتیجه واقعی بازار نیست.")
@@ -2796,6 +2796,281 @@ V07_MANAGEMENT_CSS = """
 st.markdown(V07_MANAGEMENT_CSS, unsafe_allow_html=True)
 
 
+V101_VISUAL_POLISH_CSS = r"""
+<style>
+/* =========================================================
+   V0.10.1 — FINAL VISUAL POLISH / ACCESSIBILITY LAYER
+   This block MUST remain after every legacy CSS block.
+   No business logic is changed here.
+   ========================================================= */
+:root{
+    --nik101-bg:#DDEBFA;
+    --nik101-bg-soft:#EAF3FC;
+    --nik101-surface:rgba(248,252,255,.89);
+    --nik101-surface-2:rgba(232,243,255,.84);
+    --nik101-surface-3:rgba(218,234,251,.78);
+    --nik101-edge:rgba(62,105,149,.18);
+    --nik101-edge-soft:rgba(255,255,255,.88);
+    --nik101-text:#0D2A45;
+    --nik101-text-2:#244A6C;
+    --nik101-muted:#45627C;
+    --nik101-soft:#5A738B;
+    --nik101-blue:#2F6FAE;
+    --nik101-blue-2:#477FBB;
+    --nik101-accent:#ADCBFF;
+    --nik101-success:#146747;
+    --nik101-warning:#77510A;
+    --nik101-danger:#8A2E42;
+}
+
+/* Canvas: brighter than dark mode, but no washed-out white-on-white surfaces. */
+.stApp{
+    color:var(--nik101-text)!important;
+    background:
+        radial-gradient(900px 560px at 88% -8%,rgba(173,203,255,.70),transparent 67%),
+        radial-gradient(760px 560px at 4% 30%,rgba(202,224,249,.74),transparent 70%),
+        radial-gradient(620px 460px at 56% 94%,rgba(247,251,255,.72),transparent 72%),
+        linear-gradient(145deg,#EFF6FD 0%,#E4EFFA 38%,#D8E8F8 68%,#CFE1F5 100%)!important;
+    background-attachment:fixed!important;
+}
+
+/* Sidebar: one clearly separated glass rail. */
+[data-testid="stSidebar"]{
+    background:linear-gradient(180deg,rgba(237,246,255,.97),rgba(218,234,250,.94))!important;
+    border-left:1px solid rgba(59,104,149,.18)!important;
+    box-shadow:-22px 0 64px rgba(49,89,129,.13)!important;
+    -webkit-backdrop-filter:blur(34px) saturate(150%)!important;
+    backdrop-filter:blur(34px) saturate(150%)!important;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] small,
+[data-testid="stSidebar"] .stCaption,
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p{
+    color:#244A6A!important;
+    -webkit-text-fill-color:#244A6A!important;
+}
+[data-testid="stSidebar"] hr{border-color:rgba(57,101,145,.15)!important}
+
+/* Streamlit navigation and controls. */
+[data-testid="stSidebar"] [data-baseweb="select"]>div,
+[data-testid="stSelectbox"] [data-baseweb="select"]>div,
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-testid="stTextArea"] textarea,
+textarea{
+    color:#123957!important;
+    -webkit-text-fill-color:#123957!important;
+    background:rgba(248,252,255,.94)!important;
+    border-color:rgba(54,101,148,.19)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.94)!important;
+}
+[data-baseweb="popover"],
+[data-baseweb="popover"]>div,
+[role="listbox"]{
+    background:#F5FAFF!important;
+    color:#123957!important;
+}
+[role="option"]{color:#173E5E!important;background:#F5FAFF!important}
+[role="option"]:hover,[role="option"][aria-selected="true"]{background:#DCEBFA!important;color:#0C3150!important}
+
+/* Radio navigation: selected item reads as a deliberate menu state. */
+[data-testid="stSidebar"] [role="radiogroup"] label{
+    border-radius:13px!important;
+    padding:.30rem .42rem!important;
+    transition:background .18s ease,box-shadow .18s ease!important;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked){
+    background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(190,216,245,.75))!important;
+    box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(61,103,148,.10)!important;
+}
+[data-testid="stSidebar"] [role="radiogroup"] label p{color:#284E70!important;font-weight:720!important}
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p{color:#0E3659!important;font-weight:900!important}
+
+/* Global readable typography. */
+[data-testid="stMarkdownContainer"],
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stWidgetLabel"] p,
+.stMarkdown,.stHeader,.stSubheader{
+    color:var(--nik101-text-2)!important;
+}
+h1,h2,h3,h4,h5,h6{color:var(--nik101-text)!important;-webkit-text-fill-color:var(--nik101-text)!important}
+a{color:#1E619D!important;text-decoration-color:rgba(30,97,157,.34)!important}
+small,.stCaption,[data-testid="stCaptionContainer"]{color:var(--nik101-muted)!important}
+
+/* Unified liquid-glass surfaces across ALL generations of the app. */
+.hero-glass,.ceo-command,.glass-kpi,.glass-panel,.command-metric,.priority-card,.leverage-card,
+.v06-brief,.ceo-personal-hero,.team-card,.ceo-inbox-card,.auto-ledger,.lead-routing-hero,
+.connection-card,.v09-section-hero,.v09-integration,.customer-product-hero,.customer-health-main,
+.customer-health-cell,.growth-opportunity,.action-story,.plan-card,.customer-automation-row,
+.org-card,.management-hero,.auto-rule,.campaign-result,.flow-strip,.role-box,.report-row,
+.money-chip,.trust-cell,.gap-row,.ops-step,[data-testid="stMetric"],div[data-testid="stExpander"]{
+    background:linear-gradient(150deg,var(--nik101-surface),var(--nik101-surface-2))!important;
+    border:1px solid rgba(255,255,255,.94)!important;
+    outline:1px solid rgba(66,111,157,.08)!important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.98),
+        inset 0 -1px 0 rgba(92,133,177,.05),
+        0 16px 44px rgba(55,96,138,.11)!important;
+    -webkit-backdrop-filter:blur(28px) saturate(145%)!important;
+    backdrop-filter:blur(28px) saturate(145%)!important;
+}
+
+/* Deliberately stronger cards for primary executive information. */
+.hero-glass,.ceo-command,.ceo-personal-hero,.customer-product-hero,.management-hero{
+    background:
+        radial-gradient(260px 150px at 92% 0%,rgba(173,203,255,.52),transparent 72%),
+        linear-gradient(145deg,rgba(250,253,255,.94),rgba(220,236,253,.86))!important;
+    border-color:rgba(255,255,255,.98)!important;
+}
+
+/* All legacy dark-theme headline classes. */
+.hero-title,.kpi-value,.section-title,.ceo-status-title,.ceo-command-value,.command-metric-value,
+.priority-title,.money-chip-value,.leverage-title,.leverage-value,.gap-title,.v06-brief-title,
+.trust-value,.sim-value,.connection-name,.ceo-personal-title,.ceo-inbox-title,.team-name,
+.auto-ledger-title,.lead-routing-value,.report-name,.v09-hero-title,.org-name,.org-score,
+.management-hero-title,.auto-rule-name,.campaign-title,.role-value,.customer-product-title,
+.customer-health-value,.growth-opportunity-title,.growth-opportunity-value,.plan-name,.plan-price,
+.action-story-text b,.customer-automation-row b{
+    color:var(--nik101-text)!important;
+    -webkit-text-fill-color:var(--nik101-text)!important;
+}
+
+/* Secondary copy: never use pale gray on an ice surface. */
+.hero-subtitle,.kpi-label,.kpi-note,.section-subtitle,.ceo-status-copy,.ceo-command-label,
+.ceo-command-foot,.command-metric-label,.command-metric-note,.priority-text,.priority-source,
+.money-chip-label,.leverage-note,.gap-text,.v06-brief-copy,.trust-label,.trust-note,.sim-label,
+.connection-copy,.connection-fresh,.ceo-personal-copy,.ceo-inbox-meta,.team-role,
+.auto-ledger-copy,.lead-routing-label,.report-sub,.v09-hero-copy,.v09-subnav,.media-meta,
+.org-grid-note,.management-hero-copy,.auto-rule-copy,.auto-rule-action,.campaign-copy,
+.role-label,.role-copy,.customer-product-copy,.customer-health-label,.customer-health-note,
+.growth-opportunity-copy,.growth-opportunity-meta,.plan-period,.plan-best,.plan-feature,
+.action-story-text,.customer-automation-row{
+    color:var(--nik101-muted)!important;
+    -webkit-text-fill-color:var(--nik101-muted)!important;
+}
+
+/* Minimum size for explanatory microcopy — tiny copy was a readability issue. */
+.kpi-note,.command-metric-note,.priority-source,.gap-text,.leverage-note,.trust-note,.connection-fresh,
+.ceo-inbox-meta,.team-role,.report-sub,.org-grid-note,.auto-rule-copy,.auto-rule-action,.role-label,
+.role-copy,.customer-health-note,.growth-opportunity-copy,.growth-opportunity-meta,.plan-period,
+.plan-best,.plan-feature,.customer-source-note,.customer-automation-row{
+    font-size:max(.68rem,11px)!important;
+    line-height:1.72!important;
+}
+
+/* Kicker / accent text gets a darker brand blue on light surfaces. */
+.eyebrow,.section-kicker,.ceo-overline,.v06-brief-kicker,.ceo-personal-kicker,.leverage-kicker,
+.ceo-inbox-action,.v09-hero-kicker,.v09-integration-title,.management-hero-kicker,
+.campaign-status,.customer-product-kicker,.plan-eyebrow,.growth-opportunity-priority{
+    color:var(--nik101-blue)!important;
+    -webkit-text-fill-color:var(--nik101-blue)!important;
+}
+
+/* Icon system: higher contrast + cleaner liquid glass. */
+.kpi-icon,.v09-icon-shell,.org-icon,.gap-index{
+    color:#1E5A91!important;
+    background:
+        radial-gradient(circle at 28% 20%,rgba(255,255,255,.96),transparent 38%),
+        linear-gradient(145deg,rgba(247,252,255,.98),rgba(173,203,255,.68))!important;
+    border:1px solid rgba(70,118,167,.20)!important;
+    box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(55,104,153,.13)!important;
+}
+.kpi-icon svg,.v09-icon-shell svg,.org-icon svg,.gap-index svg{
+    stroke:#225F98!important;
+    color:#225F98!important;
+    opacity:1!important;
+}
+
+/* Status pills use dark semantic text, not pastel text. */
+.src-real,.org-ok,.conf-high,.state-on,.customer-status-ready{color:#126344!important;background:rgba(32,165,105,.12)!important;border-color:rgba(29,135,88,.20)!important}
+.src-derived,.trend-flat,.sev-info,.team-chip,.audit-pill,.v09-connect-pill,.campaign-name,.flow-node{color:#275B8E!important;background:rgba(89,144,203,.12)!important;border-color:rgba(73,123,174,.18)!important}
+.src-estimated,.org-watch,.conf-med,.auto-on,.gap-status,.customer-status-suggest,.sev-med{color:#73500C!important;background:rgba(232,171,57,.14)!important;border-color:rgba(187,133,30,.22)!important}
+.src-synthetic{color:#5B438E!important;background:rgba(126,94,191,.11)!important;border-color:rgba(126,94,191,.19)!important}
+.org-action,.conf-low,.sev-high,.trend-down{color:#862F43!important;background:rgba(215,79,105,.10)!important;border-color:rgba(187,64,89,.18)!important}
+.auto-off,.state-off{color:#4F657B!important;background:rgba(105,132,158,.09)!important;border-color:rgba(80,111,142,.16)!important}
+
+/* V0.7 organization components were injected after the old light theme. Fix them here. */
+.org-pill:not(.org-ok):not(.org-watch):not(.org-action){color:#3C5F7F!important;background:rgba(230,241,252,.86)!important;border-color:rgba(77,121,165,.14)!important}
+.flow-arrow{color:#426B91!important}
+.auto-rule-active{
+    background:linear-gradient(145deg,rgba(255,248,230,.90),rgba(236,245,255,.88))!important;
+    border-color:rgba(192,139,37,.19)!important;
+}
+
+/* Inline legacy text inside glass cards. CSS !important intentionally beats inline non-important colors. */
+.glass-panel div[style*="color:#F8FBFF"],
+.org-pill[style*="color:#BACBDB"]{color:#214A6D!important;-webkit-text-fill-color:#214A6D!important}
+
+/* Buttons: distinct text and surface. */
+.stButton>button,.stDownloadButton>button{
+    color:#123E64!important;
+    -webkit-text-fill-color:#123E64!important;
+    background:linear-gradient(145deg,rgba(252,254,255,.98),rgba(205,226,248,.92))!important;
+    border:1px solid rgba(56,105,153,.21)!important;
+    box-shadow:inset 0 1px 0 #fff,0 9px 24px rgba(55,99,145,.11)!important;
+    font-weight:800!important;
+}
+.stButton>button[kind="primary"]{
+    color:#fff!important;
+    -webkit-text-fill-color:#fff!important;
+    background:linear-gradient(135deg,#4E87C8,#2E69A8)!important;
+    border-color:rgba(255,255,255,.54)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.54),0 12px 28px rgba(39,91,148,.25)!important;
+}
+.stButton>button:disabled,.stDownloadButton>button:disabled{opacity:.66!important;color:#506A82!important;-webkit-text-fill-color:#506A82!important}
+
+/* Tabs and expanders. */
+[data-testid="stTabs"] [role="tab"]{color:#45647F!important;font-weight:800!important}
+[data-testid="stTabs"] [role="tab"][aria-selected="true"]{color:#123D62!important;font-weight:900!important}
+[data-testid="stTabs"] [data-baseweb="tab-highlight"]{background-color:#3976B4!important;height:3px!important;border-radius:99px!important}
+details summary,div[data-testid="stExpander"] summary p{color:#234A6C!important;font-weight:800!important}
+
+/* Metrics, alerts, tables and helper UI. */
+[data-testid="stMetricLabel"] p{color:#45627C!important;font-weight:760!important}
+[data-testid="stMetricValue"]{color:#0D2E4D!important}
+[data-testid="stAlert"]{background:rgba(240,248,255,.92)!important;border:1px solid rgba(65,111,157,.16)!important;color:#214866!important}
+[data-testid="stAlert"] p,[data-testid="stAlert"] div{color:#214866!important}
+[data-testid="stDataFrame"],[data-testid="stTable"]{border:1px solid rgba(63,108,153,.14)!important;border-radius:17px!important;overflow:hidden!important;background:rgba(247,251,255,.82)!important}
+code,pre{color:#173C5C!important;background:rgba(227,239,252,.86)!important;border-color:rgba(72,117,162,.14)!important}
+
+/* Sliders / progress / checkbox accents. */
+[data-baseweb="slider"] div[role="slider"]{background:#2F6FAE!important;border-color:#fff!important}
+[data-testid="stProgress"]>div>div>div{background:linear-gradient(90deg,#77A8DF,#2F6FAE)!important}
+
+/* Customer product specific surfaces: keep premium but make copy one level darker. */
+.customer-product-hero,.plan-card-featured,.customer-health-main{
+    background:
+        radial-gradient(230px 150px at 94% 0%,rgba(173,203,255,.48),transparent 72%),
+        linear-gradient(145deg,rgba(250,253,255,.96),rgba(212,232,252,.88))!important;
+}
+.customer-source-note{color:#54427B!important;background:rgba(126,94,191,.08)!important;border-color:rgba(102,73,163,.15)!important}
+
+/* Hover = subtle precision, not flashy movement. */
+@media(hover:hover) and (pointer:fine){
+    .glass-kpi:hover,.command-metric:hover,.priority-card:hover,.team-card:hover,.org-card:hover,
+    .growth-opportunity:hover,.plan-card:hover,.connection-card:hover{
+        transform:translateY(-1px)!important;
+        border-color:rgba(55,106,157,.22)!important;
+        box-shadow:inset 0 1px 0 #fff,0 20px 48px rgba(55,96,138,.14)!important;
+    }
+    .stButton>button:hover,.stDownloadButton>button:hover{
+        border-color:rgba(45,98,151,.30)!important;
+        box-shadow:inset 0 1px 0 #fff,0 12px 28px rgba(55,99,145,.14)!important;
+    }
+}
+
+/* Mobile: preserve contrast and avoid microscopic helper text. */
+@media(max-width:720px){
+    .block-container{padding-left:.75rem!important;padding-right:.75rem!important}
+    .customer-product-title,.ceo-personal-title,.ceo-status-title{font-size:1.30rem!important}
+    .customer-health-note,.growth-opportunity-copy,.plan-feature,.role-copy,.auto-rule-copy{font-size:.72rem!important}
+}
+</style>
+"""
+st.markdown(V101_VISUAL_POLISH_CSS, unsafe_allow_html=True)
+
 def _management_ready() -> bool:
     if MANAGEMENT_ENGINE_AVAILABLE:
         return True
@@ -2902,7 +3177,7 @@ def _render_department_cards(summary: pd.DataFrame, columns_count: int = 3):
         with cols[idx % columns_count]:
             css = _status_css(str(row["status"]))
             st.markdown(
-                f'''<div class="org-card"><div class="org-top"><div class="org-name">{row['department_name']}</div><div class="org-icon">{row['icon']}</div></div><div class="org-score">{fa_num(row['score'],1)}<span style="font-size:.72rem;color:#8196AA;font-weight:650"> / ۱۰۰</span></div><div class="org-meta"><span class="org-pill {css}">{row['status']}</span><span class="org-pill" style="color:#BACBDB">{fa_num(row['attention_count'])} KPI نیازمند پیگیری</span></div><div class="org-grid-note">امتیاز نمونه اولیه است و تا اتصال داده واقعی واحد، Health Score قطعی محسوب نمی‌شود.</div></div>''',
+                f'''<div class="org-card"><div class="org-top"><div class="org-name">{row['department_name']}</div><div class="org-icon">{row['icon']}</div></div><div class="org-score">{fa_num(row['score'],1)}<span style="font-size:.72rem;color:#4E6A83;font-weight:700"> / ۱۰۰</span></div><div class="org-meta"><span class="org-pill {css}">{row['status']}</span><span class="org-pill" style="color:#BACBDB">{fa_num(row['attention_count'])} KPI نیازمند پیگیری</span></div><div class="org-grid-note">امتیاز نمونه اولیه است و تا اتصال داده واقعی واحد، Health Score قطعی محسوب نمی‌شود.</div></div>''',
                 unsafe_allow_html=True,
             )
 
@@ -4148,7 +4423,7 @@ def main():
         settings_page(scenario, kpis)
 
     st.markdown("---")
-    st.caption("NIK MANAGEMENT OS + GROWTH INTELLIGENCE V0.10 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
+    st.caption("NIK MANAGEMENT OS + GROWTH INTELLIGENCE V0.10.1 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
     st.caption("پیش‌بینی‌ها و خروجی‌های یادگیری ماشین آزمایشی‌اند و نباید مبنای تصمیم قطعی عملیاتی قرار گیرند.")
 
 
