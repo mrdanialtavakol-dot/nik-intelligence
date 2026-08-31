@@ -1,18 +1,12 @@
-آپدیت V0.9 روی GitHub
+V0.11 Update
+============
 
-اگر V0.8 سالم است، برای کمترین ریسک این فایل‌ها را جایگزین/اضافه کن:
-- app.py
-- v09_engine.py
-- font_loader.py
-- VERSION.txt
+اگر V0.10.1 فعلی سالم است، فقط این دو فایل را روی GitHub جایگزین کن:
 
-پوشه assets قبلی را حذف نکن؛ Media Intelligence از همان عکس‌ها و ویدیوها استفاده می‌کند.
+1) app.py
+2) VERSION.txt
 
-برای IRANSansX، فایل‌های فونت خودت را جداگانه در assets/fonts قرار بده. فونت‌ها داخل بسته خروجی قرار نگرفته‌اند.
+بعد:
+Commit changes -> Redeploy / Reboot
 
-سپس:
-1) Commit changes
-2) Redeploy / Reboot سرویس
-3) Main file = app.py
-
-اگر خطایی دیدی، Log کامل را ارسال کن؛ نسخه V0.9 طوری نوشته شده که نبود v09_engine باعث از کار افتادن هسته V0.8 نشود.
+هیچ فایل Engine، Data، Media یا Asset در این Patch تغییر نکرده است.

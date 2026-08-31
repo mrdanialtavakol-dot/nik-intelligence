@@ -138,7 +138,7 @@ except Exception as _customer_growth_import_error:
 
 
 st.set_page_config(
-    page_title="نیک اس‌ام‌اس | Management OS + Growth Intelligence V0.10",
+    page_title="نیک اس‌ام‌اس | Management OS + Growth Intelligence V0.11",
     page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -1439,41 +1439,41 @@ def source_legend():
 
 
 def page_header(page_title: str, subtitle: str = ""):
+    """Compact executive header. Context first; brand chrome second."""
     logo_uri = asset_data_uri(LOGO_PATH)
-    logo_html = f'<img class="hero-logo" src="{logo_uri}" alt="NIKSMS">' if logo_uri else ""
+    logo_html = f'<img class="v11-head-logo" src="{logo_uri}" alt="NIKSMS">' if logo_uri else ""
     st.markdown(
         f"""
-        <div class="hero-glass">
-            <div class="hero-brand-row">
-                <div class="hero-brand-copy">
-                    <div class="eyebrow"><span>◈</span> NIK MANAGEMENT OS / V0.10</div>
-                    <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| پنل مدیریت کیوان میرزایی</span></div>
-                    <div class="hero-subtitle">{subtitle or "پنل مدیریت و اتوماسیون اختصاصی مدیرعامل؛ تسک، گزارش، عملیات واحدها، داده و تصمیم‌سازی در یک مسیر واحد."}</div>
+        <div class="v11-page-head">
+            <div class="v11-page-copy">
+                <div class="v11-page-kicker"><span class="v11-live-dot"></span>NIK EXECUTIVE OS · V0.11</div>
+                <div class="v11-page-title">{page_title}</div>
+                <div class="v11-page-subtitle">{subtitle or "تصمیم، اقدام و پیگیری در یک مسیر واحد؛ جزئیات فقط وقتی نمایش داده می‌شوند که برای تصمیم لازم باشند."}</div>
+                <div class="v11-context-row">
+                    <span class="v11-context-chip">کیوان میرزایی · مدیرعامل</span>
+                    <span class="v11-context-chip v11-context-soft">Demo / Snapshot</span>
+                    <span class="v11-context-chip v11-context-soft">داده زنده هنوز متصل نیست</span>
                 </div>
-                {logo_html}
             </div>
-            <div class="hero-meta">
-                <span class="meta-pill"><span class="meta-dot"></span> {page_title}</span>
-                <span class="meta-pill">نمای داده: ۲۹ اوت ۲۰۲۶</span>
-                <span class="meta-pill">Management + Customer Product Demo / V0.10</span>
-            </div>
+            <div class="v11-page-brand">{logo_html}<span>Management OS + Growth Intelligence</span></div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    api_col, n8n_col, status_col = st.columns([1, 1, 4])
-    with api_col:
-        if st.button("اتصال API", use_container_width=True, key=f"api_{page_title}"):
-            st.toast("دکمه اتصال API فقط‌خواندنی آماده است؛ در V0.10 هیچ اطلاعات دسترسی یا اتصال واقعی وجود ندارد.")
-    with n8n_col:
-        if st.button("اتصال n8n", use_container_width=True, key=f"n8n_{page_title}"):
-            st.toast("این دکمه جایگاه آماده اتصال n8n است؛ گردش‌کار واقعی بعداً ساخته می‌شود.")
+    # Keep future connectors visible, but demote them from primary UI actions.
+    status_col, api_col, n8n_col = st.columns([5.2, 1, 1])
     with status_col:
         st.markdown(
-            '<div class="connector-status">وضعیت اتصال: <b>حالت دمو</b> — API، پایگاه داده و n8n هنوز متصل نیستند.</div>',
+            '<div class="v11-connection-line"><span class="v11-connection-dot"></span><b>حالت دمو</b><span>API / Database / n8n آماده اتصال معماری هستند.</span></div>',
             unsafe_allow_html=True,
         )
+    with api_col:
+        if st.button("API", use_container_width=True, key=f"api_{page_title}"):
+            st.toast("اتصال API در نسخه اجرایی فعال می‌شود؛ V0.11 هیچ Credential ذخیره نمی‌کند.")
+    with n8n_col:
+        if st.button("n8n", use_container_width=True, key=f"n8n_{page_title}"):
+            st.toast("Workflow واقعی n8n در فاز اتصال داده فعال می‌شود.")
 
 
 @st.cache_data(show_spinner=False)
@@ -1582,29 +1582,31 @@ def inject_presentation_mode_css(enabled: bool):
 
 
 def scenario_sidebar() -> Tuple[Scenario, str]:
+    """Navigation-first sidebar. Demo knobs stay out of the CEO's way by default."""
     if "presentation_mode" not in st.session_state:
         st.session_state.presentation_mode = False
     if "v09_main_area" not in st.session_state:
         st.session_state.v09_main_area = "میز مدیرعامل"
 
     if LOGO_PATH.exists():
-        st.sidebar.image(str(LOGO_PATH), width=176)
+        st.sidebar.image(str(LOGO_PATH), width=164)
     st.sidebar.markdown(
         """
-        <div style="padding:3px 4px 7px">
-            <div style="font-size:.69rem;color:#557493;font-weight:900;letter-spacing:.08em">NIK EXECUTIVE MANAGEMENT OS</div>
-            <div style="font-size:1.18rem;color:#173A5D;font-weight:900;margin-top:4px">پنل مدیریتی نیک اس‌ام‌اس</div>
-            <div style="font-size:.70rem;color:#7A91A7;margin-top:4px">Management OS + Growth Intelligence · V0.10.1</div>
-            <div style="font-size:.66rem;color:#4B7DB3;margin-top:6px;font-weight:800">طراحی اختصاصی برای کیوان میرزایی</div>
+        <div class="v11-sidebar-brand">
+            <div class="v11-sidebar-kicker">NIK EXECUTIVE OS</div>
+            <div class="v11-sidebar-title">پنل مدیریتی نیک اس‌ام‌اس</div>
+            <div class="v11-sidebar-copy">طراحی اختصاصی برای کیوان میرزایی · V0.11</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    if st.sidebar.button("حالت ارائه مدیرعامل", use_container_width=True, type="primary", key="v09_presentation"):
+
+    if st.sidebar.button("حالت ارائه مدیرعامل", use_container_width=True, type="primary", key="v11_presentation"):
         st.session_state.presentation_mode = True
         st.rerun()
 
-    st.sidebar.markdown("---")
+    st.sidebar.markdown('<div class="v11-side-section">ناوبری</div>', unsafe_allow_html=True)
+    main_area = "میز مدیرعامل"
     if V09_AVAILABLE:
         main_area = st.sidebar.selectbox(
             "حوزه اصلی",
@@ -1615,7 +1617,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
             page = st.sidebar.radio("صفحه", list(CEO_PAGES), format_func=lambda x: CEO_PAGES[x], key="v09_ceo_page")
         elif main_area == "واحدهای شرکت":
             department = st.sidebar.selectbox("واحد", list(DEPARTMENT_PAGES), key="v09_department")
-            st.sidebar.markdown(f'<div class="v09-subnav">زیرمنوی {department} · فقط ابزارهای مرتبط با همین واحد</div>', unsafe_allow_html=True)
+            st.sidebar.markdown(f'<div class="v09-subnav">{department} · فقط ابزارهای همین واحد</div>', unsafe_allow_html=True)
             pages = DEPARTMENT_PAGES[department]
             page = st.sidebar.radio("بخش", list(pages), format_func=lambda x: pages[x], key=f"v09_department_page_{department}")
         elif main_area == "رشد و تصمیم":
@@ -1623,7 +1625,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         elif main_area == "هوشمندی سازمان":
             page = st.sidebar.radio("صفحه", list(INTELLIGENCE_PAGES), format_func=lambda x: INTELLIGENCE_PAGES[x], key="v09_intel_page")
         elif main_area == "مشتریان کسب‌وکار":
-            st.sidebar.markdown('<div class="v09-subnav">NIK Growth Intelligence · محصول پیشنهادی برای صاحبان کسب‌وکار</div>', unsafe_allow_html=True)
+            st.sidebar.markdown('<div class="v09-subnav">NIK Growth Intelligence · تجربه مجزای صاحبان کسب‌وکار</div>', unsafe_allow_html=True)
             page = st.sidebar.radio("بخش", list(CUSTOMER_BUSINESS_PAGES), format_func=lambda x: CUSTOMER_BUSINESS_PAGES[x], key="v10_customer_business_page")
         else:
             page = st.sidebar.radio("صفحه", list(SYSTEM_PAGES), format_func=lambda x: SYSTEM_PAGES[x], key="v09_system_page")
@@ -1632,24 +1634,54 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         group_pages = NAV_GROUPS[group]
         page = st.sidebar.radio("صفحه", group_pages, format_func=lambda x: f"{PAGE_ICONS[x]}   {PAGE_LABELS[x]}", key=f"page_{group}")
 
-    with st.sidebar.expander("کنترل سناریوی کلیدی", expanded=False):
-        price_a = st.number_input("قیمت طرح A (تومان)", 1_000_000, 200_000_000, int(baseline_value("plan_a_price", 15_000_000)), 1_000_000)
-        price_b = st.number_input("قیمت طرح B (تومان)", 1_000_000, 300_000_000, int(baseline_value("plan_b_price", 30_000_000)), 1_000_000)
-        share_a_pct = st.slider("سهم طرح A", 0, 100, int(baseline_value("plan_a_share", 0.50) * 100), 5)
-        phone = st.number_input("فروش تلفنی روزانه", 0, 500, int(baseline_value("daily_phone_sales", 10)), 1)
-        online = st.number_input("فروش آنلاین ماهانه", 0, 5_000, int(baseline_value("monthly_online_sales", 20)), 5)
-        backlog = st.number_input("صف فعلی لید", 0, 500_000, int(baseline_value("lead_backlog", 5_490)), 100)
-        sales_days = st.slider("روز فروش در ماه", 20, 31, int(baseline_value("sales_days_per_month", 30)), 1)
-    with st.sidebar.expander("سناریوی محتوا", expanded=False):
-        stories = st.number_input("استوری روزانه", 0, 100, int(baseline_value("stories_per_day", 9)), 1)
-        reels = st.number_input("ریلز روزانه", 0, 20, int(baseline_value("reels_per_day", 1)), 1)
-        content_sales = st.number_input("فروش منتسب به محتوا / روز", 0.0, 100.0, float(baseline_value("estimated_content_sales_per_day", 2.0)), 0.5)
-        followers = st.number_input("فالوئر اینستاگرام", 0, 10_000_000, int(baseline_value("instagram_followers", 207_000)), 1_000)
-        team_size = st.number_input("اندازه تیم محتوا", 1, 100, int(baseline_value("content_team_size", 5)), 1)
-    with st.sidebar.expander("تنظیمات مدل آزمایشی", expanded=False):
-        customers = st.number_input("مشتری مصنوعی", 500, 50_000, 5_000, 500)
-        months = st.slider("ماه‌های تاریخچه مصنوعی", 3, 36, 12, 1)
-        seed = st.number_input("Seed", 1, 999_999, 42, 1)
+    # Baseline defaults. They are always available even when the demo control panel is hidden.
+    price_a = float(st.session_state.get("v11_price_a", baseline_value("plan_a_price", 15_000_000)))
+    price_b = float(st.session_state.get("v11_price_b", baseline_value("plan_b_price", 30_000_000)))
+    share_a_pct = int(st.session_state.get("v11_share_a_pct", int(baseline_value("plan_a_share", 0.50) * 100)))
+    phone = int(st.session_state.get("v11_phone", baseline_value("daily_phone_sales", 10)))
+    online = int(st.session_state.get("v11_online", baseline_value("monthly_online_sales", 20)))
+    backlog = int(st.session_state.get("v11_backlog", baseline_value("lead_backlog", 5_490)))
+    sales_days = int(st.session_state.get("v11_sales_days", baseline_value("sales_days_per_month", 30)))
+    stories = int(st.session_state.get("v11_stories", baseline_value("stories_per_day", 9)))
+    reels = int(st.session_state.get("v11_reels", baseline_value("reels_per_day", 1)))
+    content_sales = float(st.session_state.get("v11_content_sales", baseline_value("estimated_content_sales_per_day", 2.0)))
+    followers = int(st.session_state.get("v11_followers", baseline_value("instagram_followers", 207_000)))
+    team_size = int(st.session_state.get("v11_team_size", baseline_value("content_team_size", 5)))
+    customers = int(st.session_state.get("v11_customers", 5_000))
+    months = int(st.session_state.get("v11_months", 12))
+    seed = int(st.session_state.get("v11_seed", 42))
+
+    st.sidebar.markdown('<div class="v11-side-section">ابزارهای دمو</div>', unsafe_allow_html=True)
+    show_demo_controls = st.sidebar.checkbox(
+        "نمایش کنترل‌های سناریو",
+        value=False,
+        help="برای ارائه مدیریتی خاموش بماند؛ فقط هنگام تست سناریو آن را باز کن.",
+        key="v11_show_demo_controls",
+    )
+    if show_demo_controls:
+        with st.sidebar.expander("فروش و درآمد", expanded=True):
+            price_a = st.number_input("قیمت طرح A (تومان)", 1_000_000, 200_000_000, int(price_a), 1_000_000, key="v11_price_a")
+            price_b = st.number_input("قیمت طرح B (تومان)", 1_000_000, 300_000_000, int(price_b), 1_000_000, key="v11_price_b")
+            share_a_pct = st.slider("سهم طرح A", 0, 100, int(share_a_pct), 5, key="v11_share_a_pct")
+            phone = st.number_input("فروش تلفنی روزانه", 0, 500, int(phone), 1, key="v11_phone")
+            online = st.number_input("فروش آنلاین ماهانه", 0, 5_000, int(online), 5, key="v11_online")
+            backlog = st.number_input("صف فعلی لید", 0, 500_000, int(backlog), 100, key="v11_backlog")
+            sales_days = st.slider("روز فروش در ماه", 20, 31, int(sales_days), 1, key="v11_sales_days")
+        with st.sidebar.expander("محتوا و مدل", expanded=False):
+            stories = st.number_input("استوری روزانه", 0, 100, int(stories), 1, key="v11_stories")
+            reels = st.number_input("ریلز روزانه", 0, 20, int(reels), 1, key="v11_reels")
+            content_sales = st.number_input("فروش منتسب به محتوا / روز", 0.0, 100.0, float(content_sales), 0.5, key="v11_content_sales")
+            followers = st.number_input("فالوئر اینستاگرام", 0, 10_000_000, int(followers), 1_000, key="v11_followers")
+            team_size = st.number_input("اندازه تیم محتوا", 1, 100, int(team_size), 1, key="v11_team_size")
+            customers = st.number_input("مشتری مصنوعی", 500, 50_000, int(customers), 500, key="v11_customers")
+            months = st.slider("ماه‌های تاریخچه مصنوعی", 3, 36, int(months), 1, key="v11_months")
+            seed = st.number_input("Seed", 1, 999_999, int(seed), 1, key="v11_seed")
+        if st.sidebar.button("اجرای تحلیل کامل", use_container_width=True, key="v11_run_analysis"):
+            stages = ["بارگذاری", "اعتبارسنجی", "محاسبه KPI", "تحلیل روند", "مدل‌ها", "آماده"]
+            progress = st.sidebar.progress(0); status = st.sidebar.empty()
+            for i, stage in enumerate(stages, start=1):
+                status.caption(stage); progress.progress(int(i / len(stages) * 100)); time.sleep(0.01)
+            status.success("تحلیل به‌روز شد")
 
     scenario = make_scenario(
         price_plan_a=float(price_a), price_plan_b=float(price_b), plan_a_share=float(share_a_pct) / 100,
@@ -1658,14 +1690,12 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         instagram_followers=int(followers), content_team_size=int(team_size), synthetic_customer_count=int(customers),
         history_months=int(months), sales_days_per_month=int(sales_days), seed=int(seed),
     )
-    st.sidebar.markdown("---")
-    if st.sidebar.button("اجرای تحلیل کامل", use_container_width=True, key="v09_run_analysis"):
-        stages = ["بارگذاری", "اعتبارسنجی", "محاسبه KPI", "تحلیل روند", "تشخیص تغییر", "مدل‌ها", "بینش", "آماده"]
-        progress = st.sidebar.progress(0); status = st.sidebar.empty()
-        for i, stage in enumerate(stages, start=1):
-            status.caption(stage); progress.progress(int(i / len(stages) * 100)); time.sleep(0.012)
-        status.success("تحلیل به‌روز شد")
-    st.sidebar.caption("V0.10.1 · دو تجربه مجزا: Management OS داخلی نیک + Growth Intelligence برای مشتریان کسب‌وکار.")
+
+    st.sidebar.markdown(
+        '<div class="v11-sidebar-status"><span></span><div><b>Demo Mode</b><small>API / n8n / Database هنوز متصل نیست</small></div></div>',
+        unsafe_allow_html=True,
+    )
+    st.sidebar.caption("V0.11 · مدیریت داخلی نیک + Growth Intelligence مشتریان")
     if st.session_state.presentation_mode:
         page = "Executive Overview"
     return scenario, page
@@ -1848,7 +1878,7 @@ def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights
     st.markdown(
         f'''<div class="ceo-command">
             <div>
-                <div class="ceo-overline">مرکز فرمان مدیرعامل · Executive OS V0.10</div>
+                <div class="ceo-overline">مرکز فرمان مدیرعامل · Executive OS V0.11</div>
                 <div class="ceo-status-line"><div class="ceo-status-title">{status_label}</div><span class="ceo-status-badge {status_class}">وضعیت قاعده‌محور</span></div>
                 <div class="ceo-status-copy">{status_copy} این وضعیت «امتیاز سلامت شرکت» نیست؛ جمع‌بندی توضیح‌پذیر از داده‌های فعلی نمونه اولیه است.</div>
             </div>
@@ -3070,6 +3100,94 @@ code,pre{color:#173C5C!important;background:rgba(227,239,252,.86)!important;bord
 </style>
 """
 st.markdown(V101_VISUAL_POLISH_CSS, unsafe_allow_html=True)
+
+
+V11_EXECUTIVE_UX_CSS = r"""
+<style>
+/* =========================================================
+   V0.11 — EXECUTIVE UX / PRODUCT POLISH / PERFORMANCE PASS
+   Last layer wins. Business logic stays untouched.
+   ========================================================= */
+:root{
+    --v11-ink:#0B2238;
+    --v11-ink-2:#24435F;
+    --v11-muted:#557087;
+    --v11-line:rgba(58,102,145,.16);
+    --v11-glass:rgba(247,251,255,.78);
+    --v11-glass-strong:rgba(249,252,255,.91);
+    --v11-glass-soft:rgba(225,238,251,.68);
+    --v11-blue:#2C6DA8;
+    --v11-blue-deep:#174A76;
+    --v11-accent:#ADCBFF;
+}
+
+/* Calmer canvas: premium light, not washed-out white. */
+.stApp{
+    background:
+        radial-gradient(900px 560px at 92% -10%,rgba(173,203,255,.58),transparent 68%),
+        radial-gradient(760px 520px at -6% 25%,rgba(205,225,247,.72),transparent 70%),
+        linear-gradient(145deg,#F2F7FC 0%,#E9F1F9 46%,#DEEAF6 100%)!important;
+    color:var(--v11-ink)!important;
+}
+.block-container{max-width:1440px!important;padding-top:1rem!important;padding-bottom:2.2rem!important}
+
+/* Sidebar becomes a navigation rail, not a control panel. */
+[data-testid="stSidebar"]{
+    background:linear-gradient(180deg,rgba(246,250,254,.96),rgba(227,238,249,.94))!important;
+    border-left:1px solid var(--v11-line)!important;
+    box-shadow:-18px 0 55px rgba(39,77,113,.10)!important;
+}
+.v11-sidebar-brand{padding:2px 3px 8px}.v11-sidebar-kicker{font-size:.64rem;letter-spacing:.10em;color:#51779B;font-weight:900}.v11-sidebar-title{font-size:1.04rem;color:#123956;font-weight:900;margin-top:4px}.v11-sidebar-copy{font-size:.67rem;color:#637C93;margin-top:3px;line-height:1.6}.v11-side-section{font-size:.63rem;font-weight:900;color:#6B8297;letter-spacing:.05em;margin:14px 2px 6px}.v11-sidebar-status{display:flex;align-items:center;gap:9px;margin-top:14px;padding:10px 11px;border-radius:15px;background:rgba(255,255,255,.58);border:1px solid rgba(67,111,153,.12)}.v11-sidebar-status>span{width:8px;height:8px;border-radius:50%;background:#5A92CB;box-shadow:0 0 0 4px rgba(90,146,203,.12)}.v11-sidebar-status b{display:block;color:#244A69;font-size:.70rem}.v11-sidebar-status small{display:block;color:#71869A!important;font-size:.60rem;margin-top:1px}
+
+/* Compact page header. Page context is the hero, not the brand name. */
+.v11-page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:21px 23px;margin:3px 0 9px;border-radius:25px;background:radial-gradient(280px 160px at 95% 0%,rgba(173,203,255,.42),transparent 72%),linear-gradient(145deg,rgba(251,253,255,.90),rgba(223,237,251,.76));border:1px solid rgba(255,255,255,.95);outline:1px solid rgba(63,107,150,.07);box-shadow:inset 0 1px 0 #fff,0 16px 40px rgba(52,92,129,.09);backdrop-filter:blur(28px) saturate(145%)}
+.v11-page-copy{min-width:0;max-width:930px}.v11-page-kicker{display:flex;align-items:center;gap:8px;font-size:.65rem;font-weight:900;letter-spacing:.08em;color:#47729A}.v11-live-dot{width:7px;height:7px;border-radius:50%;background:#3A7CB8;box-shadow:0 0 0 4px rgba(58,124,184,.10)}.v11-page-title{font-size:clamp(1.55rem,2.6vw,2.35rem);line-height:1.2;font-weight:950;color:var(--v11-ink);letter-spacing:-.035em;margin-top:7px}.v11-page-subtitle{max-width:840px;color:var(--v11-muted);font-size:.86rem;line-height:1.95;margin-top:7px}.v11-context-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.v11-context-chip{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:.61rem;font-weight:850;color:#254F72;background:rgba(173,203,255,.26);border:1px solid rgba(65,111,156,.10)}.v11-context-soft{background:rgba(255,255,255,.52);color:#647B90}.v11-page-brand{display:flex;flex-direction:column;align-items:flex-end;gap:6px;color:#758A9C;font-size:.58rem;white-space:nowrap}.v11-head-logo{width:138px;height:auto;object-fit:contain;filter:drop-shadow(0 8px 18px rgba(52,88,121,.10))}
+.v11-connection-line{min-height:38px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;color:#61798F;font-size:.66rem}.v11-connection-line b{color:#285373}.v11-connection-dot{width:7px;height:7px;border-radius:50%;background:#6D9FD0;box-shadow:0 0 0 4px rgba(109,159,208,.10)}
+
+/* Strong hierarchy: primary, metric, utility. Not every card gets the same glass/shadow. */
+.hero-glass,.ceo-command,.ceo-personal-hero,.customer-product-hero,.management-hero,.v09-section-hero{
+    background:radial-gradient(240px 140px at 95% 0%,rgba(173,203,255,.40),transparent 74%),linear-gradient(145deg,rgba(250,253,255,.92),rgba(221,235,249,.78))!important;
+    border:1px solid rgba(255,255,255,.96)!important;
+    outline:1px solid rgba(57,100,142,.07)!important;
+    box-shadow:inset 0 1px 0 #fff,0 16px 40px rgba(49,88,125,.09)!important;
+}
+.glass-kpi,.command-metric,[data-testid="stMetric"],.priority-card,.growth-opportunity,.plan-card,.team-card,.org-card{
+    background:linear-gradient(150deg,rgba(249,252,255,.84),rgba(229,240,251,.73))!important;
+    border:1px solid rgba(255,255,255,.92)!important;
+    outline:1px solid rgba(62,105,147,.06)!important;
+    box-shadow:inset 0 1px 0 #fff,0 10px 28px rgba(52,91,127,.08)!important;
+}
+.trust-cell,.report-row,.customer-automation-row,.flow-strip,.role-box,.gap-row,.ops-step,.money-chip,.connection-card,.v09-integration,div[data-testid="stExpander"]{
+    background:rgba(244,249,254,.62)!important;
+    border:1px solid rgba(65,108,150,.11)!important;
+    outline:0!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.82)!important;
+}
+
+/* Buttons: unmistakable hierarchy and readable labels. */
+.stButton>button,.stDownloadButton>button{min-height:38px!important;border-radius:13px!important;color:#235070!important;background:rgba(248,252,255,.78)!important;border:1px solid rgba(57,103,148,.16)!important;box-shadow:inset 0 1px 0 #fff,0 6px 16px rgba(50,91,130,.06)!important;font-weight:850!important}
+.stButton>button[kind="primary"]{color:#fff!important;background:linear-gradient(145deg,#3F7DB8,#285E91)!important;border-color:rgba(38,89,139,.34)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 9px 22px rgba(45,93,139,.18)!important}
+.stButton>button:focus-visible,.stDownloadButton>button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(69,121,174,.18)!important;outline-offset:2px!important}
+
+/* Typography: stronger title rhythm, calmer helper copy. */
+.section-title{font-size:1.25rem!important;line-height:1.45!important;letter-spacing:-.018em!important}.section-subtitle{max-width:900px!important;font-size:.77rem!important;line-height:1.85!important}.section-kicker{font-size:.62rem!important;letter-spacing:.06em!important}.kpi-value,.command-metric-value{letter-spacing:-.025em!important}.kpi-note,.command-metric-note{color:#60788E!important}
+
+/* Cleaner controls and denser tables for executive use. */
+[data-testid="stDataFrame"],[data-testid="stTable"]{background:rgba(249,252,255,.76)!important;box-shadow:0 8px 24px rgba(49,88,125,.06)!important}.stTabs [role="tablist"]{gap:4px!important}.stTabs [role="tab"]{border-radius:10px 10px 0 0!important;padding-left:12px!important;padding-right:12px!important}
+
+/* Render heavy lower sections more efficiently in modern browsers. */
+.stPlotlyChart,.glass-panel,.action-story,.customer-health-main{content-visibility:auto;contain-intrinsic-size:360px}
+
+.v11-error-card{margin-top:8px;padding:14px 16px;border-radius:16px;color:#5D3440;background:rgba(255,244,247,.78);border:1px solid rgba(171,73,97,.13);font-size:.76rem;line-height:1.8}.v11-error-card span{color:#7D5A63}.v11-footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:22px;padding-top:12px;border-top:1px solid rgba(65,107,148,.10);color:#6A8196;font-size:.62rem}
+
+@media(hover:hover) and (pointer:fine){
+    .glass-kpi:hover,.command-metric:hover,.priority-card:hover,.growth-opportunity:hover,.plan-card:hover{transform:translateY(-1px)!important;box-shadow:inset 0 1px 0 #fff,0 14px 34px rgba(51,92,130,.10)!important}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media(max-width:800px){.v11-page-head{flex-direction:column}.v11-page-brand{align-items:flex-start}.v11-head-logo{width:122px}.v11-page-title{font-size:1.45rem}.block-container{padding-left:.75rem!important;padding-right:.75rem!important}}
+</style>
+"""
+st.markdown(V11_EXECUTIVE_UX_CSS, unsafe_allow_html=True)
 
 def _management_ready() -> bool:
     if MANAGEMENT_ENGINE_AVAILABLE:
@@ -4312,119 +4430,115 @@ def settings_page(scenario, kpis):
     st.success("برای دمو: فروش تلفنی روزانه را از ۱۰ به ۱۵ تغییر بده؛ درآمد، تعداد فروش، ترکیب کانال، روند آزمایشی، پیش‌بینی و بینش‌ها هم‌زمان تغییر می‌کنند.")
 
 
+def _runtime_error_panel(page: str, exc: Exception):
+    """Page-level error boundary so one workspace never takes the whole OS down."""
+    st.error("این بخش موقتاً با خطا روبه‌رو شده، اما سایر قسمت‌های NIK Management OS همچنان قابل استفاده‌اند.")
+    st.markdown(f'<div class="v11-error-card"><b>بخش:</b> {PAGE_LABELS.get(page, page)}<br><span>برای اصلاح، فقط همین خطا و نام صفحه کافی است؛ نیازی به توضیح دوباره کل پروژه نیست.</span></div>', unsafe_allow_html=True)
+    with st.expander("جزئیات فنی برای تیم توسعه", expanded=False):
+        st.code(f"{type(exc).__name__}: {exc}", language="text")
+
+
 def main():
     if "presentation_mode" not in st.session_state:
         st.session_state.presentation_mode = False
     inject_presentation_mode_css(bool(st.session_state.presentation_mode))
     scenario, page = scenario_sidebar()
+
     if st.session_state.presentation_mode:
         left, right = st.columns([5, 1])
         with left:
-            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · منوها و کنترل‌های فنی پنهان شده‌اند.</span><span>V0.10</span></div>', unsafe_allow_html=True)
+            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · فقط تصمیم‌ها و KPIهای ضروری دیده می‌شوند.</span><span>V0.11</span></div>', unsafe_allow_html=True)
         with right:
             if st.button("خروج از ارائه", use_container_width=True, key="exit_presentation"):
                 st.session_state.presentation_mode = False
                 st.rerun()
-    data = build_synthetic_data(scenario)
 
+    # Core dataset/KPIs are cached and cheap enough to keep universal.
+    data = build_synthetic_data(scenario)
     kpis = normalize_kpis(scenario, current_kpis(scenario, data["customers"]))
-    daily = sales_daily(data["sales"])
     monthly = sales_monthly(data["sales"])
     funnel = lead_funnel(scenario)
-    _ = backlog_capacity(scenario)
+    daily = sales_daily(data["sales"]) if page in {"Sales Analytics", "Anomaly Detection", "Automated Insights"} else pd.DataFrame()
 
-    customers_model, segment_profile, risk_stats = build_models(data["customers"], int(scenario_value(scenario, "seed", None, 42)))
-    forecast, forecast_stats = revenue_forecast(monthly, 3)
-    sales_anomalies = detect_anomalies(daily, "revenue", "date", 14)
-    sms_anomalies = detect_anomalies(data["sms"], "delivery_rate", "date", 14)
-    insights = generate_insights(scenario, kpis, monthly, risk_stats, sales_anomalies, sms_anomalies)
+    # Heavy ML/forecast/anomaly work is now lazy. This is the biggest V0.11 speed improvement.
+    customers_model = data["customers"]
+    segment_profile = pd.DataFrame()
+    risk_stats = {}
+    forecast = pd.DataFrame()
+    forecast_stats = {}
+    sales_anomalies = pd.DataFrame()
+    sms_anomalies = pd.DataFrame()
+    insights = []
 
-    if page == "Executive Overview":
-        executive_overview_v09(scenario, data, kpis, monthly, funnel, forecast, insights, customers_model, risk_stats, sales_anomalies, sms_anomalies)
-    elif page == "CEO Task Center":
-        ceo_task_center_page(scenario, kpis)
-    elif page == "IT Workspace":
-        it_workspace_page(scenario, kpis)
-    elif page == "Accounting Automation":
-        accounting_automation_page()
-    elif page == "Sales Lead Center":
-        sales_lead_center_page(scenario)
-    elif page == "Support Workspace":
-        support_workspace_page(scenario, kpis)
-    elif page == "HR Workspace":
-        hr_workspace_page(scenario, kpis)
-    elif page == "Marketing Workspace":
-        marketing_workspace_page(scenario, kpis)
-    elif page == "Marketing Economics":
-        marketing_economics_page(scenario, kpis)
-    elif page == "Marketing Trend":
-        marketing_trend_page(scenario)
-    elif page == "Sales Funnel Ops":
-        sales_funnel_ops_page(scenario)
-    elif page == "Finance Dashboard":
-        finance_dashboard_page(scenario, kpis)
-    elif page == "IT Delivery":
-        it_delivery_page(scenario, kpis)
-    elif page == "FX & Supply":
-        fx_supply_page(scenario, kpis)
-    elif page == "Organization Pulse":
-        organization_pulse_page(scenario, kpis)
-    elif page == "Task & KPI":
-        task_kpi_page(scenario, kpis)
-    elif page == "Production & QC":
-        production_qc_page(scenario, kpis)
-    elif page == "Campaign Planner":
-        campaign_planner_page(scenario, kpis)
-    elif page == "Automation Center":
-        automation_center_page(scenario, kpis)
-    elif page == "Access Control":
-        access_control_page()
-    elif page == "Revenue Intelligence":
-        revenue_intelligence_page(scenario, kpis)
-    elif page == "Scenario Simulator":
-        scenario_simulator_page(scenario, kpis)
-    elif page == "Connections":
-        connections_page()
-    elif page == "Data Center":
-        data_center_page(data)
-    elif page == "Sales Analytics":
-        sales_analytics_page(scenario, data, kpis, daily, monthly)
-    elif page == "Customer Intelligence":
-        customer_intelligence_page(customers_model, segment_profile, risk_stats)
-    elif page == "NIKPOS Analytics":
-        nikpos_page(scenario, data)
-    elif page == "Content Analytics":
-        content_page(scenario)
-    elif page == "Media Intelligence":
-        media_intelligence_page()
-    elif page == "SMS Analytics":
-        sms_page(data)
-    elif page == "Anomaly Detection":
-        anomaly_page(sales_anomalies, sms_anomalies)
-    elif page == "Predictions":
-        predictions_page(forecast, forecast_stats, customers_model, risk_stats)
-    elif page == "Automated Insights":
-        insights_page(insights)
-    elif page == "Customer Growth Home":
-        customer_growth_home_page()
-    elif page == "Customer Segments Portal":
-        customer_segments_portal_page()
-    elif page == "Smart Campaigns Portal":
-        smart_campaigns_portal_page()
-    elif page == "Business Automations Portal":
-        business_automations_portal_page()
-    elif page == "Business ROI Portal":
-        business_roi_portal_page()
-    elif page == "Subscription Plans Portal":
-        subscription_plans_portal_page()
-    elif page == "Analysis Pipeline":
-        pipeline_page()
-    elif page == "Settings / Scenario Controls":
-        settings_page(scenario, kpis)
+    model_pages = {"Customer Intelligence", "Predictions", "Automated Insights"}
+    forecast_pages = {"Predictions", "Automated Insights"}
+    anomaly_pages = {"Anomaly Detection", "Automated Insights"}
 
-    st.markdown("---")
-    st.caption("NIK MANAGEMENT OS + GROWTH INTELLIGENCE V0.10.1 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
-    st.caption("پیش‌بینی‌ها و خروجی‌های یادگیری ماشین آزمایشی‌اند و نباید مبنای تصمیم قطعی عملیاتی قرار گیرند.")
+    if page in model_pages:
+        customers_model, segment_profile, risk_stats = build_models(
+            data["customers"], int(scenario_value(scenario, "seed", None, 42))
+        )
+    if page in forecast_pages:
+        forecast, forecast_stats = revenue_forecast(monthly, 3)
+    if page in anomaly_pages:
+        if daily.empty:
+            daily = sales_daily(data["sales"])
+        sales_anomalies = detect_anomalies(daily, "revenue", "date", 14)
+        sms_anomalies = detect_anomalies(data["sms"], "delivery_rate", "date", 14)
+    if page == "Automated Insights":
+        insights = generate_insights(scenario, kpis, monthly, risk_stats, sales_anomalies, sms_anomalies)
+
+    try:
+        if page == "Executive Overview":
+            executive_overview_v09(scenario, data, kpis, monthly, funnel, pd.DataFrame(), [], data["customers"], {}, pd.DataFrame(), pd.DataFrame())
+        elif page == "CEO Task Center": ceo_task_center_page(scenario, kpis)
+        elif page == "IT Workspace": it_workspace_page(scenario, kpis)
+        elif page == "Accounting Automation": accounting_automation_page()
+        elif page == "Sales Lead Center": sales_lead_center_page(scenario)
+        elif page == "Support Workspace": support_workspace_page(scenario, kpis)
+        elif page == "HR Workspace": hr_workspace_page(scenario, kpis)
+        elif page == "Marketing Workspace": marketing_workspace_page(scenario, kpis)
+        elif page == "Marketing Economics": marketing_economics_page(scenario, kpis)
+        elif page == "Marketing Trend": marketing_trend_page(scenario)
+        elif page == "Sales Funnel Ops": sales_funnel_ops_page(scenario)
+        elif page == "Finance Dashboard": finance_dashboard_page(scenario, kpis)
+        elif page == "IT Delivery": it_delivery_page(scenario, kpis)
+        elif page == "FX & Supply": fx_supply_page(scenario, kpis)
+        elif page == "Organization Pulse": organization_pulse_page(scenario, kpis)
+        elif page == "Task & KPI": task_kpi_page(scenario, kpis)
+        elif page == "Production & QC": production_qc_page(scenario, kpis)
+        elif page == "Campaign Planner": campaign_planner_page(scenario, kpis)
+        elif page == "Automation Center": automation_center_page(scenario, kpis)
+        elif page == "Access Control": access_control_page()
+        elif page == "Revenue Intelligence": revenue_intelligence_page(scenario, kpis)
+        elif page == "Scenario Simulator": scenario_simulator_page(scenario, kpis)
+        elif page == "Connections": connections_page()
+        elif page == "Data Center": data_center_page(data)
+        elif page == "Sales Analytics":
+            if daily.empty: daily = sales_daily(data["sales"])
+            sales_analytics_page(scenario, data, kpis, daily, monthly)
+        elif page == "Customer Intelligence": customer_intelligence_page(customers_model, segment_profile, risk_stats)
+        elif page == "NIKPOS Analytics": nikpos_page(scenario, data)
+        elif page == "Content Analytics": content_page(scenario)
+        elif page == "Media Intelligence": media_intelligence_page()
+        elif page == "SMS Analytics": sms_page(data)
+        elif page == "Anomaly Detection": anomaly_page(sales_anomalies, sms_anomalies)
+        elif page == "Predictions": predictions_page(forecast, forecast_stats, customers_model, risk_stats)
+        elif page == "Automated Insights": insights_page(insights)
+        elif page == "Customer Growth Home": customer_growth_home_page()
+        elif page == "Customer Segments Portal": customer_segments_portal_page()
+        elif page == "Smart Campaigns Portal": smart_campaigns_portal_page()
+        elif page == "Business Automations Portal": business_automations_portal_page()
+        elif page == "Business ROI Portal": business_roi_portal_page()
+        elif page == "Subscription Plans Portal": subscription_plans_portal_page()
+        elif page == "Analysis Pipeline": pipeline_page()
+        elif page == "Settings / Scenario Controls": settings_page(scenario, kpis)
+        else:
+            st.info("صفحه انتخاب‌شده در این نسخه تعریف نشده است.")
+    except Exception as exc:
+        _runtime_error_panel(page, exc)
+
+    st.markdown('<div class="v11-footer"><span>NIK Management OS + Growth Intelligence · V0.11</span><span>Prototype / Demo Data · آماده اتصال به منابع واقعی</span></div>', unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
