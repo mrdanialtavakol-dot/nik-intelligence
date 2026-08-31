@@ -1,12 +1,12 @@
-NIK INTELLIGENCE V0.5 — راهنمای سریع آپدیت
+آپدیت کم‌ریسک از V0.6 به V0.7
 
-1) فایل ZIP را Extract کن.
-2) تمام فایل‌ها و پوشه assets را در همان GitHub Repository آپلود و Replace کن.
-3) Commit changes بزن.
-4) Streamlit Cloud را باز کن.
-5) کنار App روی سه‌نقطه بزن و Reboot را انتخاب کن.
-6) بعد از Build با Ctrl + F5 صفحه را تازه‌سازی کن.
+1) فایل NIK_INTELLIGENCE_V0_7_UPDATE_ONLY.zip را Extract کن.
+2) در GitHub این دو فایل را جایگزین/اضافه کن:
+   - app.py
+   - management_engine.py
+3) VERSION.txt را هم جایگزین کن.
+4) Commit changes بزن.
+5) Render/Streamlit را Redeploy یا Reboot کن.
 
-Main file path = app.py
-
-نکته: V0.5 فایل جدید اجباری برای Import ندارد؛ صفحه Command Center داخل app.py ساخته شده تا احتمال خطای Missing Module کم شود.
+فایل‌های Analytics قبلی تغییر نکرده‌اند.
+اگر management_engine.py به هر دلیل آپلود نشود، app.py طوری نوشته شده که صفحات قدیمی Crash نکنند و فقط بخش مدیریتی پیام کمبود فایل نشان دهد.
