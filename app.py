@@ -188,7 +188,7 @@ PAGE_LABELS = {
     "Campaign Planner": "برنامه‌ریز جشنواره",
     "Automation Center": "مرکز اتوماسیون",
     "Access Control": "دسترسی و نقش‌ها",
-    "CEO Task Center": "کارها و گزارش‌های کیوان",
+    "CEO Task Center": "کارها و گزارش‌های کیوان میرزایی",
     "IT Workspace": "اتاق عملیات IT",
     "Accounting Automation": "اتوماسیون حسابداری",
     "Sales Lead Center": "مرکز پخش و پیگیری لید",
@@ -240,7 +240,7 @@ PAGE_ICONS = {
     "FX & Supply": "◇",
 }
 NAV_GROUPS = {
-    "مرکز کیوان": ["Executive Overview", "CEO Task Center", "Organization Pulse"],
+    "مرکز کیوان میرزایی": ["Executive Overview", "CEO Task Center", "Organization Pulse"],
     "واحدهای شرکت": ["IT Workspace", "Accounting Automation", "Sales Lead Center", "Support Workspace", "HR Workspace", "Production & QC", "Marketing Workspace"],
     "رشد و تصمیم": ["Revenue Intelligence", "Campaign Planner", "Scenario Simulator"],
     "هوشمندی داده": ["Content Analytics", "Media Intelligence", "Customer Intelligence", "NIKPOS Analytics", "SMS Analytics", "Anomaly Detection", "Predictions", "Automated Insights"],
@@ -1075,6 +1075,130 @@ html,body,[class*="css"],.stApp{font-family:"IRANSansX","Vazirmatn","Segoe UI",T
 st.markdown(V09_LIGHT_CSS, unsafe_allow_html=True)
 
 
+V091_READABILITY_PATCH_CSS = r"""
+<style>
+/* V0.9.1 — light premium theme with stronger readability */
+:root{
+    --v091-bg-1:#F6FAFF;
+    --v091-bg-2:#EAF3FF;
+    --v091-bg-3:#DCEBFF;
+    --v091-card:rgba(244,249,255,.82);
+    --v091-card-strong:rgba(237,246,255,.91);
+    --v091-text:#102C49;
+    --v091-text-2:#284D70;
+    --v091-muted:#58718A;
+    --v091-soft:#71879D;
+    --v091-edge:rgba(73,119,166,.16);
+}
+.stApp{
+    color:var(--v091-text)!important;
+    background:
+        radial-gradient(820px 520px at 88% -9%,rgba(173,203,255,.72),transparent 66%),
+        radial-gradient(720px 540px at 5% 33%,rgba(205,227,255,.78),transparent 68%),
+        radial-gradient(600px 430px at 55% 90%,rgba(245,250,255,.90),transparent 72%),
+        linear-gradient(145deg,var(--v091-bg-1) 0%,var(--v091-bg-2) 40%,var(--v091-bg-3) 100%)!important;
+}
+[data-testid="stSidebar"]{
+    background:linear-gradient(180deg,rgba(240,247,255,.94),rgba(224,238,255,.90))!important;
+    border-left:1px solid rgba(75,119,166,.15)!important;
+    box-shadow:-22px 0 64px rgba(66,104,144,.12)!important;
+}
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] div{color:#1F4567!important}
+[data-testid="stSidebar"] [data-baseweb="select"]>div,
+[data-testid="stSidebar"] input{
+    background:rgba(248,252,255,.82)!important;
+    border-color:rgba(67,111,157,.16)!important;
+    color:#173A5C!important;
+}
+.hero-glass,.ceo-command,.glass-kpi,.glass-panel,.command-metric,.priority-card,.leverage-card,
+.v06-brief,.ceo-personal-hero,.team-card,.ceo-inbox-card,.auto-ledger,.lead-routing-hero,
+.connection-card,.v09-section-hero,.v09-integration,[data-testid="stMetric"],div[data-testid="stExpander"]{
+    background:linear-gradient(145deg,var(--v091-card-strong),rgba(226,239,255,.72))!important;
+    border:1px solid rgba(255,255,255,.96)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,1),0 17px 45px rgba(61,101,143,.12),0 1px 1px rgba(55,99,145,.06)!important;
+}
+/* Primary copy */
+.hero-title,.kpi-value,.section-title,.ceo-status-title,.ceo-command-value,.command-metric-value,
+.priority-title,.money-chip-value,.leverage-title,.leverage-value,.gap-title,.v06-brief-title,
+.trust-value,.sim-value,.connection-name,.ceo-personal-title,.ceo-inbox-title,.team-name,
+.auto-ledger-title,.lead-routing-value,.report-name,.v09-hero-title,
+[data-testid="stMetricValue"],h1,h2,h3,h4,h5,h6{
+    color:var(--v091-text)!important;
+    -webkit-text-fill-color:var(--v091-text)!important;
+}
+/* Secondary copy */
+.hero-subtitle,.kpi-label,.kpi-note,.section-subtitle,.ceo-status-copy,.ceo-command-label,
+.ceo-command-foot,.command-metric-label,.command-metric-note,.priority-text,.priority-source,
+.money-chip-label,.leverage-note,.gap-text,.v06-brief-copy,.trust-label,.trust-note,.sim-label,
+.connection-copy,.connection-fresh,.ceo-personal-copy,.ceo-inbox-meta,.team-role,.ops-step,
+.auto-ledger-copy,.lead-routing-label,.report-sub,.v09-hero-copy,.v09-subnav,.media-meta,
+.stCaption,[data-testid="stMetricLabel"] p{
+    color:var(--v091-muted)!important;
+    -webkit-text-fill-color:var(--v091-muted)!important;
+}
+.eyebrow,.section-kicker,.ceo-overline,.v06-brief-kicker,.ceo-personal-kicker,.leverage-kicker,
+.ceo-inbox-action,.v09-hero-kicker,.v09-integration-title{
+    color:#356FAE!important;
+    -webkit-text-fill-color:#356FAE!important;
+}
+.hero-title .accent{
+    background:linear-gradient(90deg,#173D64,#4D7FBC 55%,#2F659D)!important;
+    -webkit-background-clip:text!important;
+    background-clip:text!important;
+    -webkit-text-fill-color:transparent!important;
+}
+/* Make old dark-theme components safe on light surfaces */
+.ops-step b,.gap-index,.audit-pill,.team-chip,.meta-pill,.presentation-ribbon,.v09-connect-pill{
+    color:#315A80!important;
+    -webkit-text-fill-color:#315A80!important;
+}
+.money-chip,.trust-cell,.gap-row,.ops-step{
+    background:rgba(242,248,255,.78)!important;
+    border-color:rgba(72,117,163,.13)!important;
+}
+.kpi-icon,.v09-icon-shell,.gap-index{
+    background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(173,203,255,.46))!important;
+    border-color:rgba(81,128,178,.15)!important;
+}
+.kpi-icon svg,.v09-icon-shell svg{stroke:#356DA8!important}
+/* Controls */
+.stButton>button,.stDownloadButton>button{
+    color:#173E63!important;
+    background:linear-gradient(145deg,rgba(252,254,255,.96),rgba(220,236,255,.88))!important;
+    border-color:rgba(83,127,173,.17)!important;
+}
+.stButton>button[kind="primary"]{color:#fff!important;-webkit-text-fill-color:#fff!important}
+[data-testid="stTextInput"] input,[data-testid="stNumberInput"] input,textarea{
+    color:#173A5B!important;
+    background:rgba(249,252,255,.90)!important;
+}
+/* Plotly/table surrounding text */
+.stMarkdown,.stAlert,.stHeader,.stSubheader,p,li,label{
+    color:var(--v091-text-2);
+}
+[data-testid="stDataFrame"],[data-testid="stTable"]{
+    border-color:rgba(73,117,163,.14)!important;
+    box-shadow:0 10px 30px rgba(61,101,143,.07)!important;
+}
+/* Slightly stronger source chips for accessibility */
+.src-real{color:#11613F!important;background:rgba(35,170,108,.11)!important;border-color:rgba(35,170,108,.20)!important}
+.src-derived{color:#2A5687!important;background:rgba(77,130,184,.11)!important;border-color:rgba(77,130,184,.20)!important}
+.src-estimated{color:#78500C!important;background:rgba(232,171,57,.13)!important;border-color:rgba(196,137,28,.22)!important}
+.src-synthetic{color:#5B438E!important;background:rgba(126,94,191,.11)!important;border-color:rgba(126,94,191,.19)!important}
+@media(hover:hover) and (pointer:fine){
+    .glass-kpi:hover,.command-metric:hover,.priority-card:hover,.team-card:hover{
+        border-color:rgba(80,129,180,.24)!important;
+        box-shadow:inset 0 1px 0 #fff,0 22px 52px rgba(61,101,143,.15)!important;
+    }
+}
+</style>
+"""
+st.markdown(V091_READABILITY_PATCH_CSS, unsafe_allow_html=True)
+
+
 def asset_data_uri(path: Path) -> str:
     if not path.exists():
         return ""
@@ -1289,7 +1413,7 @@ def page_header(page_title: str, subtitle: str = ""):
             <div class="hero-brand-row">
                 <div class="hero-brand-copy">
                     <div class="eyebrow"><span>◈</span> NIK MANAGEMENT OS / V0.8</div>
-                    <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| پنل مدیریت کیوان</span></div>
+                    <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| پنل مدیریت کیوان میرزایی</span></div>
                     <div class="hero-subtitle">{subtitle or "پنل مدیریت و اتوماسیون اختصاصی مدیرعامل؛ تسک، گزارش، عملیات واحدها، داده و تصمیم‌سازی در یک مسیر واحد."}</div>
                 </div>
                 {logo_html}
@@ -3081,7 +3205,7 @@ def ceo_task_center_page(scenario, kpis):
     report_stats = reporting_summary(reports)
 
     page_header(
-        "کارها و گزارش‌های کیوان",
+        "کارها و گزارش‌های کیوان میرزایی",
         "Inbox مدیریتی واحد: تسک‌های نیازمند پیگیری، گزارش‌های عقب‌افتاده، پیشنهاد ربات مدیریتی و مسیر ارسال یک‌کلیکی به واحدها.",
     )
     st.markdown(
@@ -3170,9 +3294,9 @@ def it_workspace_page(scenario, kpis):
     c3.metric("باگ باز · Demo", fa_num(float(overrides.get("open_bugs", 14))))
     c4.metric("باگ Critical · Demo", fa_num(float(overrides.get("critical_bugs", 2))))
 
-    section_heading("Daily Engineering Brief", "گزارش روزانه‌ای که کیوان باید ببیند", "به‌جای مکالمه‌های پراکنده، هر روز فقط چهار پاسخ کوتاه.")
+    section_heading("Daily Engineering Brief", "گزارش روزانه‌ای که کیوان میرزایی باید ببیند", "به‌جای مکالمه‌های پراکنده، هر روز فقط چهار پاسخ کوتاه.")
     st.markdown(
-        '''<div class="ops-flow"><div class="ops-step"><b>۱. چه چیزی Release شد؟</b>نسخه / Feature / Deploy</div><div class="ops-step"><b>۲. چه چیزی در حال ساخت است؟</b>Owner + درصد پیشرفت</div><div class="ops-step"><b>۳. Blocker چیست؟</b>مانع فنی یا تصمیم مدیریتی</div><div class="ops-step"><b>۴. سایت</b>وضعیت قالب ظاهری و Acceptance</div><div class="ops-step"><b>۵. باگ مهم</b>Critical / ETA رفع</div><div class="ops-step"><b>۶. تصمیم لازم</b>فقط چیزی که نیاز به کیوان دارد</div></div>''',
+        '''<div class="ops-flow"><div class="ops-step"><b>۱. چه چیزی Release شد؟</b>نسخه / Feature / Deploy</div><div class="ops-step"><b>۲. چه چیزی در حال ساخت است؟</b>Owner + درصد پیشرفت</div><div class="ops-step"><b>۳. Blocker چیست؟</b>مانع فنی یا تصمیم مدیریتی</div><div class="ops-step"><b>۴. سایت</b>وضعیت قالب ظاهری و Acceptance</div><div class="ops-step"><b>۵. باگ مهم</b>Critical / ETA رفع</div><div class="ops-step"><b>۶. تصمیم لازم</b>فقط چیزی که نیاز به کیوان میرزایی دارد</div></div>''',
         unsafe_allow_html=True,
     )
 
