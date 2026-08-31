@@ -119,9 +119,26 @@ except Exception as _v09_error:
     V09_ERROR = str(_v09_error)
     V09_VERSION = "V0.9"
 
+# V0.10 customer growth product layer is isolated from the internal management OS.
+try:
+    from customer_growth_engine import (
+        V10_VERSION, CUSTOMER_BUSINESS_PAGES, VERTICAL_PROFILES, PLAN_CATALOG,
+        business_snapshot, segment_table, campaign_opportunities, automation_catalog,
+        growth_trend, business_health_insights,
+    )
+    CUSTOMER_GROWTH_AVAILABLE = True
+    CUSTOMER_GROWTH_ERROR = ""
+except Exception as _customer_growth_import_error:
+    CUSTOMER_GROWTH_AVAILABLE = False
+    CUSTOMER_GROWTH_ERROR = str(_customer_growth_import_error)
+    V10_VERSION = "V0.10"
+    CUSTOMER_BUSINESS_PAGES = {"Customer Growth Home": "مرکز رشد کسب‌وکار"}
+    VERTICAL_PROFILES = {"پوشاک": {}}
+    PLAN_CATALOG = pd.DataFrame()
+
 
 st.set_page_config(
-    page_title="نیک اس‌ام‌اس | Executive Management OS V0.9",
+    page_title="نیک اس‌ام‌اس | Management OS + Growth Intelligence V0.10",
     page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -1198,6 +1215,23 @@ V091_READABILITY_PATCH_CSS = r"""
 """
 st.markdown(V091_READABILITY_PATCH_CSS, unsafe_allow_html=True)
 
+V10_CUSTOMER_CSS = r"""
+<style>
+.customer-product-hero{position:relative;overflow:hidden;padding:24px 25px;border-radius:28px;margin:7px 0 15px;background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(218,235,255,.80));border:1px solid rgba(255,255,255,.98);box-shadow:inset 0 1px 0 #fff,0 24px 64px rgba(61,101,143,.13)}
+.customer-product-hero:after{content:"";position:absolute;left:-85px;top:-110px;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle,rgba(125,174,236,.43),transparent 69%)}
+.customer-product-kicker{position:relative;z-index:1;font-size:.66rem;font-weight:950;color:#356FAE;letter-spacing:.09em}.customer-product-title{position:relative;z-index:1;font-size:1.65rem;font-weight:950;color:#102C49;margin-top:6px}.customer-product-copy{position:relative;z-index:1;max-width:1020px;color:#58718A;font-size:.77rem;line-height:2;margin-top:6px}
+.customer-health{display:grid;grid-template-columns:1.08fr repeat(3,minmax(0,1fr));gap:10px;margin:8px 0 17px}.customer-health-main,.customer-health-cell{padding:16px 17px;border-radius:21px;background:linear-gradient(145deg,rgba(251,253,255,.94),rgba(225,239,255,.80));border:1px solid rgba(255,255,255,.98);box-shadow:inset 0 1px 0 #fff,0 13px 36px rgba(66,105,148,.09)}.customer-health-main{background:linear-gradient(135deg,rgba(215,234,255,.92),rgba(248,252,255,.96))}.customer-health-label{font-size:.64rem;color:#627C95;font-weight:750}.customer-health-value{font-size:1.38rem;color:#123456;font-weight:950;margin-top:5px}.customer-health-note{font-size:.62rem;color:#72879B;line-height:1.7;margin-top:4px}
+.growth-opportunity{height:100%;padding:18px;border-radius:22px;background:linear-gradient(145deg,rgba(250,253,255,.94),rgba(226,239,255,.78));border:1px solid rgba(255,255,255,.98);box-shadow:inset 0 1px 0 #fff,0 14px 40px rgba(66,105,148,.09)}.growth-opportunity-priority{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:.60rem;font-weight:900;color:#2D5D8D;background:rgba(173,203,255,.35);border:1px solid rgba(88,135,185,.13)}.growth-opportunity-title{font-size:.90rem;font-weight:900;color:#12324F;margin-top:10px}.growth-opportunity-copy{font-size:.68rem;color:#607A93;line-height:1.85;margin-top:6px}.growth-opportunity-value{font-size:1.12rem;font-weight:950;color:#1B4D79;margin-top:10px}.growth-opportunity-meta{font-size:.62rem;color:#72879A;margin-top:4px}
+.action-story{padding:20px 21px;border-radius:24px;background:linear-gradient(135deg,rgba(211,232,255,.86),rgba(249,252,255,.96));border:1px solid rgba(255,255,255,.98);box-shadow:inset 0 1px 0 #fff,0 16px 44px rgba(61,101,143,.10)}.action-story-line{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(62,107,153,.08)}.action-story-line:last-child{border-bottom:0}.action-story-index{width:27px;height:27px;flex:0 0 27px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.78);border:1px solid rgba(71,120,169,.12);color:#3E73AA;font-weight:950;font-size:.62rem}.action-story-text{color:#365875;font-size:.72rem;line-height:1.85}.action-story-text b{color:#102F4C}
+.plan-card{height:100%;padding:20px;border-radius:25px;background:linear-gradient(145deg,rgba(251,253,255,.96),rgba(222,237,255,.84));border:1px solid rgba(255,255,255,.99);box-shadow:inset 0 1px 0 #fff,0 18px 48px rgba(64,105,149,.11)}.plan-card-featured{background:linear-gradient(145deg,rgba(215,234,255,.96),rgba(245,250,255,.98));border-color:rgba(116,164,218,.28);box-shadow:inset 0 1px 0 #fff,0 21px 56px rgba(56,105,161,.16)}.plan-eyebrow{font-size:.61rem;color:#4776A5;font-weight:900}.plan-name{font-size:1.03rem;font-weight:950;color:#123350;margin-top:5px}.plan-price{font-size:1.55rem;font-weight:950;color:#174B78;margin-top:10px}.plan-period{font-size:.62rem;color:#73899D;font-weight:700}.plan-best{font-size:.66rem;color:#617B93;line-height:1.75;margin:8px 0 10px}.plan-feature{font-size:.67rem;color:#345673;line-height:1.8;padding:4px 0}.plan-feature:before{content:"✓";color:#3976B7;font-weight:950;margin-left:6px}
+.customer-automation-row{display:grid;grid-template-columns:1.1fr 1.3fr 2fr .65fr;gap:8px;align-items:center;padding:11px 12px;border-radius:16px;margin-bottom:7px;background:rgba(247,251,255,.86);border:1px solid rgba(76,121,167,.10);font-size:.66rem;color:#45647F}.customer-automation-row b{color:#173A59}.customer-status-ready{display:inline-flex;justify-content:center;padding:4px 7px;border-radius:999px;background:rgba(49,171,116,.10);color:#176A48;font-weight:850}.customer-status-suggest{display:inline-flex;justify-content:center;padding:4px 7px;border-radius:999px;background:rgba(232,171,57,.13);color:#75520B;font-weight:850}
+.customer-source-note{padding:10px 12px;border-radius:15px;background:rgba(126,94,191,.07);border:1px solid rgba(126,94,191,.12);font-size:.64rem;color:#624C8C;line-height:1.8;margin:8px 0 14px}
+@media(max-width:920px){.customer-health{grid-template-columns:1fr 1fr}.customer-automation-row{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.customer-health{grid-template-columns:1fr}.customer-automation-row{grid-template-columns:1fr}}
+</style>
+"""
+st.markdown(V10_CUSTOMER_CSS, unsafe_allow_html=True)
+
 
 def asset_data_uri(path: Path) -> str:
     if not path.exists():
@@ -1412,7 +1446,7 @@ def page_header(page_title: str, subtitle: str = ""):
         <div class="hero-glass">
             <div class="hero-brand-row">
                 <div class="hero-brand-copy">
-                    <div class="eyebrow"><span>◈</span> NIK MANAGEMENT OS / V0.8</div>
+                    <div class="eyebrow"><span>◈</span> NIK MANAGEMENT OS / V0.10</div>
                     <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| پنل مدیریت کیوان میرزایی</span></div>
                     <div class="hero-subtitle">{subtitle or "پنل مدیریت و اتوماسیون اختصاصی مدیرعامل؛ تسک، گزارش، عملیات واحدها، داده و تصمیم‌سازی در یک مسیر واحد."}</div>
                 </div>
@@ -1421,7 +1455,7 @@ def page_header(page_title: str, subtitle: str = ""):
             <div class="hero-meta">
                 <span class="meta-pill"><span class="meta-dot"></span> {page_title}</span>
                 <span class="meta-pill">نمای داده: ۲۹ اوت ۲۰۲۶</span>
-                <span class="meta-pill">دموی مدیریتی / V0.6</span>
+                <span class="meta-pill">Management + Customer Product Demo / V0.10</span>
             </div>
         </div>
         """,
@@ -1431,7 +1465,7 @@ def page_header(page_title: str, subtitle: str = ""):
     api_col, n8n_col, status_col = st.columns([1, 1, 4])
     with api_col:
         if st.button("اتصال API", use_container_width=True, key=f"api_{page_title}"):
-            st.toast("دکمه اتصال API فقط‌خواندنی آماده است؛ در V0.6 هیچ اطلاعات دسترسی یا اتصال واقعی وجود ندارد.")
+            st.toast("دکمه اتصال API فقط‌خواندنی آماده است؛ در V0.10 هیچ اطلاعات دسترسی یا اتصال واقعی وجود ندارد.")
     with n8n_col:
         if st.button("اتصال n8n", use_container_width=True, key=f"n8n_{page_title}"):
             st.toast("این دکمه جایگاه آماده اتصال n8n است؛ گردش‌کار واقعی بعداً ساخته می‌شود.")
@@ -1560,7 +1594,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         <div style="padding:3px 4px 7px">
             <div style="font-size:.69rem;color:#557493;font-weight:900;letter-spacing:.08em">NIK EXECUTIVE MANAGEMENT OS</div>
             <div style="font-size:1.18rem;color:#173A5D;font-weight:900;margin-top:4px">پنل مدیریتی نیک اس‌ام‌اس</div>
-            <div style="font-size:.70rem;color:#7A91A7;margin-top:4px">Executive Intelligence · V0.9</div>
+            <div style="font-size:.70rem;color:#7A91A7;margin-top:4px">Management OS + Growth Intelligence · V0.10</div>
             <div style="font-size:.66rem;color:#4B7DB3;margin-top:6px;font-weight:800">طراحی اختصاصی برای کیوان میرزایی</div>
         </div>
         """,
@@ -1574,7 +1608,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
     if V09_AVAILABLE:
         main_area = st.sidebar.selectbox(
             "حوزه اصلی",
-            ["میز مدیرعامل", "واحدهای شرکت", "رشد و تصمیم", "هوشمندی سازمان", "سیستم و اتوماسیون"],
+            ["میز مدیرعامل", "واحدهای شرکت", "رشد و تصمیم", "هوشمندی سازمان", "مشتریان کسب‌وکار", "سیستم و اتوماسیون"],
             key="v09_main_area",
         )
         if main_area == "میز مدیرعامل":
@@ -1588,6 +1622,9 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
             page = st.sidebar.radio("صفحه", list(GROWTH_PAGES), format_func=lambda x: GROWTH_PAGES[x], key="v09_growth_page")
         elif main_area == "هوشمندی سازمان":
             page = st.sidebar.radio("صفحه", list(INTELLIGENCE_PAGES), format_func=lambda x: INTELLIGENCE_PAGES[x], key="v09_intel_page")
+        elif main_area == "مشتریان کسب‌وکار":
+            st.sidebar.markdown('<div class="v09-subnav">NIK Growth Intelligence · محصول پیشنهادی برای صاحبان کسب‌وکار</div>', unsafe_allow_html=True)
+            page = st.sidebar.radio("بخش", list(CUSTOMER_BUSINESS_PAGES), format_func=lambda x: CUSTOMER_BUSINESS_PAGES[x], key="v10_customer_business_page")
         else:
             page = st.sidebar.radio("صفحه", list(SYSTEM_PAGES), format_func=lambda x: SYSTEM_PAGES[x], key="v09_system_page")
     else:
@@ -1628,7 +1665,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         for i, stage in enumerate(stages, start=1):
             status.caption(stage); progress.progress(int(i / len(stages) * 100)); time.sleep(0.012)
         status.success("تحلیل به‌روز شد")
-    st.sidebar.caption("V0.9 · هر داده در جای سازمانی خودش؛ مدیرعامل فقط استثنا، تصمیم و اقدام را می‌بیند.")
+    st.sidebar.caption("V0.10 · دو تجربه مجزا: Management OS داخلی نیک + Growth Intelligence برای مشتریان کسب‌وکار.")
     if st.session_state.presentation_mode:
         page = "Executive Overview"
     return scenario, page
@@ -1811,7 +1848,7 @@ def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights
     st.markdown(
         f'''<div class="ceo-command">
             <div>
-                <div class="ceo-overline">مرکز فرمان مدیرعامل · Executive OS V0.9</div>
+                <div class="ceo-overline">مرکز فرمان مدیرعامل · Executive OS V0.10</div>
                 <div class="ceo-status-line"><div class="ceo-status-title">{status_label}</div><span class="ceo-status-badge {status_class}">وضعیت قاعده‌محور</span></div>
                 <div class="ceo-status-copy">{status_copy} این وضعیت «امتیاز سلامت شرکت» نیست؛ جمع‌بندی توضیح‌پذیر از داده‌های فعلی نمونه اولیه است.</div>
             </div>
@@ -1978,7 +2015,7 @@ def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights
 def data_center_page(data: Dict[str, pd.DataFrame]):
     page_header(
         "مرکز داده",
-        "لایه ورود داده برای فایل CSV امروز و API، پایگاه داده و n8n در نسخه بعدی. هیچ داده‌ای در V0.6 به سیستم داخلی نیک متصل نیست.",
+        "لایه ورود داده برای فایل CSV امروز و API، پایگاه داده و n8n در نسخه بعدی. هیچ داده‌ای در V0.10 به سیستم داخلی نیک متصل نیست.",
     )
     source_legend()
 
@@ -2497,7 +2534,7 @@ def anomaly_page(sales_anomalies, sms_anomalies):
 def predictions_page(forecast, forecast_stats, customers_model, risk_stats):
     page_header(
         "پیش‌بینی‌ها",
-        "مدل‌ها ساده و قابل توضیح نگه داشته شده‌اند؛ هیچ خروجی پیش‌بینی یا ریزش در V0.6 در سطح عملیاتی نهایی نیست.",
+        "مدل‌ها ساده و قابل توضیح نگه داشته شده‌اند؛ هیچ خروجی پیش‌بینی یا ریزش در V0.10 در سطح عملیاتی نهایی نیست.",
     )
     c1, c2 = st.columns(2)
     c1.metric("R² روند درآمد / دمو", fa_digits(f"{forecast_stats['r2']:.3f}"))
@@ -2702,7 +2739,7 @@ def scenario_simulator_page(scenario, kpis):
 def connections_page():
     page_header(
         "مرکز اتصال داده",
-        "نقشه راه اتصال NIK Intelligence به منابع واقعی. در V0.6 فقط CSV و داده Demo فعال‌اند؛ دکمه‌های اتصال نمایشی‌اند و هیچ Credential ذخیره نمی‌شود.",
+        "نقشه راه اتصال NIK Intelligence به منابع واقعی. در V0.10 فقط CSV و داده Demo فعال‌اند؛ دکمه‌های اتصال نمایشی‌اند و هیچ Credential ذخیره نمی‌شود.",
     )
     section_heading("منابع داده", "از Demo تا داده زنده", "هر اتصال در آینده Read-only و با کنترل دسترسی ساخته می‌شود.")
     sources = [
@@ -2722,7 +2759,7 @@ def connections_page():
             st.markdown(f'''<div class="connection-card"><div class="connection-top"><div class="connection-name">{name}</div><div class="connection-state {state_cls}">{state}</div></div><div class="connection-copy">{copy}</div><div class="connection-fresh">آخرین داده: {fresh}</div></div>''', unsafe_allow_html=True)
             if not on:
                 if st.button(f"اتصال {name}", key=f"connect_{i}", use_container_width=True):
-                    st.toast("Placeholder V0.6 — اتصال واقعی بعد از تعریف Schema، دسترسی و امنیت ساخته می‌شود.")
+                    st.toast("Placeholder V0.10 — اتصال واقعی بعد از تعریف Schema، دسترسی و امنیت ساخته می‌شود.")
 
     section_heading("معماری آینده", "مسیر امن اتصال", "این نسخه هیچ API Key یا Credential ندارد.")
     st.code("""NIK Database / CRM / Instagram / NIKPOS
@@ -3769,6 +3806,203 @@ def executive_overview_v09(scenario, data, kpis, monthly, funnel, forecast, insi
             st.plotly_chart(style_fig(fig,330),use_container_width=True)
     source_legend()
 
+def _customer_growth_ready() -> bool:
+    if CUSTOMER_GROWTH_AVAILABLE:
+        return True
+    department_hero("Growth Intelligence در دسترس نیست", "فایل customer_growth_engine.py در Deploy فعلی پیدا نشده؛ پنل مدیریتی داخلی همچنان سالم است.", "people", "CUSTOMER PRODUCT")
+    st.error("برای فعال‌شدن بخش مشتریان کسب‌وکار، customer_growth_engine.py نسخه V0.10 را کنار app.py قرار بده.")
+    if CUSTOMER_GROWTH_ERROR:
+        st.caption(f"جزئیات Import: {CUSTOMER_GROWTH_ERROR}")
+    return False
+
+
+def customer_product_header(title: str, subtitle: str):
+    logo_uri = asset_data_uri(LOGO_PATH)
+    logo_html = f'<img class="hero-logo" src="{logo_uri}" alt="NIKSMS">' if logo_uri else ""
+    st.markdown(
+        f'''<div class="customer-product-hero"><div style="display:flex;justify-content:space-between;gap:18px;align-items:flex-start"><div><div class="customer-product-kicker">NIK GROWTH INTELLIGENCE · CUSTOMER EDITION</div><div class="customer-product-title">{title}</div><div class="customer-product-copy">{subtitle}</div></div>{logo_html}</div></div>''',
+        unsafe_allow_html=True,
+    )
+    integration_toolbar("پنل رشد کسب‌وکار", f"v10_{abs(hash(title))}")
+    st.markdown('<div class="customer-source-note"><b>نسخه دمو:</b> تمام اعداد این بخش مصنوعی‌اند و برای نمایش منطق محصول مشتری ساخته شده‌اند. این بخش از داده‌های داخلی NIK و پنل مدیرعامل جداست.</div>', unsafe_allow_html=True)
+
+
+def _customer_vertical_selector(key: str) -> str:
+    return st.selectbox("نوع کسب‌وکار نمونه", list(VERTICAL_PROFILES.keys()), key=key, help="داده‌های دمو با انتخاب صنعت تغییر می‌کنند.")
+
+
+def _render_customer_health(snapshot: dict):
+    st.markdown(
+        f'''<div class="customer-health">
+        <div class="customer-health-main"><div class="customer-health-label">امتیاز سلامت ارتباط با مشتری</div><div class="customer-health-value">{fa_num(snapshot['health_score'])} / ۱۰۰</div><div class="customer-health-note">شاخص دمو بر اساس رشد دیتابیس، مشتری خوابیده و سهم VIP.</div></div>
+        <div class="customer-health-cell"><div class="customer-health-label">دارایی مشتری</div><div class="customer-health-value">{fa_num(snapshot['total_customers'])}</div><div class="customer-health-note">شماره مشتری ثبت‌شده در باشگاه.</div></div>
+        <div class="customer-health-cell"><div class="customer-health-label">شماره جدید / ۳۰ روز</div><div class="customer-health-value">+{fa_num(snapshot['captured_30d'])}</div><div class="customer-health-note">رشد دارایی مشتری.</div></div>
+        <div class="customer-health-cell"><div class="customer-health-label">مشتری خوابیده ۴۵+ روز</div><div class="customer-health-value">{fa_num(snapshot['dormant_45'])}</div><div class="customer-health-note">فرصت بالقوه برای بازگشت.</div></div>
+        </div>''',
+        unsafe_allow_html=True,
+    )
+
+
+def customer_growth_home_page():
+    if not _customer_growth_ready():
+        return
+    customer_product_header("مرکز رشد کسب‌وکار", "هدف این صفحه نشان‌دادن داده نیست؛ هدف این است که صاحب کسب‌وکار هر روز بداند چه اقدامی می‌تواند مشتری قبلی را دوباره به درآمد تبدیل کند.")
+    vertical = _customer_vertical_selector("v10_growth_home_vertical")
+    snapshot = business_snapshot(vertical)
+    _render_customer_health(snapshot)
+
+    section_heading("اقدام پیشنهادی امروز", f"{fa_num(snapshot['repeat_dormant'])} مشتری با احتمال بازگشت بالاتر", "سیستم به‌جای نمایش صرف آمار، فرصت را به یک Action قابل اجرا تبدیل می‌کند.")
+    left, right = st.columns([1.35, 1])
+    with left:
+        st.markdown(
+            f'''<div class="action-story">
+            <div class="action-story-line"><div class="action-story-index">۱</div><div class="action-story-text"><b>{fa_num(snapshot['dormant_45'])} مشتری</b> بیشتر از ۴۵ روز است برنگشته‌اند.</div></div>
+            <div class="action-story-line"><div class="action-story-index">۲</div><div class="action-story-text">از این تعداد <b>{fa_num(snapshot['repeat_dormant'])} نفر</b> قبلاً بیش از دو بار خرید کرده‌اند.</div></div>
+            <div class="action-story-line"><div class="action-story-index">۳</div><div class="action-story-text"><b>پیشنهاد:</b> برای همین گروه یک پیام بازگشت با مزیت محدود ارسال شود.</div></div>
+            <div class="action-story-line"><div class="action-story-index">۴</div><div class="action-story-text">هزینه تقریبی ارسال: <b>{toman(snapshot['suggested_campaign_cost'])} تومان</b>.</div></div>
+            <div class="action-story-line"><div class="action-story-index">۵</div><div class="action-story-text">سیستم سگمنت و متن را آماده می‌کند؛ کاربر فقط تأیید می‌کند.</div></div>
+            </div>''', unsafe_allow_html=True)
+        b1, b2 = st.columns(2)
+        with b1:
+            if st.button("ساخت کمپین بازگشت", type="primary", use_container_width=True, key="v10_prepare_winback"):
+                st.session_state.v10_campaign_prepared = True
+                st.toast("کمپین دمو ساخته شد؛ هنوز هیچ پیام واقعی ارسال نشده است.")
+        with b2:
+            if st.button("مشاهده مخاطبان", use_container_width=True, key="v10_show_audience"):
+                st.session_state.v10_show_audience = not st.session_state.get("v10_show_audience", False)
+        if st.session_state.get("v10_show_audience", False):
+            st.info(f"دمو: {fa_num(snapshot['repeat_dormant'])} مخاطب با شرط «۴۵+ روز بدون بازگشت + بیش از ۲ خرید قبلی» انتخاب شده‌اند.")
+    with right:
+        st.markdown(
+            f'''<div class="growth-opportunity"><span class="growth-opportunity-priority">نتیجه آزمایشی پس از ۷ روز</span><div class="growth-opportunity-title">کمپین بازگشت چه نتیجه‌ای می‌تواند بسازد؟</div><div class="growth-opportunity-value">{fa_num(snapshot['demo_returners'])} نفر برگشتند</div><div class="growth-opportunity-meta">{fa_num(snapshot['demo_purchasers'])} خرید ثبت شد</div><div class="growth-opportunity-value">{toman(snapshot['demo_returned_revenue'])} تومان</div><div class="growth-opportunity-meta">ارزش بازگشت ایجادشده · دمو / Synthetic</div></div>''',
+            unsafe_allow_html=True,
+        )
+        if st.session_state.get("v10_campaign_prepared", False):
+            if st.button("اجرای نتیجه آزمایشی", use_container_width=True, key="v10_run_demo_campaign"):
+                st.session_state.v10_campaign_demo_done = True
+        if st.session_state.get("v10_campaign_demo_done", False):
+            st.success(f"دمو اجرا شد: {fa_num(snapshot['demo_returners'])} بازگشت، {fa_num(snapshot['demo_purchasers'])} خرید و {toman(snapshot['demo_returned_revenue'])} تومان ارزش بازگشت مدل‌سازی‌شده.")
+
+    section_heading("فرصت‌های بعدی", "سیستم چه چیزهای دیگری می‌بیند؟", "چهار Opportunity آماده که می‌توانند به Action تبدیل شوند.")
+    opportunities = campaign_opportunities(vertical)
+    cols = st.columns(4)
+    for i, row in opportunities.iterrows():
+        with cols[i % 4]:
+            st.markdown(
+                f'''<div class="growth-opportunity"><span class="growth-opportunity-priority">{row['priority']}</span><div class="growth-opportunity-title">{row['title']}</div><div class="growth-opportunity-copy">{row['reason']}</div><div class="growth-opportunity-value">{fa_num(row['audience'])} مشتری</div><div class="growth-opportunity-meta">هزینه ارسال ≈ {toman(row['cost'])} تومان</div></div>''',
+                unsafe_allow_html=True,
+            )
+
+    section_heading("روند", "آیا باشگاه مشتریان در حال قوی‌تر شدن است؟", "داده زیر مصنوعی است و فقط شکل محصول نهایی را نمایش می‌دهد.")
+    trend = growth_trend(vertical)
+    a, b = st.columns(2)
+    with a:
+        fig = px.area(trend, x="month", y="customer_base", labels={"month":"ماه", "customer_base":"تعداد مشتری"})
+        fig.update_traces(line_color="#4F84CC", fillcolor="rgba(79,132,204,.13)")
+        st.plotly_chart(style_fig(fig, 330), use_container_width=True)
+    with b:
+        fig = px.line(trend, x="month", y="repeat_rate", markers=True, labels={"month":"ماه", "repeat_rate":"نرخ خرید مجدد"})
+        fig.update_traces(line_color="#3D78C5")
+        fig.update_yaxes(tickformat=".0%")
+        st.plotly_chart(style_fig(fig, 330), use_container_width=True)
+
+
+def customer_segments_portal_page():
+    if not _customer_growth_ready():
+        return
+    customer_product_header("مشتریان و سگمنت‌ها", "هر شماره فقط یک رکورد نیست؛ سیستم باید بفهمد کدام مشتری ارزشمند، جدید، خوابیده یا در آستانه خرید مجدد است.")
+    vertical = _customer_vertical_selector("v10_segments_vertical")
+    snapshot = business_snapshot(vertical)
+    seg = segment_table(vertical)
+    _render_customer_health(snapshot)
+    left, right = st.columns([1.15, 1])
+    with left:
+        fig = px.pie(seg, names="segment", values="customers", hole=.58)
+        fig.update_traces(textinfo="percent+label")
+        st.plotly_chart(style_fig(fig, 385), use_container_width=True)
+    with right:
+        show = seg.copy()
+        show["share"] = show["share"].map(pct)
+        show = show.rename(columns={"segment":"سگمنت", "customers":"مشتری", "definition":"تعریف", "recommended_action":"اقدام پیشنهادی", "share":"سهم"})
+        st.dataframe(show, use_container_width=True, hide_index=True, height=385)
+    st.info("در نسخه واقعی، تعریف سگمنت‌ها باید با رفتار واقعی همان صنف، خرید، مراجعه، مبلغ و Recency/Frequency تنظیم شود؛ یک Rule برای همه کسب‌وکارها کافی نیست.")
+
+
+def smart_campaigns_portal_page():
+    if not _customer_growth_ready():
+        return
+    customer_product_header("کمپین‌های هوشمند", "سیستم Audience، دلیل انتخاب، هزینه و خروجی مورد انتظار را کنار هم می‌گذارد تا کاربر به‌جای ساخت دستی کمپین، تصمیم بگیرد و اجرا کند.")
+    vertical = _customer_vertical_selector("v10_campaigns_vertical")
+    campaigns = campaign_opportunities(vertical)
+    for _, row in campaigns.iterrows():
+        with st.container(border=True):
+            c1, c2, c3, c4 = st.columns([2.4, 1, 1, 1])
+            with c1:
+                st.markdown(f"**{row['title']}**")
+                st.caption(row["reason"])
+                st.write(row["message"])
+            c2.metric("مخاطب", fa_num(row["audience"]))
+            c3.metric("هزینه مدل", f"{toman(row['cost'])} تومان")
+            c4.metric("ارزش مدل", f"{toman(row['expected_value'])} تومان")
+            if st.button("آماده‌سازی کمپین", key=f"v10_campaign_prepare_{row['campaign_id']}"):
+                st.toast("کمپین به حالت Draft رفت. در نسخه واقعی مرحله Approval → SMS Engine → Result Tracking اجرا می‌شود.")
+    st.caption("هیچ پیام واقعی از این Prototype ارسال نمی‌شود. نرخ خرید و ارزش کمپین در این صفحه Synthetic هستند.")
+
+
+def business_automations_portal_page():
+    if not _customer_growth_ready():
+        return
+    customer_product_header("اتوماسیون رشد", "هدف این است که صاحب کسب‌وکار مجبور نباشد هر روز به یاد بیاورد چه کسی را پیگیری کند؛ Triggerها این کار را به سیستم می‌سپارند.")
+    vertical = _customer_vertical_selector("v10_automation_vertical")
+    auto = automation_catalog(vertical)
+    for _, row in auto.iterrows():
+        status_cls = "customer-status-ready" if row["status"] == "آماده" else "customer-status-suggest"
+        st.markdown(f'''<div class="customer-automation-row"><b>{row['automation']}</b><span>{row['trigger']}</span><span>{row['action']}</span><span class="{status_cls}">{row['status']}</span></div>''', unsafe_allow_html=True)
+    st.write("")
+    section_heading("اتصال آینده", "مسیر اجرای واقعی", "هر Automation باید قابل توقف، Audit و اندازه‌گیری باشد.")
+    st.code("Trigger → Segment → Rule → Approval (optional) → NIKSMS → Event Tracking → Sale/Return → ROI", language="text")
+
+
+def business_roi_portal_page():
+    if not _customer_growth_ready():
+        return
+    customer_product_header("نتیجه و بازگشت سرمایه", "کاربر نباید فقط بداند چند پیام فرستاده؛ باید بداند چه تعداد مشتری برگشتند، چند خرید ساختند و ارزش ایجادشده چه بوده است.")
+    vertical = _customer_vertical_selector("v10_roi_vertical")
+    snapshot = business_snapshot(vertical)
+    k = st.columns(5)
+    k[0].metric("مخاطب کمپین", fa_num(snapshot["suggested_campaign_target"]))
+    k[1].metric("هزینه ارسال", f"{toman(snapshot['suggested_campaign_cost'])} تومان")
+    k[2].metric("بازگشت / Demo", fa_num(snapshot["demo_returners"]))
+    k[3].metric("خرید / Demo", fa_num(snapshot["demo_purchasers"]))
+    k[4].metric("ارزش بازگشت / Demo", f"{toman(snapshot['demo_returned_revenue'])} تومان")
+    trend = growth_trend(vertical)
+    left, right = st.columns(2)
+    with left:
+        fig = px.bar(trend, x="month", y="campaign_revenue", labels={"month":"ماه", "campaign_revenue":"ارزش بازگشت / دمو"})
+        fig.update_traces(marker_color="#7DA9DF")
+        st.plotly_chart(style_fig(fig, 350), use_container_width=True)
+    with right:
+        st.markdown(f'''<div class="action-story"><div class="action-story-line"><div class="action-story-index">۱</div><div class="action-story-text">هزینه پیامک مدل: <b>{toman(snapshot['suggested_campaign_cost'])} تومان</b></div></div><div class="action-story-line"><div class="action-story-index">۲</div><div class="action-story-text">ارزش خرید ثبت‌شده در مدل: <b>{toman(snapshot['demo_returned_revenue'])} تومان</b></div></div><div class="action-story-line"><div class="action-story-index">۳</div><div class="action-story-text">در نسخه واقعی فقط Revenue دارای Attribution معتبر در ROI حساب می‌شود.</div></div></div>''', unsafe_allow_html=True)
+        st.warning("این ROI برای نمایش منطق محصول است؛ قبل از فروش تجاری باید Attribution واقعی، هزینه تخفیف، حاشیه سود و بازه Attribution وارد شوند.")
+
+
+def subscription_plans_portal_page():
+    if not _customer_growth_ready():
+        return
+    customer_product_header("پلن‌های اشتراک Growth Intelligence", "سه سطح پیشنهادی برای تبدیل Intelligence و Automation به یک SaaS درآمد تکرارشونده. قیمت‌ها فعلاً پیشنهاد محصول‌اند، نه قیمت مصوب نیک.")
+    st.markdown('<div class="customer-source-note"><b>Pricing Draft:</b> قیمت‌های زیر برای تست Positioning و ارائه مدیریتی هستند و باید بعداً با Cost-to-Serve، ارزش اقتصادی، تحقیق بازار و تست willingness-to-pay نهایی شوند.</div>', unsafe_allow_html=True)
+    cols = st.columns(3)
+    for i, row in PLAN_CATALOG.reset_index(drop=True).iterrows():
+        featured = " plan-card-featured" if i == 1 else ""
+        features = "".join(f'<div class="plan-feature">{feature}</div>' for feature in row["features"])
+        with cols[i]:
+            st.markdown(f'''<div class="plan-card{featured}"><div class="plan-eyebrow">{"پیشنهاد اصلی" if i == 1 else "پلن اشتراک"}</div><div class="plan-name">{row['plan']}</div><div class="plan-price">{fa_num(row['price_monthly'])} تومان</div><div class="plan-period">ماهانه / قیمت پیشنهادی دمو</div><div class="plan-best">{row['best_for']}</div>{features}</div>''', unsafe_allow_html=True)
+            if st.button(row["cta"], type="primary" if i == 1 else "secondary", use_container_width=True, key=f"v10_plan_{i}"):
+                st.toast("این دکمه فعلاً برای Demo Pricing است؛ خرید واقعی متصل نشده است.")
+    st.write("")
+    section_heading("منطق درآمد برای نیک", "چرا این Add-on می‌تواند پولی باشد؟", "ارزش فقط اشتراک نیست؛ افزایش مصرف پیامک، ماندگاری مشتری، فروش NIKPOS و کاهش Churn هم بخشی از اقتصاد محصول است.")
+    st.markdown('''<div class="action-story"><div class="action-story-line"><div class="action-story-index">۱</div><div class="action-story-text"><b>Subscription:</b> درآمد تکرارشونده مستقیم از Intelligence و Automation.</div></div><div class="action-story-line"><div class="action-story-index">۲</div><div class="action-story-text"><b>SMS Usage:</b> پیشنهادهای قابل اجرا می‌توانند مصرف هدفمند پیامک را افزایش دهند.</div></div><div class="action-story-line"><div class="action-story-index">۳</div><div class="action-story-text"><b>Retention:</b> پنلی که برای کاربر پول می‌سازد، احتمال تمدید و ماندگاری او را افزایش می‌دهد.</div></div><div class="action-story-line"><div class="action-story-index">۴</div><div class="action-story-text"><b>NIKPOS:</b> ارزش دستگاه از «جمع‌کردن شماره» به «ساختن ورودی موتور رشد» ارتقا پیدا می‌کند.</div></div></div>''', unsafe_allow_html=True)
+
 def settings_page(scenario, kpis):
     sm = scenario_summary(scenario)
     page_header(
@@ -3811,7 +4045,7 @@ def main():
     if st.session_state.presentation_mode:
         left, right = st.columns([5, 1])
         with left:
-            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · منوها و کنترل‌های فنی پنهان شده‌اند.</span><span>V0.9</span></div>', unsafe_allow_html=True)
+            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · منوها و کنترل‌های فنی پنهان شده‌اند.</span><span>V0.10</span></div>', unsafe_allow_html=True)
         with right:
             if st.button("خروج از ارائه", use_container_width=True, key="exit_presentation"):
                 st.session_state.presentation_mode = False
@@ -3896,13 +4130,25 @@ def main():
         predictions_page(forecast, forecast_stats, customers_model, risk_stats)
     elif page == "Automated Insights":
         insights_page(insights)
+    elif page == "Customer Growth Home":
+        customer_growth_home_page()
+    elif page == "Customer Segments Portal":
+        customer_segments_portal_page()
+    elif page == "Smart Campaigns Portal":
+        smart_campaigns_portal_page()
+    elif page == "Business Automations Portal":
+        business_automations_portal_page()
+    elif page == "Business ROI Portal":
+        business_roi_portal_page()
+    elif page == "Subscription Plans Portal":
+        subscription_plans_portal_page()
     elif page == "Analysis Pipeline":
         pipeline_page()
     elif page == "Settings / Scenario Controls":
         settings_page(scenario, kpis)
 
     st.markdown("---")
-    st.caption("NIK EXECUTIVE MANAGEMENT OS V0.9 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
+    st.caption("NIK MANAGEMENT OS + GROWTH INTELLIGENCE V0.10 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
     st.caption("پیش‌بینی‌ها و خروجی‌های یادگیری ماشین آزمایشی‌اند و نباید مبنای تصمیم قطعی عملیاتی قرار گیرند.")
 
 

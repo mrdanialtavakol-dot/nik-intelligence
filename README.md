@@ -33,3 +33,13 @@ streamlit run app.py
 ## Safety / data trust
 Prototype using baseline/demo/synthetic data. Not connected to NIK internal systems.
 Forecasts and ML outputs are experimental and should not be used for production decisions.
+
+---
+
+# V0.10 — Customer Growth Edition
+
+V0.10 یک حوزه اصلی مستقل با عنوان **مشتریان کسب‌وکار** اضافه می‌کند. این حوزه نمونه محصولی است که می‌تواند در آینده به‌صورت Add-on داخل پنل NIKSMS/NIKPOS به صاحبان کسب‌وکار ارائه شود.
+
+منطق آن: **داده مشتری → سگمنت → فرصت → اقدام → کمپین/اتوماسیون → نتیجه → ROI**.
+
+تمام اعداد این حوزه Synthetic/Demo هستند و از پنل مدیریتی داخلی NIK جدا نگه داشته شده‌اند. برای جزئیات محصول، `V10_CUSTOMER_PRODUCT.md` را ببینید.
