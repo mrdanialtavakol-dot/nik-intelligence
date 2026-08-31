@@ -105,9 +105,23 @@ except Exception as _ceo_ops_error:
     ORGANIZATION_ROSTER = pd.DataFrame()
     TASK_COLUMNS = []
 
+# V0.9 executive suite is optional; V0.8 remains usable during partial deploys.
+try:
+    from v09_engine import (
+        V09_VERSION, CEO_PAGES, DEPARTMENT_PAGES, GROWTH_PAGES, INTELLIGENCE_PAGES, SYSTEM_PAGES,
+        fx_cost_snapshot, marketing_economics_snapshot, department_kpi_catalog,
+    )
+    from font_loader import iransansx_css
+    V09_AVAILABLE = True
+    V09_ERROR = ""
+except Exception as _v09_error:
+    V09_AVAILABLE = False
+    V09_ERROR = str(_v09_error)
+    V09_VERSION = "V0.9"
+
 
 st.set_page_config(
-    page_title="نیک اس‌ام‌اس | پنل اختصاصی مدیرعامل V0.8",
+    page_title="نیک اس‌ام‌اس | Executive Management OS V0.9",
     page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -124,6 +138,12 @@ BORDER = "rgba(255,255,255,.10)"
 BASE_DIR = Path(__file__).resolve().parent
 ASSET_DIR = BASE_DIR / "assets"
 LOGO_PATH = ASSET_DIR / "images" / "niksms-logo.png"
+try:
+    _font_css = iransansx_css(BASE_DIR) if V09_AVAILABLE else ""
+    if _font_css:
+        st.markdown(_font_css, unsafe_allow_html=True)
+except Exception:
+    pass
 
 # UI safety net: if Streamlit Cloud briefly loads an older Scenario module
 # during a multi-file redeploy, optional fields still have safe defaults.
@@ -174,7 +194,13 @@ PAGE_LABELS = {
     "Sales Lead Center": "مرکز پخش و پیگیری لید",
     "Support Workspace": "مدیریت پشتیبانی",
     "HR Workspace": "مدیریت منابع انسانی",
-    "Marketing Workspace": "مدیریت مارکتینگ",
+    "Marketing Workspace": "نمای کلی مارکتینگ",
+    "Marketing Economics": "اقتصاد مارکتینگ",
+    "Marketing Trend": "روند و عملکرد مارکتینگ",
+    "Sales Funnel Ops": "پخش لید و عملکرد فروش",
+    "Finance Dashboard": "نمای مالی مدیریتی",
+    "IT Delivery": "آپدیت، تسک و تحویل IT",
+    "FX & Supply": "ارز، تأمین و بهای ساخت",
 }
 PAGE_ICONS = {
     "Executive Overview": "◈",
@@ -206,6 +232,12 @@ PAGE_ICONS = {
     "Support Workspace": "◍",
     "HR Workspace": "◎",
     "Marketing Workspace": "▶",
+    "Marketing Economics": "◫",
+    "Marketing Trend": "⌁",
+    "Sales Funnel Ops": "↗",
+    "Finance Dashboard": "◫",
+    "IT Delivery": "⌘",
+    "FX & Supply": "◇",
 }
 NAV_GROUPS = {
     "مرکز کیوان": ["Executive Overview", "CEO Task Center", "Organization Pulse"],
@@ -1011,6 +1043,38 @@ V08_CEO_CSS = r"""
 st.markdown(V08_CEO_CSS, unsafe_allow_html=True)
 
 
+
+V09_LIGHT_CSS = r"""
+<style>
+:root{--v09-bg:#F3F8FF;--v09-sky:#ADCBFF;--v09-blue:#3D78C5;--v09-deep:#17385D;--v09-text:#102943;--v09-muted:#657D96}
+html,body,[class*="css"],.stApp{font-family:"IRANSansX","Vazirmatn","Segoe UI",Tahoma,sans-serif!important}
+.stApp{color:#102943!important;background:radial-gradient(820px 520px at 87% -8%,rgba(173,203,255,.92),transparent 66%),radial-gradient(680px 520px at 7% 30%,rgba(215,233,255,.92),transparent 67%),radial-gradient(560px 420px at 55% 88%,rgba(255,255,255,.95),transparent 70%),linear-gradient(145deg,#FAFDFF 0%,#F3F8FF 30%,#E7F1FF 66%,#D8E9FF 100%)!important;background-attachment:fixed!important}
+[data-testid="stSidebar"]{background:linear-gradient(180deg,rgba(255,255,255,.79),rgba(238,247,255,.70))!important;border-left:1px solid rgba(255,255,255,.94)!important;border-right:0!important;box-shadow:-24px 0 80px rgba(75,119,170,.10)!important;-webkit-backdrop-filter:blur(42px) saturate(170%)!important;backdrop-filter:blur(42px) saturate(170%)!important}
+[data-testid="stSidebar"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] span{color:#284663!important}[data-testid="stSidebar"] hr{border-color:rgba(64,111,158,.10)!important}
+[data-testid="stSidebar"] [data-baseweb="select"]>div{background:rgba(255,255,255,.52)!important;border-color:rgba(80,126,174,.10)!important;border-radius:16px!important}
+.block-container{max-width:1540px!important;padding-top:1.1rem!important}
+.hero-glass,.ceo-command,.glass-kpi,.glass-panel,.command-metric,.priority-card,.leverage-card,.v06-brief,.ceo-personal-hero,.team-card,.ceo-inbox-card,.auto-ledger,.lead-routing-hero,.connection-card,[data-testid="stMetric"],div[data-testid="stExpander"]{background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(255,255,255,.44))!important;border:1px solid rgba(255,255,255,.93)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 18px 55px rgba(72,112,158,.11),0 1px 1px rgba(55,99,145,.06)!important;-webkit-backdrop-filter:blur(34px) saturate(165%)!important;backdrop-filter:blur(34px) saturate(165%)!important}
+.kpi-label,.ceo-command-label,.money-chip-label,.sim-label,.trust-label,.connection-copy,.connection-fresh,.kpi-note,.section-subtitle,.ceo-status-copy,.v06-brief-copy,.ceo-personal-copy,.team-role,.ceo-inbox-meta,.gap-text,.leverage-note{color:#667F98!important}
+.kpi-value,.ceo-command-value,.money-chip-value,.sim-value,.trust-value,.connection-name,.section-title,.ceo-status-title,.v06-brief-title,.ceo-personal-title,.team-name,.ceo-inbox-title,.gap-title,.leverage-title,.auto-ledger-title,.lead-routing-value{color:#122E4A!important}
+.section-kicker,.ceo-overline,.v06-brief-kicker,.ceo-personal-kicker,.leverage-kicker,.ceo-inbox-action{color:#3D78C5!important}
+.money-chip,.trust-cell,.gap-row,.ops-step{background:rgba(255,255,255,.50)!important;border-color:rgba(73,116,160,.10)!important}
+[data-testid="stMetricLabel"] p{color:#657D96!important}[data-testid="stMetricValue"]{color:#12304E!important}
+.stMarkdown,.stCaption,.stAlert,.stHeader,.stSubheader{color:#173650!important}
+.stButton>button,.stDownloadButton>button{border-radius:15px!important;border:1px solid rgba(255,255,255,.92)!important;background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(223,238,255,.66))!important;color:#173A60!important;box-shadow:inset 0 1px 0 #fff,0 9px 28px rgba(70,112,160,.09)!important;transition:transform .2s ease,box-shadow .2s ease!important}
+.stButton>button[kind="primary"]{background:linear-gradient(135deg,#78A9E9,#4F84CC)!important;color:#fff!important;border-color:rgba(255,255,255,.72)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.65),0 12px 32px rgba(63,113,178,.24)!important}
+@media(hover:hover) and (pointer:fine){.stButton>button:hover{transform:translateY(-1px)}.glass-kpi:hover,.command-metric:hover,.priority-card:hover,.team-card:hover{transform:translateY(-2px)!important}}
+.v09-integration{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;margin:4px 0 10px;border-radius:18px;background:rgba(255,255,255,.48);border:1px solid rgba(255,255,255,.88);box-shadow:inset 0 1px 0 #fff,0 10px 30px rgba(78,116,156,.07);backdrop-filter:blur(22px)}
+.v09-integration-title{font-size:.69rem;font-weight:850;color:#355A7D}.v09-integration-state{display:flex;gap:7px;flex-wrap:wrap}.v09-connect-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;font-size:.61rem;font-weight:800;color:#3B6286;background:rgba(255,255,255,.62);border:1px solid rgba(81,130,180,.11)}.v09-dot{width:7px;height:7px;border-radius:50%;background:#7EACE6;box-shadow:0 0 0 4px rgba(126,172,230,.13)}
+.v09-section-hero{position:relative;overflow:hidden;padding:20px 22px;margin:7px 0 16px;border-radius:25px;background:linear-gradient(135deg,rgba(255,255,255,.81),rgba(221,237,255,.56));border:1px solid rgba(255,255,255,.96);box-shadow:inset 0 1px 0 #fff,0 22px 62px rgba(73,115,160,.10)}
+.v09-section-hero:after{content:"";position:absolute;left:-50px;top:-90px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(173,203,255,.60),transparent 70%)}
+.v09-hero-kicker{font-size:.65rem;font-weight:900;letter-spacing:.08em;color:#4A78A7}.v09-hero-title{font-size:1.25rem;font-weight:900;color:#12304F;margin-top:5px}.v09-hero-copy{font-size:.74rem;line-height:1.9;color:#657E97;max-width:960px;margin-top:5px}
+.v09-icon-shell{width:42px;height:42px;border-radius:15px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(173,203,255,.38));border:1px solid rgba(255,255,255,.98);box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(77,124,177,.11)}.v09-icon-shell svg{width:21px;height:21px;fill:none;stroke:#3F73AA;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.v09-subnav{padding:9px 11px;border-radius:16px;background:rgba(255,255,255,.48);border:1px solid rgba(255,255,255,.88);margin-bottom:10px;color:#5C7590;font-size:.66rem}
+</style>
+"""
+st.markdown(V09_LIGHT_CSS, unsafe_allow_html=True)
+
+
 def asset_data_uri(path: Path) -> str:
     if not path.exists():
         return ""
@@ -1158,20 +1222,15 @@ def pct(value: float) -> str:
 
 def style_fig(fig, height: int = 380):
     fig.update_layout(
-        template="plotly_dark",
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#C4D0DC", family="Vazirmatn, Segoe UI, sans-serif"),
-        height=height,
-        margin=dict(l=20, r=20, t=55, b=20),
-        legend_title_text="",
-        title_font=dict(size=15, color="#EFF7FF"),
-        hoverlabel=dict(bgcolor="#0C1520", font_color="#F5FAFF"),
+        height=height, paper_bgcolor="rgba(255,255,255,0)", plot_bgcolor="rgba(255,255,255,0)",
+        font=dict(family="IRANSansX, Vazirmatn, Segoe UI, Tahoma", color="#324B66", size=12),
+        margin=dict(l=24,r=24,t=28,b=24),
+        legend=dict(bgcolor="rgba(255,255,255,.42)",bordercolor="rgba(103,148,197,.12)",borderwidth=1),
+        xaxis=dict(gridcolor="rgba(71,111,154,.10)",zerolinecolor="rgba(71,111,154,.12)",linecolor="rgba(71,111,154,.14)"),
+        yaxis=dict(gridcolor="rgba(71,111,154,.10)",zerolinecolor="rgba(71,111,154,.12)",linecolor="rgba(71,111,154,.14)"),
+        hoverlabel=dict(bgcolor="#FFFFFF",font_color="#17324E",bordercolor="rgba(85,132,180,.20)"),
     )
-    fig.update_xaxes(gridcolor="rgba(255,255,255,.055)", zerolinecolor="rgba(255,255,255,.08)")
-    fig.update_yaxes(gridcolor="rgba(255,255,255,.055)", zerolinecolor="rgba(255,255,255,.08)")
     return fig
-
 
 def kpi_card(label: str, value: str, source: str, icon: str, note: str = ""):
     src_class = SOURCE_CLASSES[source]
@@ -1367,57 +1426,69 @@ def inject_presentation_mode_css(enabled: bool):
 def scenario_sidebar() -> Tuple[Scenario, str]:
     if "presentation_mode" not in st.session_state:
         st.session_state.presentation_mode = False
-    if "nav_group" not in st.session_state:
-        st.session_state.nav_group = "مرکز کیوان"
+    if "v09_main_area" not in st.session_state:
+        st.session_state.v09_main_area = "میز مدیرعامل"
 
     if LOGO_PATH.exists():
-        st.sidebar.image(str(LOGO_PATH), width=185)
+        st.sidebar.image(str(LOGO_PATH), width=176)
     st.sidebar.markdown(
         """
-        <div style="padding:2px 4px 4px">
-            <div style="font-size:.70rem;color:#DCEAFF;font-weight:800;letter-spacing:.08em">NIK MANAGEMENT OS</div>
-            <div style="font-size:1.22rem;color:#F7FBFF;font-weight:850;margin-top:3px">مدیریت، داده و اتوماسیون نیک</div>
-            <div style="font-size:.73rem;color:#8FA7BD;margin-top:4px">CEO Management & Automation OS · V0.8</div>
-            <div style="font-size:.68rem;color:#ADCBFF;margin-top:6px;font-weight:750">طراحی‌شده برای کیوان میرزایی</div>
+        <div style="padding:3px 4px 7px">
+            <div style="font-size:.69rem;color:#557493;font-weight:900;letter-spacing:.08em">NIK EXECUTIVE MANAGEMENT OS</div>
+            <div style="font-size:1.18rem;color:#173A5D;font-weight:900;margin-top:4px">پنل مدیریتی نیک اس‌ام‌اس</div>
+            <div style="font-size:.70rem;color:#7A91A7;margin-top:4px">Executive Intelligence · V0.9</div>
+            <div style="font-size:.66rem;color:#4B7DB3;margin-top:6px;font-weight:800">طراحی اختصاصی برای کیوان میرزایی</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
-    if st.sidebar.button("حالت ارائه مدیرعامل", use_container_width=True, type="primary"):
+    if st.sidebar.button("حالت ارائه مدیرعامل", use_container_width=True, type="primary", key="v09_presentation"):
         st.session_state.presentation_mode = True
         st.rerun()
 
     st.sidebar.markdown("---")
-    group = st.sidebar.selectbox("حوزه", list(NAV_GROUPS.keys()), key="nav_group")
-    group_pages = NAV_GROUPS[group]
-    page = st.sidebar.radio(
-        "صفحه",
-        group_pages,
-        format_func=lambda x: f"{PAGE_ICONS[x]}   {PAGE_LABELS[x]}",
-        key=f"page_{group}",
-    )
+    if V09_AVAILABLE:
+        main_area = st.sidebar.selectbox(
+            "حوزه اصلی",
+            ["میز مدیرعامل", "واحدهای شرکت", "رشد و تصمیم", "هوشمندی سازمان", "سیستم و اتوماسیون"],
+            key="v09_main_area",
+        )
+        if main_area == "میز مدیرعامل":
+            page = st.sidebar.radio("صفحه", list(CEO_PAGES), format_func=lambda x: CEO_PAGES[x], key="v09_ceo_page")
+        elif main_area == "واحدهای شرکت":
+            department = st.sidebar.selectbox("واحد", list(DEPARTMENT_PAGES), key="v09_department")
+            st.sidebar.markdown(f'<div class="v09-subnav">زیرمنوی {department} · فقط ابزارهای مرتبط با همین واحد</div>', unsafe_allow_html=True)
+            pages = DEPARTMENT_PAGES[department]
+            page = st.sidebar.radio("بخش", list(pages), format_func=lambda x: pages[x], key=f"v09_department_page_{department}")
+        elif main_area == "رشد و تصمیم":
+            page = st.sidebar.radio("صفحه", list(GROWTH_PAGES), format_func=lambda x: GROWTH_PAGES[x], key="v09_growth_page")
+        elif main_area == "هوشمندی سازمان":
+            page = st.sidebar.radio("صفحه", list(INTELLIGENCE_PAGES), format_func=lambda x: INTELLIGENCE_PAGES[x], key="v09_intel_page")
+        else:
+            page = st.sidebar.radio("صفحه", list(SYSTEM_PAGES), format_func=lambda x: SYSTEM_PAGES[x], key="v09_system_page")
+    else:
+        group = st.sidebar.selectbox("حوزه", list(NAV_GROUPS.keys()), key="nav_group")
+        group_pages = NAV_GROUPS[group]
+        page = st.sidebar.radio("صفحه", group_pages, format_func=lambda x: f"{PAGE_ICONS[x]}   {PAGE_LABELS[x]}", key=f"page_{group}")
 
-    with st.sidebar.expander("کنترل سناریوی مدیریتی", expanded=False):
+    with st.sidebar.expander("کنترل سناریوی کلیدی", expanded=False):
         price_a = st.number_input("قیمت طرح A (تومان)", 1_000_000, 200_000_000, int(baseline_value("plan_a_price", 15_000_000)), 1_000_000)
         price_b = st.number_input("قیمت طرح B (تومان)", 1_000_000, 300_000_000, int(baseline_value("plan_b_price", 30_000_000)), 1_000_000)
         share_a_pct = st.slider("سهم طرح A", 0, 100, int(baseline_value("plan_a_share", 0.50) * 100), 5)
         phone = st.number_input("فروش تلفنی روزانه", 0, 500, int(baseline_value("daily_phone_sales", 10)), 1)
         online = st.number_input("فروش آنلاین ماهانه", 0, 5_000, int(baseline_value("monthly_online_sales", 20)), 5)
         backlog = st.number_input("صف فعلی لید", 0, 500_000, int(baseline_value("lead_backlog", 5_490)), 100)
-        sales_days = st.slider("فرض روز فروش در ماه", 20, 31, int(baseline_value("sales_days_per_month", 30)), 1)
-
-    with st.sidebar.expander("کنترل محتوا"):
+        sales_days = st.slider("روز فروش در ماه", 20, 31, int(baseline_value("sales_days_per_month", 30)), 1)
+    with st.sidebar.expander("سناریوی محتوا", expanded=False):
         stories = st.number_input("استوری روزانه", 0, 100, int(baseline_value("stories_per_day", 9)), 1)
         reels = st.number_input("ریلز روزانه", 0, 20, int(baseline_value("reels_per_day", 1)), 1)
-        content_sales = st.number_input("فروش منتسب به محتوا / روز", 0.0, 100.0, float(baseline_value("estimated_content_sales_per_day", 2.0)), 0.5, help="انتساب فروش تخمینی است و به فروش کل اضافه نمی‌شود.")
+        content_sales = st.number_input("فروش منتسب به محتوا / روز", 0.0, 100.0, float(baseline_value("estimated_content_sales_per_day", 2.0)), 0.5)
         followers = st.number_input("فالوئر اینستاگرام", 0, 10_000_000, int(baseline_value("instagram_followers", 207_000)), 1_000)
         team_size = st.number_input("اندازه تیم محتوا", 1, 100, int(baseline_value("content_team_size", 5)), 1)
-
-    with st.sidebar.expander("تنظیمات مدل آزمایشی"):
+    with st.sidebar.expander("تنظیمات مدل آزمایشی", expanded=False):
         customers = st.number_input("مشتری مصنوعی", 500, 50_000, 5_000, 500)
-        months = st.slider("ماه‌های داده تاریخی مصنوعی", 3, 36, 12, 1)
-        seed = st.number_input("بذر تصادفی (Seed)", 1, 999_999, 42, 1)
+        months = st.slider("ماه‌های تاریخچه مصنوعی", 3, 36, 12, 1)
+        seed = st.number_input("Seed", 1, 999_999, 42, 1)
 
     scenario = make_scenario(
         price_plan_a=float(price_a), price_plan_b=float(price_b), plan_a_share=float(share_a_pct) / 100,
@@ -1426,23 +1497,17 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         instagram_followers=int(followers), content_team_size=int(team_size), synthetic_customer_count=int(customers),
         history_months=int(months), sales_days_per_month=int(sales_days), seed=int(seed),
     )
-
     st.sidebar.markdown("---")
-    if st.sidebar.button("اجرای تحلیل کامل", use_container_width=True):
-        stages = ["بارگذاری داده", "اعتبارسنجی داده", "پاک‌سازی", "محاسبه شاخص‌های کلیدی", "تحلیل روند", "تشخیص تغییرات غیرعادی", "اجرای مدل‌ها", "تولید بینش", "تحلیل کامل شد"]
-        progress = st.sidebar.progress(0)
-        status = st.sidebar.empty()
+    if st.sidebar.button("اجرای تحلیل کامل", use_container_width=True, key="v09_run_analysis"):
+        stages = ["بارگذاری", "اعتبارسنجی", "محاسبه KPI", "تحلیل روند", "تشخیص تغییر", "مدل‌ها", "بینش", "آماده"]
+        progress = st.sidebar.progress(0); status = st.sidebar.empty()
         for i, stage in enumerate(stages, start=1):
-            status.caption(stage)
-            progress.progress(int(i / len(stages) * 100))
-            time.sleep(0.018)
-        status.success("تحلیل کامل شد")
-
-    st.sidebar.caption("V0.8 — پنل اختصاصی کیوان؛ مدیریت + گزارش + تسک + اتوماسیون + داده.")
+            status.caption(stage); progress.progress(int(i / len(stages) * 100)); time.sleep(0.012)
+        status.success("تحلیل به‌روز شد")
+    st.sidebar.caption("V0.9 · هر داده در جای سازمانی خودش؛ مدیرعامل فقط استثنا، تصمیم و اقدام را می‌بیند.")
     if st.session_state.presentation_mode:
         page = "Executive Overview"
     return scenario, page
-
 
 def _safe_mom_growth(monthly: pd.DataFrame) -> float:
     try:
@@ -1622,7 +1687,7 @@ def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights
     st.markdown(
         f'''<div class="ceo-command">
             <div>
-                <div class="ceo-overline">مرکز فرمان مدیرعامل · Management OS V0.8</div>
+                <div class="ceo-overline">مرکز فرمان مدیرعامل · Executive OS V0.9</div>
                 <div class="ceo-status-line"><div class="ceo-status-title">{status_label}</div><span class="ceo-status-badge {status_class}">وضعیت قاعده‌محور</span></div>
                 <div class="ceo-status-copy">{status_copy} این وضعیت «امتیاز سلامت شرکت» نیست؛ جمع‌بندی توضیح‌پذیر از داده‌های فعلی نمونه اولیه است.</div>
             </div>
@@ -1889,6 +1954,7 @@ def sales_analytics_page(scenario, data, kpis, daily, monthly):
         "تحلیل فروش",
         "تفکیک داده مبنای واقعی از محاسبات ۳۰روزه؛ هیچ درآمد محاسبه‌شده‌ای به‌عنوان فروش حسابداری واقعی معرفی نمی‌شود.",
     )
+    integration_toolbar("فروش", "v09_sales_analytics")
 
     row = st.columns(4)
     with row[0]:
@@ -2066,6 +2132,7 @@ def content_page(scenario):
         "تحلیل محتوا و اینستاگرام",
         "نمای واقعی ۱۰ ریلز از مدل آزمایشی جدا شده؛ هدف این صفحه سنجش توزیع عملکرد است، نه تکیه صرف بر میانگین بازدید.",
     )
+    integration_toolbar("مارکتینگ", "v09_content")
     m = content_metrics_safe(scenario)
 
     row = st.columns(5)
@@ -2185,6 +2252,7 @@ def media_intelligence_page():
         "آزمایشگاه تحلیل محتوا",
         "۵ ویدیوی واقعی و ۶ تصویر ارسالی داخل اپ قرار گرفته‌اند. خط زمانی فعلی آزمایشی است؛ بعداً ماندگاری مخاطب و رویدادهای واقعی با داده رهگیری جایگزین می‌شوند.",
     )
+    integration_toolbar("مارکتینگ", "v09_media")
 
     video_tab, image_tab, upload_tab = st.tabs(["ویدیو و خط زمانی", "گالری تصاویر", "آپلود تست"])
 
@@ -2214,11 +2282,11 @@ def media_intelligence_page():
 
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=timeline["second"], y=timeline["retention"], mode="lines", name="ماندگاری مخاطب / دمو", line=dict(color=ACCENT, width=3), fill="tozeroy", fillcolor="rgba(173,203,255,.10)"))
-            fig.add_trace(go.Scatter(x=timeline["second"], y=timeline["click_signal"], mode="lines", name="سیگنال کلیک / دمو", line=dict(color="#F3D39A", width=2, dash="dot"), yaxis="y2"))
+            fig.add_trace(go.Scatter(x=timeline["second"], y=timeline["click_signal"], mode="lines", name="سیگنال کلیک / دمو", line=dict(color="#8A6FC1", width=2, dash="dot"), yaxis="y2"))
             for _, ev in events.iterrows():
-                fig.add_vline(x=float(ev["second"]), line_width=1, line_dash="dot", line_color="rgba(255,255,255,.30)")
-                fig.add_annotation(x=float(ev["second"]), y=0.98, yref="paper", text=str(ev["event"]), showarrow=False, font=dict(size=9, color="#E9F2FF"), textangle=-90)
-            fig.add_vline(x=selected_second, line_width=2, line_color="#FFFFFF")
+                fig.add_vline(x=float(ev["second"]), line_width=1, line_dash="dot", line_color="rgba(59,98,134,.22)")
+                fig.add_annotation(x=float(ev["second"]), y=0.98, yref="paper", text=str(ev["event"]), showarrow=False, font=dict(size=9, color="#4A6A89"), textangle=-90)
+            fig.add_vline(x=selected_second, line_width=2, line_color="#3D78C5")
             fig.update_layout(yaxis=dict(title="ماندگاری مخاطب", tickformat=".0%", range=[0,1.05]), yaxis2=dict(title="سیگنال کلیک", overlaying="y", side="right", showgrid=False, range=[0,1.15]))
             st.plotly_chart(style_fig(fig, 430), use_container_width=True)
 
@@ -2773,6 +2841,7 @@ def production_qc_page(scenario, kpis):
         return
     _ensure_management_state()
     page_header("تولید و QC", "از تعداد دستگاه تولیدشده تا QC، Rework، موجودی آماده و Order تولید؛ هدف این صفحه جلوگیری از فروش بدون آمادگی عملیاتی است.")
+    integration_toolbar("تولید و QC", "v09_production")
 
     with st.expander("ورودی عملیاتی QC / تولید (فعلاً Demo)", expanded=False):
         q1,q2,q3,q4 = st.columns(4)
@@ -3090,6 +3159,7 @@ def it_workspace_page(scenario, kpis):
         "اتاق عملیات IT",
         "برای موضوعاتی که این روزها بیشترین رفت‌وبرگشت مدیریتی دارند: آپدیت‌های جدید، تسک‌های برنامه‌نویسان، Blockerها و قالب ظاهری جدید سایت.",
     )
+    integration_toolbar("فناوری اطلاعات", "v09_it_workspace")
     section_heading("تیم", "فناوری اطلاعات / برنامه‌نویسی")
     _render_team_roster("it", 3)
 
@@ -3125,6 +3195,7 @@ def accounting_automation_page():
         "اتوماسیون حسابداری",
         "هدف: دریافت ماشینی تراکنش، طبقه‌بندی، ثبت دوطرفه و تطبیق خودکار؛ انسان فقط برای استثنا، ابهام، مبلغ پرریسک و تأییدهای قانونی وارد شود.",
     )
+    integration_toolbar("حسابداری", "v09_accounting")
     section_heading("تیم", "حسابداری")
     _render_team_roster("accounting", 2)
 
@@ -3202,6 +3273,7 @@ def sales_lead_center_page(scenario):
         "مرکز پخش و پیگیری لید",
         "صف فعلی ۵۴۹۰ لید به یک سیستم Routing نیاز دارد: ورودی، حذف تکراری، اولویت، تخصیص، SLA تماس، نتیجه و Follow-up باید قابل اندازه‌گیری باشد.",
     )
+    integration_toolbar("فروش", "v09_sales_center")
     st.markdown(
         f'''<div class="lead-routing-hero"><div class="section-kicker">Baseline فعلی</div><div class="lead-routing-value">{fa_num(backlog)} لید</div><div class="lead-routing-label">این عدد Baseline واقعی است؛ عملکرد کارشناسان و Routing پایین این صفحه تا اتصال CRM/Call Center، Demo است.</div></div>''',
         unsafe_allow_html=True,
@@ -3261,6 +3333,7 @@ def _simple_department_workspace(dept_key: str, title: str, subtitle: str, defau
         return
     _ensure_ceo_state()
     page_header(title, subtitle)
+    integration_toolbar(title, f"v09_{key_prefix}_workspace")
     section_heading("تیم", title)
     _render_team_roster(dept_key, 3)
 
@@ -3342,6 +3415,236 @@ def marketing_workspace_page(scenario, kpis):
     )
 
 
+def _v09_icon_svg(kind: str) -> str:
+    icons = {
+        "spark": '<svg viewBox="0 0 24 24"><path d="M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/></svg>',
+        "sales": '<svg viewBox="0 0 24 24"><path d="M4 18l5-5 4 3 7-9"/><path d="M15 7h5v5"/></svg>',
+        "finance": '<svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5"/><path d="M5 10v8M10 10v8M14 10v8M19 10v8M3 21h18"/></svg>',
+        "code": '<svg viewBox="0 0 24 24"><path d="M8 5L3 12l5 7M16 5l5 7-5 7M14 3l-4 18"/></svg>',
+        "factory": '<svg viewBox="0 0 24 24"><path d="M3 21V9l6 3V8l6 4V5h5v16H3z"/><path d="M7 16h2M12 16h2M17 16h2"/></svg>',
+        "support": '<svg viewBox="0 0 24 24"><path d="M5 15a7 7 0 0 1 14 0"/><path d="M4 14v5h4v-5H4zM16 14v5h4v-5h-4z"/><path d="M16 21h-4"/></svg>',
+        "people": '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 20c.7-4 2.8-6 6-6s5.3 2 6 6M15 15c3 0 5 1.7 6 5"/></svg>',
+        "currency": '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 9h7a2 2 0 0 1 0 4H9a2 2 0 0 0 0 4h7M12 6v12"/></svg>',
+    }
+    return icons.get(kind, icons["spark"])
+
+
+def integration_toolbar(department: str, key_prefix: str):
+    st.markdown(
+        f'''<div class="v09-integration"><div class="v09-integration-title">{department} · لایه اتصال</div><div class="v09-integration-state"><span class="v09-connect-pill"><span class="v09-dot"></span>API · آماده اتصال</span><span class="v09-connect-pill"><span class="v09-dot"></span>n8n · آماده اتصال</span><span class="v09-connect-pill">Audit · طراحی شده</span></div></div>''',
+        unsafe_allow_html=True,
+    )
+    a, b, _ = st.columns([1, 1, 4])
+    with a:
+        if st.button("اتصال API", key=f"{key_prefix}_api", use_container_width=True):
+            st.toast("API Connector در فاز اتصال واقعی فعال می‌شود؛ این نسخه Credential ذخیره نمی‌کند.")
+    with b:
+        if st.button("اتصال n8n", key=f"{key_prefix}_n8n", use_container_width=True):
+            st.toast("Workflow / Webhook n8n در فاز اجرایی فعال می‌شود.")
+
+
+def department_hero(title: str, copy: str, icon: str = "spark", kicker: str = "EXECUTIVE WORKSPACE"):
+    st.markdown(
+        f'''<div class="v09-section-hero"><div style="display:flex;gap:12px;align-items:flex-start"><div class="v09-icon-shell">{_v09_icon_svg(icon)}</div><div><div class="v09-hero-kicker">{kicker}</div><div class="v09-hero-title">{title}</div><div class="v09-hero-copy">{copy}</div></div></div></div>''',
+        unsafe_allow_html=True,
+    )
+
+
+def finance_dashboard_page(scenario, kpis):
+    department_hero("نمای مالی مدیریتی", "مدیرعامل در این صفحه فقط جریان پول، مغایرت، Exception و موارد نیازمند تصمیم را می‌بیند؛ ثبت روزمره باید توسط موتور حسابداری انجام شود.", "finance", "FINANCE · CEO VIEW")
+    integration_toolbar("حسابداری", "v09_finance_dash")
+    if CEO_OPS_AVAILABLE:
+        _ensure_ceo_state()
+        classified = classify_finance_transactions(st.session_state.ceo_finance_transactions, st.session_state.ceo_finance_threshold)
+        fin = finance_automation_summary(classified)
+    else:
+        fin = {}
+    cols = st.columns(4)
+    cols[0].metric("درآمد ماهانه مدل", f"{toman(float(kpis.get('monthly_revenue', 0)))} تومان")
+    cols[1].metric("Auto-post · Demo", pct(float(fin.get("auto_post_rate", 0.0))))
+    cols[2].metric("Exception · Demo", fa_num(float(fin.get("exceptions", 0))))
+    cols[3].metric("مغایرت بانکی", "در انتظار اتصال")
+    section_heading("دید مدیرعامل", "چه چیزی باید از حسابداری بالا بیاید؟", "نه تمام تراکنش‌ها؛ فقط جریان پول، ریسک و Exception.")
+    st.dataframe(pd.DataFrame([
+        ["Cash In / Cash Out", "لحظه‌ای / روزانه", "Bank + Gateway", "در انتظار API"],
+        ["Bank Reconciliation", "روزانه", "Bank + Ledger", "در انتظار API"],
+        ["مطالبات/بدهی سررسید", "روزانه", "Accounting", "در انتظار API"],
+        ["تراکنش بزرگ/نامعمول", "لحظه‌ای", "Rule Engine", "قابل اتوماسیون"],
+        ["بستن ماه", "ماهانه", "Ledger", "نیازمند Approval"],
+    ], columns=["خروجی", "بازه", "منبع", "وضعیت"]), use_container_width=True, hide_index=True)
+    _department_task_table("حسابداری")
+    _department_task_form("حسابداری", "حسین جودکی", "v09_finance_task")
+
+
+def sales_funnel_ops_page(scenario):
+    department_hero("پخش لید و عملکرد کارشناسان", "۵۴۹۰ لید باید از یک صف مبهم به یک سیستم قابل پیگیری تبدیل شود: تخصیص، تماس اول، پیگیری، موفق/ناموفق و دلیل از دست رفتن.", "sales", "SALES OPERATIONS")
+    integration_toolbar("فروش", "v09_sales_ops")
+    if not CEO_OPS_AVAILABLE:
+        st.info("موتور عملیات CEO در این Deploy موجود نیست.")
+        return
+    _ensure_ceo_state()
+    backlog = int(scenario_summary(scenario)["lead_backlog"])
+    allocation = allocate_lead_backlog(backlog, st.session_state.ceo_sales_agents)
+    performance = generate_sales_performance_demo(st.session_state.ceo_sales_agents)
+    c1,c2,c3,c4 = st.columns(4)
+    c1.metric("لید موجود", fa_num(backlog))
+    c2.metric("کارشناس فعال · Demo", fa_num(int(st.session_state.ceo_sales_agents.get("فعال", pd.Series(dtype=bool)).fillna(False).sum())))
+    c3.metric("فروش موفق · Demo", fa_num(float(performance["فروش موفق"].sum())) if "فروش موفق" in performance else "—")
+    c4.metric("فروش ناموفق · Demo", fa_num(float(performance["ناموفق"].sum())) if "ناموفق" in performance else "—")
+    left,right=st.columns(2)
+    with left:
+        section_heading("Routing", "تخصیص بر اساس ظرفیت × عملکرد × عدالت")
+        st.dataframe(allocation, use_container_width=True, hide_index=True)
+    with right:
+        section_heading("Outcome", "عملکرد کارشناسان · شبیه‌سازی")
+        st.dataframe(performance, use_container_width=True, hide_index=True)
+    st.caption("نسخه واقعی باید برای هر Lead ID تاریخچه Event از ورود تا Won / Lost / Recycle داشته باشد.")
+
+
+def it_delivery_page(scenario, kpis):
+    department_hero("آپدیت، تسک و تحویل IT", "برای موضوعات پرتکرار مدیریت با برنامه‌نویسان: چه چیزی در حال ساخت است، Blocker چیست، نسخه بعدی چه زمانی Release می‌شود و قالب جدید سایت در چه مرحله‌ای است.", "code", "PRODUCT DELIVERY")
+    integration_toolbar("فناوری اطلاعات", "v09_it_delivery")
+    _render_team_roster("it", 3)
+    section_heading("قالب گزارش", "هر آپدیت باید فقط ۵ پاسخ داشته باشد")
+    st.dataframe(pd.DataFrame([
+        ["چی تغییر کرد؟", "خروجی قابل مشاهده / لینک نسخه"],
+        ["Owner کیست؟", "یک نفر مسئول نهایی"],
+        ["Blocker چیست؟", "فقط مانع واقعی"],
+        ["ETA چیست؟", "زمان تحویل + Confidence"],
+        ["معیار پذیرش؟", "Definition of Done قبل از Release"],
+    ], columns=["سؤال", "خروجی اجباری"]), use_container_width=True, hide_index=True)
+    _department_task_table("فناوری اطلاعات / برنامه‌نویسی")
+    _department_task_form("فناوری اطلاعات / برنامه‌نویسی", "تیم IT", "v09_it_delivery_task")
+
+
+def fx_supply_page(scenario, kpis):
+    department_hero("ارز، تأمین و بهای ساخت", "یوان چین برای خرید قطعات و تولید نیک‌پوز، و درهم امارات برای جریان مالی شرکت دوم در دبی. نرخ‌ها تا اتصال API دستی‌اند و به‌عنوان داده واقعی خودکار معرفی نمی‌شوند.", "currency", "SUPPLY & FX CONTROL")
+    integration_toolbar("تولید / تأمین / ارز", "v09_fx")
+    if not V09_AVAILABLE:
+        st.info("موتور V0.9 موجود نیست.")
+        return
+    cny = st.number_input("نرخ یوان چین / تومان", min_value=0.0, value=0.0, step=500.0, key="v09_cny_rate_input")
+    aed = st.number_input("نرخ درهم امارات / تومان", min_value=0.0, value=0.0, step=500.0, key="v09_aed_rate_input")
+    with st.expander("بهای ساخت و Batch", expanded=True):
+        r1,r2,r3 = st.columns(3)
+        units = r1.number_input("تعداد Batch تولید", min_value=0, value=100, step=10, key="v09_fx_units")
+        component = r2.number_input("قطعات هر دستگاه / CNY", min_value=0.0, value=0.0, step=10.0, key="v09_component_cny")
+        local = r3.number_input("هزینه داخلی هر دستگاه / تومان", min_value=0.0, value=0.0, step=100_000.0, key="v09_local_unit")
+        r4,r5,r6 = st.columns(3)
+        freight = r4.number_input("حمل کل Batch / تومان", min_value=0.0, value=0.0, step=100_000.0, key="v09_freight")
+        dubai_in = r5.number_input("ورودی شرکت دبی / AED", min_value=0.0, value=0.0, step=100.0, key="v09_dubai_in")
+        dubai_out = r6.number_input("خروجی شرکت دبی / AED", min_value=0.0, value=0.0, step=100.0, key="v09_dubai_out")
+    snap = fx_cost_snapshot(cny, aed, component, int(units), freight, local, dubai_in, dubai_out)
+    cards=st.columns(4)
+    cards[0].metric("بهای ساخت هر دستگاه", "—" if snap["unit_total_toman"]<=0 else f"{toman(snap['unit_total_toman'])} تومان")
+    cards[1].metric("هزینه Batch", "—" if snap["batch_total_toman"]<=0 else f"{toman(snap['batch_total_toman'])} تومان")
+    cards[2].metric("اثر +۵٪ یوان", "—" if snap["cny_5pct_impact"]<=0 else f"+{toman(snap['cny_5pct_impact'])} تومان")
+    cards[3].metric("خالص شرکت دبی", "—" if aed<=0 else f"{toman(snap['dubai_net_toman'])} تومان")
+    if cny<=0 or aed<=0:
+        st.info("نرخ واقعی وارد نشده است. اتصال FX API باید Source، Timestamp و Approval داشته باشد.")
+    st.dataframe(pd.DataFrame([
+        ["CNY +5%", snap["batch_if_cny_plus_5"], "افزایش بهای قطعات"],
+        ["CNY -5%", snap["batch_if_cny_minus_5"], "کاهش بهای قطعات"],
+    ], columns=["سناریو", "هزینه Batch / تومان", "اثر"]), use_container_width=True, hide_index=True)
+
+
+def marketing_economics_page(scenario, kpis):
+    department_hero("اقتصاد مارکتینگ", "درآمد آنلاین کل با درآمد منتسب به مارکتینگ یکی نیست. این صفحه عمداً این دو را جدا می‌کند تا Attribution و ROI قابل دفاع بمانند.", "finance", "MARKETING ECONOMICS")
+    integration_toolbar("مارکتینگ", "v09_marketing_econ")
+    sm=scenario_summary(scenario)
+    a,b,c=st.columns(3)
+    avg_salary=a.number_input("میانگین حقوق هر نفر / ماه (تومان)",min_value=0.0,value=0.0,step=1_000_000.0,key="v09_mkt_avg_salary")
+    overhead=b.number_input("هزینه غیرحقوقی مارکتینگ / ماه",min_value=0.0,value=0.0,step=1_000_000.0,key="v09_mkt_overhead")
+    tracked=c.number_input("Revenue واقعی منتسب به مارکتینگ / تومان",min_value=0.0,value=0.0,step=1_000_000.0,key="v09_mkt_rev_input",help="فقط وقتی Source Tracking واقعی دارید وارد شود.")
+    team_count=max(int(sm.get("content_team_size",5)),1)
+    team_cost=avg_salary*team_count+overhead
+    snap=marketing_economics_snapshot(sm["online_monthly"],sm["asp"],sm["content_sales"],sm["sales_days"],team_cost,tracked)
+    cols=st.columns(5)
+    cols[0].metric("میانگین حقوق", "—" if avg_salary<=0 else f"{toman(avg_salary)} تومان")
+    cols[1].metric("هزینه تیم", "—" if team_cost<=0 else f"{toman(team_cost)} تومان")
+    cols[2].metric("درآمد آنلاین مدل",f"{toman(snap['online_revenue_model'])} تومان")
+    cols[3].metric("فروش منتسب تخمینی",f"{fa_num(snap['estimated_attributed_units'],1)} دستگاه")
+    cols[4].metric("ROI قابل دفاع", "—" if snap["verified_roi"]<=0 else f"{snap['verified_roi']:.2f}×")
+    st.warning("تا اتصال UTM / CTA / CRM، Revenue مارکتینگ قطعی نمایش داده نمی‌شود.")
+
+
+def marketing_trend_page(scenario):
+    department_hero("روند و عملکرد مارکتینگ", "مدیرعامل باید بداند تیم در حال بهتر شدن است یا فقط چند محتوای Hit میانگین را بالا برده‌اند. Median و ثبات روند کنار Average دیده می‌شوند.", "spark", "MARKETING TREND")
+    integration_toolbar("مارکتینگ", "v09_marketing_trend")
+    reel=REEL_SNAPSHOT.copy()
+    if reel.empty:
+        st.info("Snapshot ریلز موجود نیست.")
+        return
+    view_col = "views" if "views" in reel.columns else reel.columns[1]
+    show=reel.copy(); show["ردیف"]=range(1,len(show)+1)
+    fig=px.line(show,x="ردیف",y=view_col,markers=True,labels={"ردیف":"ریلز",view_col:"بازدید"})
+    fig.update_traces(line_color="#4F84CC")
+    st.plotly_chart(style_fig(fig,360),use_container_width=True)
+    m=reel_snapshot_metrics(); c1,c2,c3,c4=st.columns(4)
+    c1.metric("میانگین بازدید",fa_num(m.get("average_views",0)))
+    c2.metric("میانه بازدید",fa_num(m.get("median_views",0)))
+    c3.metric("سهم ۳ ریلز برتر",pct(m.get("top3_view_share",0)))
+    c4.metric("Comments + Shares",fa_num(m.get("total_comments",0)+m.get("total_shares",0)))
+
+def executive_overview_v09(scenario, data, kpis, monthly, funnel, forecast, insights, customers_model=None, risk_stats=None, sales_anomalies=None, sms_anomalies=None):
+    sm = scenario_summary(scenario)
+    page_header("میز مدیرعامل", "فقط استثنا، تصمیم و اقدام؛ جزئیات هر واحد در منوی همان واحد قرار گرفته است.")
+    inbox_count = 0; needs_followup = 0; overdue_reports = 0
+    if CEO_OPS_AVAILABLE:
+        _ensure_ceo_state()
+        reports = department_report_schedule()
+        classified = classify_finance_transactions(st.session_state.ceo_finance_transactions, st.session_state.ceo_finance_threshold)
+        fin = finance_automation_summary(classified)
+        inbox = ceo_inbox(int(sm["lead_backlog"]), st.session_state.ceo_tasks, reports, fin)
+        ts = task_summary(st.session_state.ceo_tasks); rs = reporting_summary(reports)
+        inbox_count=len(inbox); needs_followup=ts.get("needs_followup",0); overdue_reports=rs.get("overdue",0)
+    st.markdown(
+        f'''<div class="ceo-personal-hero"><div class="ceo-personal-kicker">EXECUTIVE MORNING · {CEO_NAME}</div><div class="ceo-personal-title">یک نگاه، سه تصمیم، بدون شلوغی.</div><div class="ceo-personal-copy">این صفحه عمداً خلاصه است. مدیرعامل نباید نمودارهای هر واحد را اینجا ببیند؛ فقط آنچه تغییر کرده، عقب افتاده یا نیازمند تصمیم است بالا می‌آید.</div></div>''',
+        unsafe_allow_html=True,
+    )
+    c1,c2,c3,c4 = st.columns(4)
+    c1.metric("درآمد ماهانه مدل", f"{toman(float(kpis.get('monthly_revenue',0)))} تومان", help="محاسبه‌شده از Baseline؛ هنوز حسابداری واقعی نیست")
+    c2.metric("فروش ماهانه", f"{fa_num(float(kpis.get('monthly_units',0)))} دستگاه")
+    c3.metric("صف لید", fa_num(sm["lead_backlog"]), help="Baseline فعلی")
+    c4.metric("نیازمند پیگیری", fa_num(needs_followup), help="Task Engine / Demo تا اتصال واقعی")
+
+    brief_text, brief_conf, brief_source = build_ceo_brief(scenario, kpis)
+    conf_label, conf_class = confidence_label(brief_conf)
+    st.markdown(f'''<div class="v06-brief"><div class="v06-brief-kicker">خلاصه مدیریتی امروز</div><div class="v06-brief-title">آنچه ارزش توجه دارد</div><div class="v06-brief-copy">{brief_text}</div><div class="v06-brief-footer"><span class="confidence-pill {conf_class}">{conf_label}</span><span class="trust-pill src-derived">{brief_source}</span></div></div>''', unsafe_allow_html=True)
+
+    priorities = _executive_priorities(scenario, kpis, sales_anomalies, sms_anomalies, risk_stats or {})[:3]
+    section_heading("صف تصمیم", "سه موضوع روی میز", "بقیه داده‌ها در صفحات واحدها هستند.")
+    cols = st.columns(3)
+    for i,item in enumerate(priorities,1):
+        with cols[i-1]: priority_card(i,item["title"],item["text"],item["severity"],item["source"])
+
+    section_heading("عملیات مدیرعامل", "گزارش و تسک", "اگر گزارشی نرسد یا تسکی از SLA عبور کند، اینجا باید بالا بیاید.")
+    a,b,c = st.columns(3)
+    a.metric("Inbox مدیریتی", fa_num(inbox_count))
+    b.metric("گزارش عقب‌افتاده · Demo", fa_num(overdue_reports))
+    c.metric("وضعیت اتصال", "Demo / آماده API")
+
+    if MANAGEMENT_ENGINE_AVAILABLE:
+        try:
+            _ensure_management_state()
+            org = department_summary(scenario,kpis,_management_overrides())
+            section_heading("نبض سازمان", "فقط وضعیت واحدها", "برای جزئیات وارد همان واحد شوید.")
+            _render_department_cards(org, min(4,max(1,len(org))))
+        except Exception:
+            st.info("نبض سازمان در این Deploy موقتاً در دسترس نیست.")
+
+    with st.expander("نمای تحلیلی عمیق‌تر", expanded=False):
+        st.caption("این بخش برای زمانی است که مدیر بخواهد از Summary وارد تحلیل شود؛ در حالت عادی بسته می‌ماند.")
+        x,y=st.columns(2)
+        with x:
+            fig=px.area(monthly,x="month",y="revenue",markers=True,labels={"month":"ماه","revenue":"درآمد"})
+            fig.update_traces(line_color="#4F84CC",fillcolor="rgba(173,203,255,.24)")
+            st.plotly_chart(style_fig(fig,330),use_container_width=True)
+        with y:
+            fig=go.Figure(go.Funnel(y=funnel["stage"].map(FUNNEL_FA),x=funnel["count"],textinfo="value+percent initial",marker={"color":["#87B3EC","#9FC4F3","#B5D2F6","#C6DDF8","#D6E8FA","#E4F0FC"]}))
+            st.plotly_chart(style_fig(fig,330),use_container_width=True)
+    source_legend()
+
 def settings_page(scenario, kpis):
     sm = scenario_summary(scenario)
     page_header(
@@ -3384,7 +3687,7 @@ def main():
     if st.session_state.presentation_mode:
         left, right = st.columns([5, 1])
         with left:
-            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · منوها و کنترل‌های فنی پنهان شده‌اند.</span><span>V0.8</span></div>', unsafe_allow_html=True)
+            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · منوها و کنترل‌های فنی پنهان شده‌اند.</span><span>V0.9</span></div>', unsafe_allow_html=True)
         with right:
             if st.button("خروج از ارائه", use_container_width=True, key="exit_presentation"):
                 st.session_state.presentation_mode = False
@@ -3404,7 +3707,7 @@ def main():
     insights = generate_insights(scenario, kpis, monthly, risk_stats, sales_anomalies, sms_anomalies)
 
     if page == "Executive Overview":
-        executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights, customers_model, risk_stats, sales_anomalies, sms_anomalies)
+        executive_overview_v09(scenario, data, kpis, monthly, funnel, forecast, insights, customers_model, risk_stats, sales_anomalies, sms_anomalies)
     elif page == "CEO Task Center":
         ceo_task_center_page(scenario, kpis)
     elif page == "IT Workspace":
@@ -3419,6 +3722,18 @@ def main():
         hr_workspace_page(scenario, kpis)
     elif page == "Marketing Workspace":
         marketing_workspace_page(scenario, kpis)
+    elif page == "Marketing Economics":
+        marketing_economics_page(scenario, kpis)
+    elif page == "Marketing Trend":
+        marketing_trend_page(scenario)
+    elif page == "Sales Funnel Ops":
+        sales_funnel_ops_page(scenario)
+    elif page == "Finance Dashboard":
+        finance_dashboard_page(scenario, kpis)
+    elif page == "IT Delivery":
+        it_delivery_page(scenario, kpis)
+    elif page == "FX & Supply":
+        fx_supply_page(scenario, kpis)
     elif page == "Organization Pulse":
         organization_pulse_page(scenario, kpis)
     elif page == "Task & KPI":
@@ -3463,7 +3778,7 @@ def main():
         settings_page(scenario, kpis)
 
     st.markdown("---")
-    st.caption("NIK MANAGEMENT OS V0.8 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
+    st.caption("NIK EXECUTIVE MANAGEMENT OS V0.9 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
     st.caption("پیش‌بینی‌ها و خروجی‌های یادگیری ماشین آزمایشی‌اند و نباید مبنای تصمیم قطعی عملیاتی قرار گیرند.")
 
 

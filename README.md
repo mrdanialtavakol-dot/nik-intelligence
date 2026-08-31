@@ -1,134 +1,35 @@
-# NIK MANAGEMENT OS — V0.8
+# NIK Executive Management OS — V0.9
 
-پنل مدیریت و اتوماسیون اختصاصی **کیوان میرزایی**، مدیرعامل NIK.
+نسخه V0.9 بر پایه V0.8 ساخته شده و موتورهای قبلی Data Science، Media Intelligence، Task Engine و Automation Prototype را حفظ می‌کند.
 
-V0.8 روی هسته پایدار V0.7 ساخته شده و Data Science / ML / Media Intelligence قبلی را حذف یا بازنویسی نمی‌کند. قابلیت‌های جدید در فایل مستقل `ceo_ops_engine.py` قرار گرفته‌اند تا تغییرات عملیاتی باعث شکستن موتور Analytics نشوند.
+## فلسفه V0.9
+مدیرعامل نباید در صفحه اول با انبوه نمودار مواجه شود. صفحه «میز مدیرعامل» فقط موارد نیازمند توجه، تصمیم و اقدام را نشان می‌دهد. جزئیات هر شاخص در واحد صاحب آن شاخص قرار دارد.
 
-## تغییر جهت محصول
+## ساختار سازمانی
+- میز مدیرعامل: مرکز فرمان، تسک/گزارش، نبض سازمان
+- واحدهای شرکت: مارکتینگ، فروش، حسابداری، IT، تولید/QC، پشتیبانی، منابع انسانی
+- رشد و تصمیم: درآمد، جشنواره، شبیه‌ساز
+- هوشمندی سازمان: مشتری، نیک‌پوز، پیامک، ناهنجاری، پیش‌بینی، بینش
+- سیستم و اتوماسیون: n8n/API، دسترسی، داده، Pipeline، تنظیمات
 
-پروژه از یک Data Intelligence Prototype به یک **CEO Management & Automation OS** حرکت کرده است.
+## مارکتینگ
+تحلیل محتوا و Media Intelligence دوباره زیر مارکتینگ قرار گرفته‌اند. Timeline ویدیو، گالری، آمار ۱۰ ریلز، اقتصاد مارکتینگ و روند عملکرد در زیرمنوی همان واحد هستند.
 
-هدف V0.8:
+## تولید و ارز
+صفحه «ارز، تأمین و بهای ساخت» برای ورود نرخ CNY/Toman و AED/Toman، هزینه قطعات، Batch تولید و جریان شرکت دبی اضافه شده است. نرخ‌ها فعلاً دستی‌اند و Live معرفی نمی‌شوند. اتصال FX API/n8n برای نسخه واقعی آماده طراحی است.
 
-- مدیرعامل هر واحد را جدا ببیند.
-- تسک ایجاد کند و Owner / Deadline / KPI داشته باشد.
-- گزارش‌های عقب‌افتاده به شکل Exception مشخص شوند.
-- ربات Rule-based تسک پیشنهاد دهد.
-- پیشنهاد با یک کلیک وارد Task Engine شود.
-- در آینده n8n / API همان تسک و Reminder را به ابزار واقعی شرکت مخابره کند.
-- حسابداری و فروش تلفنی به سمت Straight-Through Processing حرکت کنند.
+## Integration
+بالای Workspaceهای سازمانی وضعیت API و n8n دیده می‌شود. این دکمه‌ها فعلاً Placeholder امن هستند و هیچ Credential ذخیره نمی‌شود.
 
-## تیم‌های ثبت‌شده در V0.8
-
-### IT
-- حمید تهرانی
-- مسعود طاهری
-- سروش کلانتریان
-- پوریا سلیمانی
-- کوروش عذت پور
-
-### حسابداری
-- حسین جودکی — مدیر حسابداری
-- مشتبا بیان — کارمند حسابداری
-
-### منابع انسانی
-- خانم مقصودی — مسئول منابع انسانی
-
-### پشتیبانی
-- خانم ملیکا جمع دار — سرپرست پشتیبانی
-- خانم آزاد — نیروی پشتیبانی
-
-### مارکتینگ
-- امیر عباس حبیبی — سرپرست مارکتینگ
-- دانیال توکل
-- سحر نور محمدی
-- داریوش مشتاقی
-- امین عین آبادی
-
-نام کارشناسان فروش هنوز در ورودی فعلی ثبت نشده است؛ V0.8 از Placeholder قابل ویرایش استفاده می‌کند.
-
-## Baseline جدید
-
-`Lead Backlog = 5,490`
-
-این عدد Baseline فعلی است. داده‌های Performance فروشندگان، تراکنش‌های حسابداری، SLA پشتیبانی و برخی KPIهای عملیاتی همچنان Demo هستند تا منبع واقعی متصل شود.
-
-## صفحات جدید V0.8
-
-### مرکز کیوان
-- مرکز فرمان مدیرعامل
-- کارها و گزارش‌های کیوان
-- نبض سازمان
-
-### واحدهای شرکت
-- اتاق عملیات IT
-- اتوماسیون حسابداری
-- مرکز پخش و پیگیری لید
-- پشتیبانی
-- منابع انسانی
-- تولید و QC
-- مارکتینگ
-
-### رشد و تصمیم
-- هوشمندی درآمد
-- برنامه‌ریز جشنواره
-- شبیه‌ساز تصمیم
-
-### هوشمندی داده
-Analytics قبلی V0.7/V0.6 بدون حذف باقی مانده‌اند.
-
-### سیستم و اتوماسیون
-- Automation Center
-- Connections
-- Access Control
-- Data Center
-- Pipeline
-- Settings
-
-## Task & Reporting Engine
-
-Task schema در Prototype شامل:
-
-`task_id, department, title, assignee, creator, source, priority, status, KPI, created_at, due_at, followup_hours, last_report, report_required, note`
-
-در نسخه واقعی:
-
-`Task → Reminder → Report → Verify KPI → Escalate if needed → Close → Audit`
-
-## Accounting Automation
-
-V0.8 یک Prototype برای مسیر زیر دارد:
-
-`Bank/Gateway → Idempotency → Invoice Match → Coding → Double Entry → Reconciliation → Auto-post OR Exception Queue → Audit`
-
-اصل طراحی:
-- تراکنش مطمئن = Straight-Through Processing
-- تراکنش مبهم/تکراری/بدون سند/مبلغ بالا = Human-on-exception
-
-**کدینگ حساب‌ها در V0.8 Demo است و باید قبل از استفاده واقعی با کدینگ رسمی حسابداری NIK و قواعد مالیاتی جایگزین شود.**
-
-## Lead Routing
-
-صف 5,490 لید در Prototype با منطق زیر مدیریت می‌شود:
-
-`Lead In → Validate/Dedupe → Score → Route → First-touch SLA → Outcome → Follow-up / Recycle`
-
-Routing پیشنهادی بر اساس:
-
-`Capacity × Performance × Fairness`
-
-Performance کارشناسان در V0.8 Synthetic است تا CRM/Call Center واقعی متصل شود.
-
-## Security / Persistence
-
-- Authentication واقعی هنوز فعال نیست.
-- Taskها و Audit در Prototype در Session نگه داشته می‌شوند.
-- هیچ Credential بانکی، n8n، API یا Database داخل کد قرار ندارد.
-- برای داده واقعی: Database + Authentication + RBAC + Audit + Secret Management لازم است.
+## Fonts
+IRANSansX به صورت Optional Local Font پشتیبانی می‌شود. فونت‌ها در ZIP بازتوزیع نشده‌اند. فایل‌های دارای مجوز خودتان را طبق FONT_SETUP_FA.txt در assets/fonts قرار دهید.
 
 ## Run
-
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
+## Safety / data trust
+Prototype using baseline/demo/synthetic data. Not connected to NIK internal systems.
+Forecasts and ML outputs are experimental and should not be used for production decisions.

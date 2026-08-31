@@ -1,16 +1,18 @@
-NIK MANAGEMENT OS V0.8
+آپدیت V0.9 روی GitHub
 
-اگر V0.7 الان سالم اجرا می‌شود، برای آپدیت این فایل‌ها را جایگزین/اضافه کن:
+اگر V0.8 سالم است، برای کمترین ریسک این فایل‌ها را جایگزین/اضافه کن:
+- app.py
+- v09_engine.py
+- font_loader.py
+- VERSION.txt
 
-1) app.py
-2) ceo_ops_engine.py   ← فایل جدید و الزامی برای قابلیت‌های V0.8
-3) management_engine.py
-4) business_data.py
-5) VERSION.txt
+پوشه assets قبلی را حذف نکن؛ Media Intelligence از همان عکس‌ها و ویدیوها استفاده می‌کند.
+
+برای IRANSansX، فایل‌های فونت خودت را جداگانه در assets/fonts قرار بده. فونت‌ها داخل بسته خروجی قرار نگرفته‌اند.
 
 سپس:
-Commit changes → Redeploy / Reboot
+1) Commit changes
+2) Redeploy / Reboot سرویس
+3) Main file = app.py
 
-Main file path همان app.py است.
-
-اگر ceo_ops_engine.py موقتاً در Deploy نباشد، app.py طوری نوشته شده که هسته قبلی Crash نکند و فقط صفحات V0.8 پیام عدم دسترسی بدهند.
+اگر خطایی دیدی، Log کامل را ارسال کن؛ نسخه V0.9 طوری نوشته شده که نبود v09_engine باعث از کار افتادن هسته V0.8 نشود.
