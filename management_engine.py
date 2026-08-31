@@ -13,6 +13,7 @@ DEPARTMENTS = [
     {"key": "sales", "name": "فروش", "icon": "↗"},
     {"key": "development", "name": "برنامه‌نویسی", "icon": "⌘"},
     {"key": "hr", "name": "منابع انسانی", "icon": "◎"},
+    {"key": "support", "name": "پشتیبانی", "icon": "◍"},
     {"key": "qc", "name": "QC دستگاه", "icon": "✓"},
     {"key": "marketing", "name": "مارکتینگ", "icon": "▶"},
 ]
@@ -37,6 +38,10 @@ MANAGEMENT_DEMO_DEFAULTS: Dict[str, float] = {
     "open_positions": 2,
     "attendance_rate": 0.94,
     "monthly_turnover_rate": 0.02,
+    "support_open_tickets": 46,
+    "support_first_response_sla": 0.91,
+    "support_resolution_rate": 0.84,
+    "support_escalations": 5,
     "qc_ready": 78,
     "qc_pending": 31,
     "qc_rejected": 6,
@@ -53,26 +58,28 @@ MANAGEMENT_DEMO_DEFAULTS: Dict[str, float] = {
 
 ROLE_MATRIX = pd.DataFrame(
     [
-        ("مدیرعامل / مدیر سیستم", "کامل", "کامل", "کامل", "کامل", "کامل", "کامل", "کامل"),
-        ("سرپرست حسابداری", "مشاهده", "ویرایش", "مشاهده", "—", "—", "—", "مشاهده"),
-        ("سرپرست فروش", "مشاهده", "مشاهده", "ویرایش", "—", "—", "مشاهده", "مشاهده"),
-        ("سرپرست برنامه‌نویسی", "مشاهده", "—", "—", "ویرایش", "—", "—", "مشاهده"),
-        ("سرپرست منابع انسانی", "مشاهده", "—", "—", "—", "ویرایش", "—", "مشاهده"),
-        ("سرپرست QC", "مشاهده", "—", "مشاهده", "—", "—", "ویرایش", "مشاهده"),
-        ("سرپرست مارکتینگ", "مشاهده", "—", "مشاهده", "—", "—", "—", "ویرایش"),
+        ("مدیرعامل / مدیر سیستم", "کامل", "کامل", "کامل", "کامل", "کامل", "کامل", "کامل", "کامل"),
+        ("سرپرست حسابداری", "مشاهده", "ویرایش", "مشاهده", "—", "—", "—", "—", "مشاهده"),
+        ("سرپرست فروش", "مشاهده", "مشاهده", "ویرایش", "—", "—", "—", "—", "مشاهده"),
+        ("سرپرست برنامه‌نویسی", "مشاهده", "—", "—", "ویرایش", "—", "—", "—", "مشاهده"),
+        ("سرپرست منابع انسانی", "مشاهده", "—", "—", "—", "ویرایش", "—", "—", "مشاهده"),
+        ("سرپرست پشتیبانی", "مشاهده", "—", "مشاهده", "—", "—", "ویرایش", "—", "مشاهده"),
+        ("سرپرست QC", "مشاهده", "—", "مشاهده", "—", "—", "—", "ویرایش", "مشاهده"),
+        ("سرپرست مارکتینگ", "مشاهده", "—", "مشاهده", "—", "—", "—", "—", "ویرایش"),
     ],
-    columns=["نقش", "مرکز فرمان", "حسابداری", "فروش", "برنامه‌نویسی", "منابع انسانی", "QC", "مارکتینگ"],
+    columns=["نقش", "مرکز فرمان", "حسابداری", "فروش", "برنامه‌نویسی", "منابع انسانی", "پشتیبانی", "QC", "مارکتینگ"],
 )
 
 
 DEFAULT_TASKS = pd.DataFrame(
     [
-        ("فروش", "بازبینی ۴۰۰۰ لید و تعریف Stage واقعی", "سرپرست فروش", "در حال انجام", "بالا", "نرخ تبدیل لید به خرید", 0.10, 0.08),
-        ("حسابداری", "تعریف Revenue و وصول واقعی روزانه برای اتصال به پنل", "سرپرست حسابداری", "برنامه‌ریزی", "بالا", "نرخ وصول", 0.92, 0.86),
+        ("فروش", "بازبینی ۵۴۹۰ لید و تعریف Stage، SLA و Routing واقعی", "سرپرست فروش", "در حال انجام", "بالا", "نرخ تبدیل لید به خرید", 0.10, 0.08),
+        ("حسابداری", "تعریف Revenue و وصول واقعی روزانه برای اتصال به پنل", "حسین جودکی", "برنامه‌ریزی", "بالا", "نرخ وصول", 0.92, 0.86),
         ("QC دستگاه", "کاهش صف QC و تعیین ظرفیت روزانه", "سرپرست QC", "در حال انجام", "بالا", "نرخ قبولی QC", 0.95, 0.93),
-        ("مارکتینگ", "ساخت Tracking برای Content → Lead → Sale", "سرپرست مارکتینگ", "برنامه‌ریزی", "بالا", "درصد Attribution قابل ردیابی", 0.70, 0.15),
-        ("برنامه‌نویسی", "تعریف API فقط‌خواندنی برای داده فروش", "سرپرست برنامه‌نویسی", "Backlog", "متوسط", "آمادگی Release", 0.95, 0.86),
-        ("منابع انسانی", "تعریف KPI مشترک برای سرپرستان واحدها", "سرپرست منابع انسانی", "Backlog", "متوسط", "تکمیل KPI واحدها", 1.00, 0.65),
+        ("مارکتینگ", "ساخت Tracking برای Content → Lead → Sale", "امیر عباس حبیبی", "برنامه‌ریزی", "بالا", "درصد Attribution قابل ردیابی", 0.70, 0.15),
+        ("برنامه‌نویسی", "تعریف API فقط‌خواندنی برای داده فروش", "تیم IT", "Backlog", "متوسط", "آمادگی Release", 0.95, 0.86),
+        ("منابع انسانی", "تعریف KPI مشترک برای سرپرستان واحدها", "خانم مقصودی", "Backlog", "متوسط", "تکمیل KPI واحدها", 1.00, 0.65),
+        ("پشتیبانی", "تعریف SLA گزارش روزانه و دسته‌بندی مسائل پرتکرار", "خانم ملیکا جمع دار", "Backlog", "متوسط", "SLA پاسخگویی", 0.95, 0.91),
     ],
     columns=["بخش", "تسک", "مسئول", "وضعیت", "اولویت", "KPI", "هدف", "عملکرد"],
 )
@@ -138,7 +145,7 @@ def department_kpis(scenario: Any, kpis: Dict[str, Any], overrides: Dict[str, An
     monthly_units = _kpi_value(kpis, "monthly_units")
     phone_daily = _scenario_value(scenario, ["daily_phone_sales"], 10)
     online_month = _scenario_value(scenario, ["monthly_online_sales"], 20)
-    lead_backlog = _scenario_value(scenario, ["lead_backlog"], 4000)
+    lead_backlog = _scenario_value(scenario, ["lead_backlog"], 5490)
     stories = _scenario_value(scenario, ["stories_per_day"], 9)
     reels = _scenario_value(scenario, ["reels_per_day"], 1)
     content_sales = _scenario_value(scenario, ["content_sales_per_day", "estimated_content_sales_per_day"], 2)
@@ -185,6 +192,11 @@ def department_kpis(scenario: Any, kpis: Dict[str, Any], overrides: Dict[str, An
     add("hr", "موقعیت شغلی باز", d["open_positions"], 1, "lower", "عدد", "آزمایشی")
     add("hr", "نرخ خروج ماهانه", d["monthly_turnover_rate"], 0.03, "lower", "percent", "آزمایشی")
     add("hr", "نرخ انجام به‌موقع تسک", d["task_on_time_rate"], 0.90, "higher", "percent", "آزمایشی")
+
+    add("support", "تیکت باز", d["support_open_tickets"], 30, "lower", "عدد", "آزمایشی")
+    add("support", "SLA پاسخ اولیه", d["support_first_response_sla"], 0.95, "higher", "percent", "آزمایشی")
+    add("support", "نرخ حل مسئله", d["support_resolution_rate"], 0.90, "higher", "percent", "آزمایشی")
+    add("support", "Escalation باز", d["support_escalations"], 3, "lower", "عدد", "آزمایشی")
 
     total_qc = max(d["qc_ready"] + d["qc_pending"] + d["qc_rejected"] + d["qc_rework"], 1)
     reject_rate = d["qc_rejected"] / total_qc
@@ -243,6 +255,9 @@ def recommended_tasks(scenario: Any, kpis: Dict[str, Any], overrides: Dict[str, 
         "باگ Critical": "اولویت‌بندی فوری باگ‌های Critical",
         "نرخ حضور": "بررسی علت غیبت و ظرفیت نیروی انسانی",
         "نرخ انجام به‌موقع تسک": "بازبینی بار کاری و تعریف SLA تسک",
+        "تیکت باز": "تفکیک Backlog پشتیبانی و تعیین Owner/SLA",
+        "SLA پاسخ اولیه": "بررسی شیفت و ظرفیت پاسخگویی پشتیبانی",
+        "نرخ حل مسئله": "تحلیل دلایل Escalation و مسائل پرتکرار",
         "صف QC": "افزایش ظرفیت QC یا اصلاح برنامه تولید",
         "نرخ قبولی QC": "تحلیل علت Rework / Reject قبل از افزایش تولید",
         "فروش منتسب به محتوا / روز": "راه‌اندازی Attribution واقعی Content → Lead → Sale",
@@ -270,7 +285,7 @@ def automation_checks(
     d = management_defaults(overrides)
     monthly_revenue = _kpi_value(kpis, "monthly_revenue")
     monthly_units = _kpi_value(kpis, "monthly_units")
-    lead_backlog = _scenario_value(scenario, ["lead_backlog"], 4000)
+    lead_backlog = _scenario_value(scenario, ["lead_backlog"], 5490)
     rows: List[Dict[str, Any]] = []
 
     def trigger(name: str, dept: str, active: bool, severity: str, condition: str, action: str, source: str):
@@ -337,6 +352,15 @@ def automation_checks(
         "متوسط",
         "Collection Rate < 90%",
         "ساخت لیست وصول و گزارش مطالبات سررسیدگذشته",
+        "آزمایشی",
+    )
+    trigger(
+        "SLA پشتیبانی پایین",
+        "پشتیبانی",
+        d["support_first_response_sla"] < 0.90 or d["support_open_tickets"] > 45,
+        "متوسط",
+        "Support SLA < 90% یا Open Tickets > 45",
+        "ایجاد گزارش Exception، اولویت‌بندی تیکت‌های قدیمی و بررسی ظرفیت تیم",
         "آزمایشی",
     )
     return pd.DataFrame(rows)

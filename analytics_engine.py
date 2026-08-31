@@ -72,7 +72,7 @@ def current_kpis(scenario: Scenario, customers: pd.DataFrame) -> Dict[str, float
     asp = _asp(scenario)
     monthly_revenue = monthly_units * asp
     active_customers = int((customers["customer_status"] == "Active").sum()) if "customer_status" in customers else 0
-    backlog = float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 4_000)))
+    backlog = float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 5_490)))
     sales_days = float(_sv(scenario, "sales_days_per_month", _baseline("sales_days_per_month", 30)))
     content_sales = float(
         _sv(scenario, "content_sales_per_day", _baseline("estimated_content_sales_per_day", 2.0))
@@ -140,7 +140,7 @@ def plan_performance(scenario: Scenario) -> pd.DataFrame:
 
 def lead_funnel(scenario: Scenario) -> pd.DataFrame:
     # Synthetic funnel for demonstration only. Real conversion needs matched lead-stage data.
-    new_leads = int(max(0, float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 4_000)))))
+    new_leads = int(max(0, float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 5_490)))))
     contacted = int(new_leads * 0.86)
     qualified = int(contacted * 0.62)
     interested = int(qualified * 0.58)
@@ -163,7 +163,7 @@ def lead_funnel(scenario: Scenario) -> pd.DataFrame:
 
 def backlog_capacity(scenario: Scenario) -> Dict[str, float]:
     monthly_sales = max(float(_monthly_units(scenario)), 0.0)
-    backlog = float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 4_000)))
+    backlog = float(_sv(scenario, "lead_backlog", _baseline("lead_backlog", 5_490)))
     ratio = backlog / monthly_sales if monthly_sales > 0 else np.inf
     return {
         "backlog": backlog,

@@ -69,10 +69,45 @@ except Exception as _management_import_error:
     ROLE_MATRIX = pd.DataFrame()
     MANAGEMENT_DEMO_DEFAULTS = {}
 
+# V0.8 CEO operations layer is also optional so the V0.7 core remains usable
+# even during a partial multi-file redeploy.
+try:
+    from ceo_ops_engine import (
+        CEO_NAME,
+        CURRENT_LEAD_BACKLOG,
+        DEFAULT_SALES_AGENTS,
+        ORGANIZATION_ROSTER,
+        TASK_COLUMNS,
+        allocate_lead_backlog,
+        audit_event,
+        ceo_inbox,
+        classify_finance_transactions,
+        department_report_schedule,
+        finance_automation_summary,
+        generate_demo_transactions,
+        generate_sales_performance_demo,
+        lead_center_summary,
+        new_task_row,
+        reporting_summary,
+        robot_task_suggestions,
+        seed_ceo_tasks,
+        task_followup_status,
+        task_summary,
+    )
+    CEO_OPS_AVAILABLE = True
+    CEO_OPS_ERROR = ""
+except Exception as _ceo_ops_error:
+    CEO_OPS_AVAILABLE = False
+    CEO_OPS_ERROR = str(_ceo_ops_error)
+    CEO_NAME = "کیوان میرزایی"
+    CURRENT_LEAD_BACKLOG = 5_490
+    DEFAULT_SALES_AGENTS = pd.DataFrame()
+    ORGANIZATION_ROSTER = pd.DataFrame()
+    TASK_COLUMNS = []
 
 
 st.set_page_config(
-    page_title="نیک اس‌ام‌اس | پنل مدیریت و اتوماسیون V0.7",
+    page_title="نیک اس‌ام‌اس | پنل اختصاصی مدیرعامل V0.8",
     page_icon="◈",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -98,7 +133,7 @@ SCENARIO_DEFAULTS = {
     "plan_a_share": 0.50,
     "daily_phone_sales": 10,
     "monthly_online_sales": 20,
-    "lead_backlog": 4_000,
+    "lead_backlog": 5_490,
     "stories_per_day": 9,
     "reels_per_day": 1,
     "estimated_content_sales_per_day": 2.0,
@@ -133,6 +168,13 @@ PAGE_LABELS = {
     "Campaign Planner": "برنامه‌ریز جشنواره",
     "Automation Center": "مرکز اتوماسیون",
     "Access Control": "دسترسی و نقش‌ها",
+    "CEO Task Center": "کارها و گزارش‌های کیوان",
+    "IT Workspace": "اتاق عملیات IT",
+    "Accounting Automation": "اتوماسیون حسابداری",
+    "Sales Lead Center": "مرکز پخش و پیگیری لید",
+    "Support Workspace": "مدیریت پشتیبانی",
+    "HR Workspace": "مدیریت منابع انسانی",
+    "Marketing Workspace": "مدیریت مارکتینگ",
 }
 PAGE_ICONS = {
     "Executive Overview": "◈",
@@ -157,12 +199,19 @@ PAGE_ICONS = {
     "Campaign Planner": "✦",
     "Automation Center": "⚙",
     "Access Control": "⌾",
+    "CEO Task Center": "☰",
+    "IT Workspace": "⌘",
+    "Accounting Automation": "◫",
+    "Sales Lead Center": "↗",
+    "Support Workspace": "◍",
+    "HR Workspace": "◎",
+    "Marketing Workspace": "▶",
 }
 NAV_GROUPS = {
-    "مرکز مدیریت": ["Executive Overview", "Organization Pulse", "Task & KPI"],
-    "عملیات سازمان": ["Production & QC", "Sales Analytics", "Customer Intelligence", "NIKPOS Analytics"],
-    "رشد و درآمد": ["Revenue Intelligence", "Campaign Planner", "Content Analytics", "Media Intelligence", "SMS Analytics"],
-    "هوشمندی": ["Scenario Simulator", "Anomaly Detection", "Predictions", "Automated Insights"],
+    "مرکز کیوان": ["Executive Overview", "CEO Task Center", "Organization Pulse"],
+    "واحدهای شرکت": ["IT Workspace", "Accounting Automation", "Sales Lead Center", "Support Workspace", "HR Workspace", "Production & QC", "Marketing Workspace"],
+    "رشد و تصمیم": ["Revenue Intelligence", "Campaign Planner", "Scenario Simulator"],
+    "هوشمندی داده": ["Content Analytics", "Media Intelligence", "Customer Intelligence", "NIKPOS Analytics", "SMS Analytics", "Anomaly Detection", "Predictions", "Automated Insights"],
     "سیستم و اتوماسیون": ["Automation Center", "Connections", "Access Control", "Data Center", "Analysis Pipeline", "Settings / Scenario Controls"],
 }
 SEGMENT_FA = {
@@ -942,6 +991,24 @@ V06_POLISH_CSS = """
 """
 st.markdown(V06_POLISH_CSS, unsafe_allow_html=True)
 
+V08_CEO_CSS = r"""
+<style>
+.ceo-personal-hero{position:relative;overflow:hidden;padding:22px 24px;border-radius:26px;margin:8px 0 16px;background:linear-gradient(135deg,rgba(173,203,255,.13),rgba(255,255,255,.024));border:1px solid rgba(173,203,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 24px 70px rgba(0,0,0,.18)}
+.ceo-personal-hero::before{content:"";position:absolute;right:-70px;top:-90px;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(173,203,255,.18),transparent 68%)}
+.ceo-personal-kicker{font-size:.67rem;font-weight:900;color:#ADCBFF;letter-spacing:.09em}.ceo-personal-title{font-size:1.55rem;font-weight:900;color:#fff;margin-top:6px}.ceo-personal-copy{color:#AFC0D1;font-size:.78rem;line-height:1.9;max-width:960px;margin-top:7px}
+.ceo-inbox-card{padding:15px 16px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid rgba(255,255,255,.08);margin-bottom:8px}.ceo-inbox-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.ceo-inbox-title{font-size:.82rem;font-weight:850;color:#F7FBFF}.ceo-inbox-meta{font-size:.63rem;color:#7F95AA;margin-top:5px;line-height:1.6}.ceo-inbox-action{font-size:.69rem;color:#ADCBFF;margin-top:8px;font-weight:750}
+.sev-high{color:#FFC1CB;background:rgba(255,89,113,.09);border:1px solid rgba(255,89,113,.15)}.sev-med{color:#FFE0A3;background:rgba(244,180,79,.08);border:1px solid rgba(244,180,79,.14)}.sev-low{color:#A5F2CB;background:rgba(48,205,135,.08);border:1px solid rgba(48,205,135,.14)}
+.team-card{min-height:142px;padding:15px 16px;border-radius:20px;background:linear-gradient(150deg,rgba(255,255,255,.065),rgba(255,255,255,.018));border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}.team-name{font-size:.88rem;font-weight:850;color:#F9FCFF}.team-role{font-size:.67rem;color:#8499AD;margin-top:3px}.team-chip{display:inline-flex;margin-top:10px;padding:4px 7px;border-radius:999px;color:#CFE1F4;font-size:.60rem;background:rgba(173,203,255,.055);border:1px solid rgba(173,203,255,.11)}
+.ops-flow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:10px 0 18px}.ops-step{min-height:78px;padding:11px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);font-size:.68rem;color:#B8C7D6;line-height:1.7}.ops-step b{display:block;color:#F4F9FF;font-size:.71rem;margin-bottom:3px}
+.auto-ledger{padding:16px 18px;border-radius:20px;background:linear-gradient(135deg,rgba(173,203,255,.075),rgba(255,255,255,.018));border:1px solid rgba(173,203,255,.13)}.auto-ledger-title{font-size:.93rem;color:#fff;font-weight:850}.auto-ledger-copy{font-size:.70rem;color:#8298AD;line-height:1.9;margin-top:6px}
+.lead-routing-hero{padding:18px 20px;border-radius:22px;background:linear-gradient(135deg,rgba(173,203,255,.095),rgba(255,255,255,.02));border:1px solid rgba(173,203,255,.14)}.lead-routing-value{font-size:1.85rem;color:#fff;font-weight:900;letter-spacing:-.03em}.lead-routing-label{font-size:.68rem;color:#8198AE;margin-top:3px}
+.report-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;border-radius:15px;margin-bottom:7px;background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.065)}.report-name{font-size:.75rem;font-weight:800;color:#F5FAFF}.report-sub{font-size:.61rem;color:#7890A6;margin-top:2px}
+.audit-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:.60rem;font-weight:800;background:rgba(173,203,255,.07);border:1px solid rgba(173,203,255,.12);color:#CFE1F4}
+@media(max-width:980px){.ops-flow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.ops-flow{grid-template-columns:1fr 1fr}}
+</style>
+"""
+st.markdown(V08_CEO_CSS, unsafe_allow_html=True)
 
 
 def asset_data_uri(path: Path) -> str:
@@ -1001,7 +1068,7 @@ def scenario_summary(scenario) -> dict[str, float]:
         "sales_days": sales_days,
         "phone_daily": phone_daily,
         "online_monthly": online_monthly,
-        "lead_backlog": float(scenario_value(scenario, "lead_backlog", "lead_backlog", 4_000)),
+        "lead_backlog": float(scenario_value(scenario, "lead_backlog", "lead_backlog", 5_490)),
         "stories": stories,
         "reels": reels,
         "total_content": stories + reels,
@@ -1162,9 +1229,9 @@ def page_header(page_title: str, subtitle: str = ""):
         <div class="hero-glass">
             <div class="hero-brand-row">
                 <div class="hero-brand-copy">
-                    <div class="eyebrow"><span>◈</span> NIK INTELLIGENCE / V0.6</div>
-                    <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| تحلیل داده</span></div>
-                    <div class="hero-subtitle">{subtitle or "سامانه هوشمندی داده و تصمیم‌سازی مدیریتی؛ ترکیب داده مبنای واقعی، محاسبات قابل توضیح و مدل‌های آزمایشی."}</div>
+                    <div class="eyebrow"><span>◈</span> NIK MANAGEMENT OS / V0.8</div>
+                    <div class="hero-title">نیک اس‌ام‌اس <span class="accent">| پنل مدیریت کیوان</span></div>
+                    <div class="hero-subtitle">{subtitle or "پنل مدیریت و اتوماسیون اختصاصی مدیرعامل؛ تسک، گزارش، عملیات واحدها، داده و تصمیم‌سازی در یک مسیر واحد."}</div>
                 </div>
                 {logo_html}
             </div>
@@ -1301,7 +1368,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
     if "presentation_mode" not in st.session_state:
         st.session_state.presentation_mode = False
     if "nav_group" not in st.session_state:
-        st.session_state.nav_group = "مرکز مدیریت"
+        st.session_state.nav_group = "مرکز کیوان"
 
     if LOGO_PATH.exists():
         st.sidebar.image(str(LOGO_PATH), width=185)
@@ -1310,7 +1377,8 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         <div style="padding:2px 4px 4px">
             <div style="font-size:.70rem;color:#DCEAFF;font-weight:800;letter-spacing:.08em">NIK MANAGEMENT OS</div>
             <div style="font-size:1.22rem;color:#F7FBFF;font-weight:850;margin-top:3px">مدیریت، داده و اتوماسیون نیک</div>
-            <div style="font-size:.73rem;color:#8FA7BD;margin-top:4px">Management & Automation OS · V0.7</div>
+            <div style="font-size:.73rem;color:#8FA7BD;margin-top:4px">CEO Management & Automation OS · V0.8</div>
+            <div style="font-size:.68rem;color:#ADCBFF;margin-top:6px;font-weight:750">طراحی‌شده برای کیوان میرزایی</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1336,7 +1404,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
         share_a_pct = st.slider("سهم طرح A", 0, 100, int(baseline_value("plan_a_share", 0.50) * 100), 5)
         phone = st.number_input("فروش تلفنی روزانه", 0, 500, int(baseline_value("daily_phone_sales", 10)), 1)
         online = st.number_input("فروش آنلاین ماهانه", 0, 5_000, int(baseline_value("monthly_online_sales", 20)), 5)
-        backlog = st.number_input("صف فعلی لید", 0, 500_000, int(baseline_value("lead_backlog", 4_000)), 100)
+        backlog = st.number_input("صف فعلی لید", 0, 500_000, int(baseline_value("lead_backlog", 5_490)), 100)
         sales_days = st.slider("فرض روز فروش در ماه", 20, 31, int(baseline_value("sales_days_per_month", 30)), 1)
 
     with st.sidebar.expander("کنترل محتوا"):
@@ -1370,7 +1438,7 @@ def scenario_sidebar() -> Tuple[Scenario, str]:
             time.sleep(0.018)
         status.success("تحلیل کامل شد")
 
-    st.sidebar.caption("V0.7 — Management OS؛ مدیریت + داده + اتوماسیون با Baseline و Demo.")
+    st.sidebar.caption("V0.8 — پنل اختصاصی کیوان؛ مدیریت + گزارش + تسک + اتوماسیون + داده.")
     if st.session_state.presentation_mode:
         page = "Executive Overview"
     return scenario, page
@@ -1530,13 +1598,31 @@ def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights
         "یک صفحه تصمیم‌محور برای پاسخ به چهار سؤال: الان وضعیت چیست؟ چه چیزی تغییر کرده؟ پول کجا ساخته می‌شود؟ و مدیر باید امروز به چه چیزی توجه کند؟",
     )
 
+    if CEO_OPS_AVAILABLE:
+        _ensure_ceo_state()
+        reports = department_report_schedule()
+        classified_finance = classify_finance_transactions(st.session_state.ceo_finance_transactions, st.session_state.ceo_finance_threshold)
+        fin_summary = finance_automation_summary(classified_finance)
+        inbox = ceo_inbox(int(sm["lead_backlog"]), st.session_state.ceo_tasks, reports, fin_summary)
+        task_stats = task_summary(st.session_state.ceo_tasks)
+        report_stats = reporting_summary(reports)
+        st.markdown(
+            f'''<div class="ceo-personal-hero"><div class="ceo-personal-kicker">پنل اختصاصی مدیرعامل · {CEO_NAME}</div><div class="ceo-personal-title">صبح مدیریتی در یک قاب</div><div class="ceo-personal-copy">این نسخه برای کم‌کردن رفت‌وبرگشت گزارش، پیگیری دستی تسک و تصمیم‌گیری پراکنده طراحی شده است. موارد زیر از Task Engine و Reporting SLA نمونه اولیه جمع می‌شوند و تا اتصال منابع واقعی، فقط معماری فرایند را نشان می‌دهند.</div></div>''',
+            unsafe_allow_html=True,
+        )
+        ctask = st.columns(4)
+        ctask[0].metric("موارد Inbox", fa_num(len(inbox)))
+        ctask[1].metric("تسک نیازمند پیگیری", fa_num(task_stats["needs_followup"]))
+        ctask[2].metric("گزارش عقب‌افتاده Demo", fa_num(report_stats["overdue"]))
+        ctask[3].metric("صف لید فعلی", fa_num(sm["lead_backlog"]), help="Baseline واقعی ثبت‌شده در 2026-08-31")
+
     mom_arrow = "↑" if mom > 0.002 else "↓" if mom < -0.002 else "—"
     anomaly_label = f"{fa_num(anomaly_count)} هشدار دمو" if anomaly_count else "بدون هشدار دمو"
 
     st.markdown(
         f'''<div class="ceo-command">
             <div>
-                <div class="ceo-overline">مرکز فرمان مدیرعامل · Management OS V0.7</div>
+                <div class="ceo-overline">مرکز فرمان مدیرعامل · Management OS V0.8</div>
                 <div class="ceo-status-line"><div class="ceo-status-title">{status_label}</div><span class="ceo-status-badge {status_class}">وضعیت قاعده‌محور</span></div>
                 <div class="ceo-status-copy">{status_copy} این وضعیت «امتیاز سلامت شرکت» نیست؛ جمع‌بندی توضیح‌پذیر از داده‌های فعلی نمونه اولیه است.</div>
             </div>
@@ -1678,7 +1764,7 @@ def executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights
             _org_overrides = _management_overrides()
             _org_summary = department_summary(scenario, kpis, _org_overrides)
             _org_score = organization_score(scenario, kpis, _org_overrides)
-            section_heading("نبض سازمان", "شش واحد در یک نگاه", "امتیاز واحدها تا اتصال داده واقعی ترکیبی از Baseline و ورودی Demo است؛ برای تصمیم قطعی استفاده نشود.")
+            section_heading("نبض سازمان", "هفت واحد در یک نگاه", "امتیاز واحدها تا اتصال داده واقعی ترکیبی از Baseline و ورودی Demo است؛ برای تصمیم قطعی استفاده نشود.")
             _render_department_cards(_org_summary, 6)
             st.caption(f"امتیاز نمونه اولیه کل سازمان: {fa_num(_org_score['score'],1)} از ۱۰۰ · {_org_score['departments_needing_attention']} واحد نیازمند پیگیری")
         except Exception as _org_render_error:
@@ -2485,7 +2571,7 @@ def _management_ready() -> bool:
     if MANAGEMENT_ENGINE_AVAILABLE:
         return True
     page_header("لایه مدیریتی در دسترس نیست", "هسته Data Science قبلی همچنان فعال است؛ فقط فایل management_engine.py در Deploy فعلی پیدا نشده است.")
-    st.error("برای فعال شدن صفحات مدیریتی، فایل management_engine.py نسخه V0.7 را کنار app.py آپلود کن. این خطا صفحات قبلی را از کار نمی‌اندازد.")
+    st.error("برای فعال شدن صفحات مدیریتی، فایل management_engine.py نسخه V0.8 را کنار app.py آپلود کن. این خطا صفحات قبلی را از کار نمی‌اندازد.")
     if MANAGEMENT_ENGINE_ERROR:
         st.caption(f"جزئیات Import: {MANAGEMENT_ENGINE_ERROR}")
     return False
@@ -2503,6 +2589,7 @@ def _ensure_management_state():
     st.session_state.setdefault("mgmt_run_qc", "هر ۲ ساعت")
     st.session_state.setdefault("mgmt_run_marketing", "روزانه")
     st.session_state.setdefault("mgmt_run_hr", "هفتگی")
+    st.session_state.setdefault("mgmt_run_support", "روزانه")
     st.session_state.setdefault("mgmt_run_development", "روزانه")
 
 
@@ -2511,6 +2598,49 @@ def _management_overrides() -> dict:
         return {}
     _ensure_management_state()
     return {key: st.session_state.get(f"mgmt_{key}", value) for key, value in MANAGEMENT_DEMO_DEFAULTS.items()}
+
+
+def _ceo_ops_ready(show_error: bool = True) -> bool:
+    if CEO_OPS_AVAILABLE:
+        return True
+    if show_error:
+        st.warning("لایه V0.8 CEO Ops در Deploy فعلی پیدا نشده است؛ صفحات V0.7 همچنان فعال‌اند.")
+        if CEO_OPS_ERROR:
+            st.caption(f"جزئیات Import: {CEO_OPS_ERROR}")
+    return False
+
+
+def _ensure_ceo_state():
+    if not CEO_OPS_AVAILABLE:
+        return
+    if "ceo_tasks" not in st.session_state:
+        st.session_state.ceo_tasks = seed_ceo_tasks()
+    if "ceo_sales_agents" not in st.session_state:
+        st.session_state.ceo_sales_agents = DEFAULT_SALES_AGENTS.copy()
+    if "ceo_finance_threshold" not in st.session_state:
+        st.session_state.ceo_finance_threshold = 50_000_000
+    if "ceo_finance_transactions" not in st.session_state:
+        st.session_state.ceo_finance_transactions = generate_demo_transactions()
+    if "ceo_audit_log" not in st.session_state:
+        st.session_state.ceo_audit_log = pd.DataFrame(columns=["زمان", "کاربر", "اقدام", "بخش", "جزئیات"])
+
+
+def _append_audit(action: str, department: str, detail: str = "", actor: str = CEO_NAME):
+    if not CEO_OPS_AVAILABLE:
+        return
+    _ensure_ceo_state()
+    event = pd.DataFrame([audit_event(actor, action, department, detail)])
+    st.session_state.ceo_audit_log = pd.concat([st.session_state.ceo_audit_log, event], ignore_index=True)
+
+
+def _add_ceo_task(department: str, title: str, assignee: str, priority: str = "متوسط", kpi: str = "—", source: str = "مدیرعامل", due_hours: int = 24, followup_hours: int = 24, note: str = ""):
+    if not CEO_OPS_AVAILABLE or not title.strip():
+        return False
+    _ensure_ceo_state()
+    row = new_task_row(department, title, assignee, priority, kpi, source, CEO_NAME, due_hours, followup_hours, note)
+    st.session_state.ceo_tasks = pd.concat([st.session_state.ceo_tasks, row], ignore_index=True)
+    _append_audit("ایجاد تسک", department, title)
+    return True
 
 
 def _status_css(status: str) -> str:
@@ -2559,16 +2689,16 @@ def organization_pulse_page(scenario, kpis):
 
     page_header("نبض سازمان", "یک نمای واحد از حسابداری، فروش، برنامه‌نویسی، منابع انسانی، QC و مارکتینگ؛ برای اینکه مدیر به‌جای شش گزارش جدا، وضعیت کل سازمان را در یک قاب ببیند.")
     st.markdown(
-        f'''<div class="management-hero"><div class="management-hero-kicker">ORGANIZATION PULSE · V0.7</div><div class="management-hero-title">سلامت عملیاتی نمونه اولیه: {fa_num(org['score'],1)} از ۱۰۰ · {org['status']}</div><div class="management-hero-copy">این امتیاز ترکیبی از KPIهای واقعی/محاسبه‌شده و تعدادی ورودی Demo است. هدف فعلی، ساخت معماری مدیریت سازمان است؛ با اتصال هر واحد، KPIهای Demo همان بخش با داده واقعی جایگزین می‌شوند.</div></div>''',
+        f'''<div class="management-hero"><div class="management-hero-kicker">ORGANIZATION PULSE · V0.8</div><div class="management-hero-title">سلامت عملیاتی نمونه اولیه: {fa_num(org['score'],1)} از ۱۰۰ · {org['status']}</div><div class="management-hero-copy">این امتیاز ترکیبی از KPIهای واقعی/محاسبه‌شده و تعدادی ورودی Demo است. هدف فعلی، ساخت معماری مدیریت سازمان است؛ با اتصال هر واحد، KPIهای Demo همان بخش با داده واقعی جایگزین می‌شوند.</div></div>''',
         unsafe_allow_html=True,
     )
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("امتیاز سازمان", fa_num(org["score"], 1))
     c2.metric("واحد نیازمند توجه", fa_num(org["departments_needing_attention"]))
     c3.metric("قانون اتوماسیون فعال", fa_num(len(active_rules)))
-    c4.metric("واحدهای متصل به پنل", "۶ واحد", help="اتصال فعلی مفهومی/Demo است؛ نه اتصال Database واقعی.")
+    c4.metric("واحدهای متصل به پنل", fa_num(int(org.get("department_count", 7))) + " واحد", help="اتصال فعلی مفهومی/Demo است؛ نه اتصال Database واقعی.")
 
-    section_heading("نبض واحدها", "شش بخش اصلی شرکت")
+    section_heading("نبض واحدها", "هفت بخش اصلی شرکت")
     _render_department_cards(summary, 3)
 
     section_heading("جزئیات واحد", "KPI → بررسی → تسک", "یک واحد را انتخاب کن تا شاخص‌هایش را ببینی.")
@@ -2610,7 +2740,7 @@ def task_kpi_page(scenario, kpis):
         c3.metric("در حال انجام", fa_num((tasks["وضعیت"] == "در حال انجام").sum()))
         c4.metric("میانگین تحقق KPI", pct(float(tasks["پیشرفت"].clip(upper=1).mean())))
 
-    section_heading("تابلوی اقدام", "تسک‌های مدیریتی", "در V0.7 تغییرات این جدول در Session نگه داشته می‌شود؛ برای استفاده واقعی باید به Database/Task Manager وصل شود.")
+    section_heading("تابلوی اقدام", "تسک‌های مدیریتی", "در V0.8 تغییرات این جدول در Session نگه داشته می‌شود؛ برای استفاده واقعی باید به Database/Task Manager وصل شود.")
     edited = st.data_editor(st.session_state.mgmt_tasks, use_container_width=True, hide_index=True, num_rows="dynamic", key="v07_task_editor")
     st.session_state.mgmt_tasks = edited.copy()
 
@@ -2760,17 +2890,18 @@ def automation_center_page(scenario, kpis):
     st.markdown('''<div class="flow-strip"><span class="flow-node">Schedule</span><span class="flow-arrow">←</span><span class="flow-node">Check KPI</span><span class="flow-arrow">←</span><span class="flow-node">Trigger</span><span class="flow-arrow">←</span><span class="flow-node">Task / Alert</span><span class="flow-arrow">←</span><span class="flow-node">n8n / API</span><span class="flow-arrow">←</span><span class="flow-node">Verify Result</span></div>''', unsafe_allow_html=True)
 
     options = ["هر ۲ ساعت","هر ۶ ساعت","روزانه","هفتگی","دستی"]
-    section_heading("بازه انجام خودکار", "هر واحد چند وقت یک‌بار بررسی شود؟", "در V0.7 این Schedule ذخیره دائمی نمی‌شود؛ طراحی Workflow آینده است.")
+    section_heading("بازه انجام خودکار", "هر واحد چند وقت یک‌بار بررسی شود؟", "در V0.8 این Schedule ذخیره دائمی نمی‌شود؛ طراحی Workflow آینده است.")
     cols = st.columns(3)
     with cols[0]: st.selectbox("حسابداری", options, key="mgmt_run_finance")
     with cols[1]: st.selectbox("فروش", options, key="mgmt_run_sales")
     with cols[2]: st.selectbox("QC دستگاه", options, key="mgmt_run_qc")
-    cols2 = st.columns(3)
+    cols2 = st.columns(4)
     with cols2[0]: st.selectbox("مارکتینگ", options, key="mgmt_run_marketing")
     with cols2[1]: st.selectbox("منابع انسانی", options, key="mgmt_run_hr")
-    with cols2[2]: st.selectbox("برنامه‌نویسی", options, key="mgmt_run_development")
+    with cols2[2]: st.selectbox("پشتیبانی", options, key="mgmt_run_support")
+    with cols2[3]: st.selectbox("برنامه‌نویسی", options, key="mgmt_run_development")
 
-    trigger_ratio = st.slider("اگر درآمد از چند درصد Target پایین‌تر رفت Trigger شود؟", 50, 110, 90, 5, key="v07_revenue_trigger") / 100
+    trigger_ratio = st.slider("اگر درآمد از چند درصد Target پایین‌تر رفت Trigger شود؟", 50, 110, 90, 5, key="v08_revenue_trigger") / 100
     rules = automation_checks(scenario, kpis, _management_overrides(), trigger_ratio)
     active = rules[rules["فعال شده"] == True]
     c1,c2,c3 = st.columns(3)
@@ -2786,8 +2917,8 @@ def automation_center_page(scenario, kpis):
         state_text = "Trigger شده" if is_on else "غیرفعال"
         st.markdown(f'''<div class="{cls}"><div class="auto-rule-name">{row['قانون']} · {row['بخش']}</div><div class="auto-rule-copy">شرط: {row['شرط']} · منبع: {row['منبع']}</div><div class="auto-rule-action">اقدام: {row['اقدام پیشنهادی']}</div><span class="{state_cls}">{state_text}</span></div>''', unsafe_allow_html=True)
 
-    if st.button("ساخت Workflow در n8n (Placeholder)", use_container_width=True, type="primary", key="v07_n8n_placeholder"):
-        st.toast("در V0.7 فقط قرارداد Workflow طراحی شده است. اتصال واقعی بعد از تعریف Credential، Schema و سطح دسترسی ساخته می‌شود.")
+    if st.button("ساخت Workflow در n8n (Placeholder)", use_container_width=True, type="primary", key="v08_n8n_placeholder"):
+        st.toast("در V0.8 فقط قرارداد Workflow طراحی شده است. اتصال واقعی بعد از تعریف Credential، Schema و سطح دسترسی ساخته می‌شود.")
     st.caption("برای فاز واقعی: هر Rule باید Trigger، Schedule، Source، Action، Owner، Retry Policy و Audit Log داشته باشد.")
 
 
@@ -2796,9 +2927,12 @@ def access_control_page():
         return
     page_header("دسترسی و نقش‌ها", "طراحی دسترسی محدود برای مدیرعامل و سرپرستان واحدها؛ فعلاً فقط ماتریس پیشنهادی است و Authentication واقعی پیاده نشده است.")
     roles = ROLE_MATRIX["نقش"].tolist() if not ROLE_MATRIX.empty else ["مدیرعامل / مدیر سیستم"]
-    role = st.selectbox("پروفایل نمایشی", roles, key="v07_role_preview")
+    role = st.selectbox("پروفایل نمایشی", roles, key="v08_role_preview")
     st.markdown(f'''<div class="management-hero"><div class="management-hero-kicker">ROLE PREVIEW</div><div class="management-hero-title">{role}</div><div class="management-hero-copy">در نسخه واقعی، هر سرپرست فقط داده و تسک‌های واحد خودش را می‌بیند یا ویرایش می‌کند. داده‌های مالی، تنظیمات اتصال و سطح دسترسی فقط برای نقش‌های مجاز باز می‌ماند.</div></div>''', unsafe_allow_html=True)
     st.dataframe(ROLE_MATRIX, use_container_width=True, hide_index=True)
+    if CEO_OPS_AVAILABLE and ORGANIZATION_ROSTER is not None and not ORGANIZATION_ROSTER.empty:
+        section_heading("دفتر سازمان", "افراد ثبت‌شده در V0.8", "برای هر سرپرست در فاز Authentication فقط Scope واحد خودش باز می‌شود.")
+        st.dataframe(ORGANIZATION_ROSTER[["department_name", "name", "role"]].rename(columns={"department_name":"بخش", "name":"نام", "role":"نقش"}), use_container_width=True, hide_index=True)
     section_heading("معماری دسترسی", "چه چیزی بعداً باید اضافه شود؟")
     cols = st.columns(4)
     items = [
@@ -2809,7 +2943,403 @@ def access_control_page():
     ]
     for col,(title,copy) in zip(cols,items):
         with col: st.markdown(f'''<div class="role-box"><div class="role-label">فاز بعد</div><div class="role-value">{title}</div><div class="role-copy">{copy}</div></div>''', unsafe_allow_html=True)
-    st.warning("در V0.7 هیچ احراز هویت واقعی وجود ندارد؛ برای داده واقعی شرکت نباید تا قبل از اضافه شدن Authentication و مجوزها دسترسی عمومی داده شود.")
+    st.warning("در V0.8 هیچ احراز هویت واقعی وجود ندارد؛ برای داده واقعی شرکت نباید تا قبل از اضافه شدن Authentication و مجوزها دسترسی عمومی داده شود.")
+
+
+def _render_team_roster(department_key: str, columns_count: int = 3):
+    if not CEO_OPS_AVAILABLE or ORGANIZATION_ROSTER is None or ORGANIZATION_ROSTER.empty:
+        st.info("اعضای این واحد هنوز در دفتر سازمانی V0.8 ثبت نشده‌اند.")
+        return
+    team = ORGANIZATION_ROSTER[ORGANIZATION_ROSTER["department"] == department_key].copy()
+    if team.empty:
+        st.info("اسامی اعضای این واحد هنوز ثبت نشده است.")
+        return
+    cols = st.columns(columns_count)
+    for idx, (_, person) in enumerate(team.iterrows()):
+        with cols[idx % columns_count]:
+            lead = " · مسئول/سرپرست" if bool(person.get("is_lead", False)) else ""
+            st.markdown(
+                f'''<div class="team-card"><div class="team-name">{person['name']}</div><div class="team-role">{person['role']}</div><span class="team-chip">{person['department_name']}{lead}</span></div>''',
+                unsafe_allow_html=True,
+            )
+
+
+def _department_task_form(department_name: str, default_owner: str, key_prefix: str):
+    if not _ceo_ops_ready(False):
+        return
+    with st.expander("ایجاد تسک برای این واحد", expanded=False):
+        with st.form(f"{key_prefix}_task_form"):
+            title = st.text_input("عنوان تسک", key=f"{key_prefix}_task_title")
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                owner = st.text_input("مسئول", value=default_owner, key=f"{key_prefix}_task_owner")
+            with c2:
+                priority = st.selectbox("اولویت", ["بالا", "متوسط", "پایین"], key=f"{key_prefix}_task_priority")
+            with c3:
+                due_hours = st.number_input("مهلت (ساعت)", min_value=1, max_value=720, value=24, step=6, key=f"{key_prefix}_task_due")
+            kpi_name = st.text_input("KPI مرتبط", value="—", key=f"{key_prefix}_task_kpi")
+            note = st.text_area("یادداشت / خروجی مورد انتظار", key=f"{key_prefix}_task_note")
+            submitted = st.form_submit_button("ایجاد تسک و ورود به پیگیری", use_container_width=True, type="primary")
+            if submitted and title.strip():
+                if _add_ceo_task(department_name, title, owner, priority, kpi_name, "مدیرعامل", int(due_hours), 24, note):
+                    st.success("تسک ایجاد شد و وارد صف پیگیری مدیرعامل شد.")
+                    st.rerun()
+
+
+def _department_task_table(department_name: str):
+    if not CEO_OPS_AVAILABLE:
+        return
+    _ensure_ceo_state()
+    frame = task_followup_status(st.session_state.ceo_tasks)
+    frame = frame[frame["بخش"] == department_name].copy()
+    if frame.empty:
+        st.info("برای این واحد هنوز تسکی در Task Engine ثبت نشده است.")
+        return
+    cols = ["شناسه", "عنوان", "مسئول", "اولویت", "وضعیت", "KPI", "موعد", "نیازمند پیگیری"]
+    st.dataframe(frame[cols], use_container_width=True, hide_index=True)
+
+
+def ceo_task_center_page(scenario, kpis):
+    if not _ceo_ops_ready():
+        return
+    _ensure_ceo_state()
+    sm = scenario_summary(scenario)
+    reports = department_report_schedule()
+    classified = classify_finance_transactions(st.session_state.ceo_finance_transactions, st.session_state.ceo_finance_threshold)
+    fin = finance_automation_summary(classified)
+    inbox = ceo_inbox(int(sm["lead_backlog"]), st.session_state.ceo_tasks, reports, fin)
+    stats = task_summary(st.session_state.ceo_tasks)
+    report_stats = reporting_summary(reports)
+
+    page_header(
+        "کارها و گزارش‌های کیوان",
+        "Inbox مدیریتی واحد: تسک‌های نیازمند پیگیری، گزارش‌های عقب‌افتاده، پیشنهاد ربات مدیریتی و مسیر ارسال یک‌کلیکی به واحدها.",
+    )
+    st.markdown(
+        f'''<div class="ceo-personal-hero"><div class="ceo-personal-kicker">CEO OPERATIONS · {CEO_NAME}</div><div class="ceo-personal-title">هیچ تسک مهمی نباید بدون Owner، موعد و گزارش بماند.</div><div class="ceo-personal-copy">هدف این صفحه حذف پیگیری شفاهی و گزارش‌های پراکنده است. در نسخه عملیاتی، n8n یا Task API در زمان مشخص Reminder می‌فرستد، Update را ثبت می‌کند و فقط Exception را به مدیرعامل Escalate می‌کند.</div></div>''',
+        unsafe_allow_html=True,
+    )
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("تسک باز", fa_num(stats["open"]))
+    c2.metric("نیازمند پیگیری", fa_num(stats["needs_followup"]))
+    c3.metric("گزارش عقب‌افتاده Demo", fa_num(report_stats["overdue"]))
+    c4.metric("موارد Inbox", fa_num(len(inbox)))
+
+    section_heading("Inbox مدیرعامل", "چه چیزی الان نیازمند توجه است؟", "Baseline واقعی از Demo جدا نگه داشته شده است.")
+    if inbox.empty:
+        st.success("موردی برای پیگیری در موتور فعلی پیدا نشد.")
+    else:
+        for idx, (_, item) in enumerate(inbox.iterrows()):
+            sev = "sev-high" if item["شدت"] == "بالا" else "sev-med" if item["شدت"] == "متوسط" else "sev-low"
+            st.markdown(
+                f'''<div class="ceo-inbox-card"><div class="ceo-inbox-top"><div class="ceo-inbox-title">{item['عنوان']}</div><span class="source-tag {sev}">{item['شدت']}</span></div><div class="ceo-inbox-meta">{item['بخش']} · {item['نوع']} · {item['منبع']}</div><div class="ceo-inbox-action">اقدام پیشنهادی: {item['اقدام']}</div></div>''',
+                unsafe_allow_html=True,
+            )
+
+    section_heading("گزارش‌دهی", "SLA گزارش واحدها", "اعداد این جدول Demo هستند؛ معماری برای حل مشکل گزارش‌دهی ناقص طراحی شده است.")
+    reports_show = reports.copy()
+    reports_show["آخرین گزارش"] = pd.to_datetime(reports_show["آخرین گزارش"], errors="coerce").dt.strftime("%Y-%m-%d %H:%M")
+    reports_show["موعد بعدی"] = pd.to_datetime(reports_show["موعد بعدی"], errors="coerce").dt.strftime("%Y-%m-%d %H:%M")
+    st.dataframe(reports_show[["بخش", "مسئول گزارش", "تناوب", "آخرین گزارش", "موعد بعدی", "وضعیت", "منبع"]], use_container_width=True, hide_index=True)
+    rc1, rc2 = st.columns([3, 1])
+    with rc1:
+        report_dept = st.selectbox("ارسال درخواست گزارش برای", reports["بخش"].tolist(), key="v08_report_request_dept")
+    with rc2:
+        if st.button("ثبت Reminder", use_container_width=True, key="v08_report_reminder"):
+            _append_audit("درخواست گزارش", report_dept, "Reminder ثبت شد؛ اتصال واقعی پیام‌رسان/n8n در فاز بعد.")
+            st.toast("Reminder در Audit Log ثبت شد. ارسال واقعی بعد از اتصال n8n فعال می‌شود.")
+
+    section_heading("Task Engine", "تابلوی کار مدیرعامل", "در این Prototype ذخیره‌سازی Session است؛ نسخه واقعی باید Database + Audit Log داشته باشد.")
+    edited = st.data_editor(st.session_state.ceo_tasks, use_container_width=True, hide_index=True, num_rows="dynamic", key="v08_ceo_task_editor")
+    if isinstance(edited, pd.DataFrame):
+        st.session_state.ceo_tasks = edited.copy()
+
+    _department_task_form("مدیریت شرکت", CEO_NAME, "ceo_general")
+
+    section_heading("ربات مدیریتی", "تسک‌های پیشنهادی بر اساس Rule", "ربات فعلی Rule-based است؛ پیشنهاد می‌دهد ولی بدون کلیک مدیر چیزی ارسال نمی‌شود.")
+    suggestions = robot_task_suggestions(int(sm["lead_backlog"]), st.session_state.ceo_tasks, reports, fin)
+    if suggestions.empty:
+        st.success("پیشنهاد جدیدی وجود ندارد.")
+    else:
+        for idx, (_, suggestion) in enumerate(suggestions.iterrows()):
+            a, b = st.columns([4, 1])
+            with a:
+                st.markdown(
+                    f'''<div class="ceo-inbox-card"><div class="ceo-inbox-title">{suggestion['عنوان']}</div><div class="ceo-inbox-meta">{suggestion['بخش']} · {suggestion['مسئول']} · KPI: {suggestion['KPI']}</div><div class="ceo-inbox-action">چرا؟ {suggestion['دلیل']}</div></div>''',
+                    unsafe_allow_html=True,
+                )
+            with b:
+                if st.button("تبدیل به تسک", key=f"v08_robot_task_{idx}", use_container_width=True):
+                    _add_ceo_task(str(suggestion["بخش"]), str(suggestion["عنوان"]), str(suggestion["مسئول"]), str(suggestion["اولویت"]), str(suggestion["KPI"]), "ربات مدیریتی / Rule-based", 24, 12, str(suggestion["دلیل"]))
+                    st.toast("پیشنهاد به Task Engine اضافه شد.")
+                    st.rerun()
+
+    section_heading("ردپای مدیریتی", "Audit Log Session", "هر اقدام مهم در نسخه واقعی باید با User، زمان و Before/After ذخیره شود.")
+    if st.session_state.ceo_audit_log.empty:
+        st.caption("هنوز رویدادی در این Session ثبت نشده است.")
+    else:
+        st.dataframe(st.session_state.ceo_audit_log.sort_values("زمان", ascending=False).head(100), use_container_width=True, hide_index=True)
+
+
+def it_workspace_page(scenario, kpis):
+    if not _ceo_ops_ready():
+        return
+    _ensure_ceo_state()
+    page_header(
+        "اتاق عملیات IT",
+        "برای موضوعاتی که این روزها بیشترین رفت‌وبرگشت مدیریتی دارند: آپدیت‌های جدید، تسک‌های برنامه‌نویسان، Blockerها و قالب ظاهری جدید سایت.",
+    )
+    section_heading("تیم", "فناوری اطلاعات / برنامه‌نویسی")
+    _render_team_roster("it", 3)
+
+    overrides = _management_overrides() if MANAGEMENT_ENGINE_AVAILABLE else {}
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("تکمیل Sprint · Demo", pct(float(overrides.get("sprint_completion", 0.78))))
+    c2.metric("آمادگی Release · Demo", pct(float(overrides.get("release_readiness", 0.86))))
+    c3.metric("باگ باز · Demo", fa_num(float(overrides.get("open_bugs", 14))))
+    c4.metric("باگ Critical · Demo", fa_num(float(overrides.get("critical_bugs", 2))))
+
+    section_heading("Daily Engineering Brief", "گزارش روزانه‌ای که کیوان باید ببیند", "به‌جای مکالمه‌های پراکنده، هر روز فقط چهار پاسخ کوتاه.")
+    st.markdown(
+        '''<div class="ops-flow"><div class="ops-step"><b>۱. چه چیزی Release شد؟</b>نسخه / Feature / Deploy</div><div class="ops-step"><b>۲. چه چیزی در حال ساخت است؟</b>Owner + درصد پیشرفت</div><div class="ops-step"><b>۳. Blocker چیست؟</b>مانع فنی یا تصمیم مدیریتی</div><div class="ops-step"><b>۴. سایت</b>وضعیت قالب ظاهری و Acceptance</div><div class="ops-step"><b>۵. باگ مهم</b>Critical / ETA رفع</div><div class="ops-step"><b>۶. تصمیم لازم</b>فقط چیزی که نیاز به کیوان دارد</div></div>''',
+        unsafe_allow_html=True,
+    )
+
+    section_heading("تمرکز فعلی", "موضوعات ثبت‌شده برای پیگیری")
+    focus = pd.DataFrame([
+        ["آپدیت‌های جدید", "تیم IT", "Release Notes + وضعیت Deploy + Blocker", "روزانه"],
+        ["تسک‌های برنامه‌نویسان", "تیم IT", "Owner + ETA + KPI + گزارش", "روزانه"],
+        ["قالب ظاهری جدید سایت", "تیم IT", "Scope + Acceptance Criteria + قبل/بعد", "تا نهایی‌شدن"],
+    ], columns=["موضوع", "Owner", "خروجی مورد انتظار", "تناوب گزارش"])
+    st.dataframe(focus, use_container_width=True, hide_index=True)
+    _department_task_table("فناوری اطلاعات / برنامه‌نویسی")
+    _department_task_form("فناوری اطلاعات / برنامه‌نویسی", "تیم IT", "it")
+
+
+def accounting_automation_page():
+    if not _ceo_ops_ready():
+        return
+    _ensure_ceo_state()
+    page_header(
+        "اتوماسیون حسابداری",
+        "هدف: دریافت ماشینی تراکنش، طبقه‌بندی، ثبت دوطرفه و تطبیق خودکار؛ انسان فقط برای استثنا، ابهام، مبلغ پرریسک و تأییدهای قانونی وارد شود.",
+    )
+    section_heading("تیم", "حسابداری")
+    _render_team_roster("accounting", 2)
+
+    st.markdown(
+        '''<div class="auto-ledger"><div class="auto-ledger-title">اصل طراحی: Straight-Through Processing، نه حذف کورکورانه کنترل انسانی</div><div class="auto-ledger-copy">برای تراکنش‌های کم‌ریسک با شناسه یکتا، سند معتبر، کدینگ مشخص و تطبیق بانکی، ثبت می‌تواند کاملاً ماشینی باشد. تراکنش مبهم، تکراری، فاقد سند یا بالاتر از آستانه باید وارد Exception Queue شود. این مدل هم خطای انسانی را کم می‌کند و هم کنترل مالی را حفظ می‌کند.</div></div>''',
+        unsafe_allow_html=True,
+    )
+
+    section_heading("معماری", "مسیر خودکار تراکنش", "برای اتصال واقعی، کدینگ رسمی حسابداری نیک و قوانین مالیاتی/تأیید باید از تیم حسابداری وارد شوند.")
+    st.markdown(
+        '''<div class="ops-flow"><div class="ops-step"><b>۱. دریافت</b>Bank / Gateway / Invoice / Payroll</div><div class="ops-step"><b>۲. Idempotency</b>جلوگیری از ثبت تکراری</div><div class="ops-step"><b>۳. Match</b>فاکتور + طرف حساب + مبلغ</div><div class="ops-step"><b>۴. Coding</b>تعیین حساب بدهکار/بستانکار</div><div class="ops-step"><b>۵. Reconcile</b>تطبیق با بانک/درگاه</div><div class="ops-step"><b>۶. Post</b>ثبت خودکار یا Exception</div></div>''',
+        unsafe_allow_html=True,
+    )
+
+    threshold = st.number_input("آستانه تأیید انسانی مبلغ (تومان)", min_value=0, max_value=2_000_000_000, value=int(st.session_state.ceo_finance_threshold), step=5_000_000, key="v08_finance_threshold")
+    st.session_state.ceo_finance_threshold = int(threshold)
+    classified = classify_finance_transactions(st.session_state.ceo_finance_transactions, threshold)
+    summary = finance_automation_summary(classified)
+
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("تراکنش Demo", fa_num(summary["transactions"]))
+    c2.metric("Auto-post آماده", fa_num(summary["auto_post"]))
+    c3.metric("صف استثنا", fa_num(summary["exceptions"]))
+    c4.metric("نرخ پردازش مستقیم", pct(summary["auto_post_rate"]))
+    c5.metric("عدم تطبیق بانک", fa_num(summary["unreconciled"]))
+
+    left, right = st.columns(2)
+    with left:
+        section_heading("دفتر روزنامه پیشنهادی", "ثبت خودکار قابل توضیح")
+        auto = classified[classified["قابل Auto-post"]].head(25).copy()
+        if auto.empty:
+            st.info("در نمونه فعلی تراکنشی آماده Auto-post نیست.")
+        else:
+            auto["مبلغ"] = auto["مبلغ"].map(lambda x: f"{toman(float(x))} تومان")
+            st.dataframe(auto[["شناسه تراکنش", "جهت", "شرح", "مبلغ", "حساب بدهکار", "حساب بستانکار", "وضعیت ثبت"]], use_container_width=True, hide_index=True)
+    with right:
+        section_heading("Exception Queue", "جایی که انسان باید وارد شود")
+        exc = classified[~classified["قابل Auto-post"]].head(25).copy()
+        if exc.empty:
+            st.success("صف استثنا خالی است.")
+        else:
+            exc["مبلغ"] = exc["مبلغ"].map(lambda x: f"{toman(float(x))} تومان")
+            st.dataframe(exc[["شناسه تراکنش", "شرح", "مبلغ", "اطمینان طبقه‌بندی", "مسیر کنترل"]], use_container_width=True, hide_index=True)
+
+    section_heading("پیشنهادهای V0.8", "چطور حسابداری کم‌نیرو و کم‌خطا شود؟")
+    ideas = pd.DataFrame([
+        ["ورودی تراکنش", "Webhook/API بانک و درگاه + شناسه یکتا", "حذف ورود دستی"],
+        ["ثبت حسابداری", "Rule Engine + کدینگ رسمی + سند دوطرفه", "کاهش خطای طبقه‌بندی"],
+        ["تطبیق", "Bank/Gateway Reconciliation خودکار", "پیدا کردن مغایرت در همان روز"],
+        ["اسناد", "Invoice/Order Match قبل از ثبت", "جلوگیری از ثبت بدون مدرک"],
+        ["کنترل", "Auto-post برای اطمینان بالا، Exception برای بقیه", "انسان فقط در موارد پرریسک"],
+        ["گزارش مدیرعامل", "Cash In/Out، مغایرت، مطالبات، پرداختی‌های بزرگ", "گزارش Exception-based"],
+        ["Audit", "ثبت User/Rule/Before/After", "قابل حسابرسی و برگشت‌پذیر"],
+    ], columns=["لایه", "پیشنهاد", "نتیجه"])
+    st.dataframe(ideas, use_container_width=True, hide_index=True)
+
+    cconn = st.columns(4)
+    for idx, label in enumerate(["اتصال بانک", "اتصال درگاه", "اتصال نرم‌افزار حسابداری", "اتصال حقوق و دستمزد"]):
+        with cconn[idx]:
+            if st.button(f"{label} · Placeholder", use_container_width=True, key=f"v08_fin_conn_{idx}"):
+                st.toast("فعلاً Placeholder است. برای اتصال واقعی API/Schema/Credential و سطح دسترسی لازم است.")
+
+    st.warning("کدینگ حساب‌ها و قواعد مالیاتی این صفحه Demo هستند؛ قبل از ثبت واقعی باید با کدینگ رسمی نیک و تأیید مدیر حسابداری جایگزین شوند.")
+    _department_task_table("حسابداری")
+    _department_task_form("حسابداری", "حسین جودکی", "accounting")
+
+
+def sales_lead_center_page(scenario):
+    if not _ceo_ops_ready():
+        return
+    _ensure_ceo_state()
+    sm = scenario_summary(scenario)
+    backlog = int(sm["lead_backlog"])
+    page_header(
+        "مرکز پخش و پیگیری لید",
+        "صف فعلی ۵۴۹۰ لید به یک سیستم Routing نیاز دارد: ورودی، حذف تکراری، اولویت، تخصیص، SLA تماس، نتیجه و Follow-up باید قابل اندازه‌گیری باشد.",
+    )
+    st.markdown(
+        f'''<div class="lead-routing-hero"><div class="section-kicker">Baseline فعلی</div><div class="lead-routing-value">{fa_num(backlog)} لید</div><div class="lead-routing-label">این عدد Baseline واقعی است؛ عملکرد کارشناسان و Routing پایین این صفحه تا اتصال CRM/Call Center، Demo است.</div></div>''',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '''<div class="ops-flow"><div class="ops-step"><b>۱. Lead In</b>Website / Instagram / Phone / Referral</div><div class="ops-step"><b>۲. Validate</b>شماره معتبر + حذف Duplicate</div><div class="ops-step"><b>۳. Score</b>Age + Source + Intent</div><div class="ops-step"><b>۴. Route</b>Capacity × Performance × Fairness</div><div class="ops-step"><b>۵. SLA</b>First Touch + Follow-up</div><div class="ops-step"><b>۶. Outcome</b>Won / Lost / Follow-up / Recycle</div></div>''',
+        unsafe_allow_html=True,
+    )
+
+    st.warning("نام کارشناسان فروش در اطلاعات فعلی به من داده نشده است؛ جدول زیر Placeholder است و می‌توانی اسامی واقعی را مستقیم جایگزین کنی.")
+    edited_agents = st.data_editor(st.session_state.ceo_sales_agents, use_container_width=True, hide_index=True, num_rows="dynamic", key="v08_sales_agents_editor")
+    if isinstance(edited_agents, pd.DataFrame):
+        st.session_state.ceo_sales_agents = edited_agents.copy()
+
+    allocation = allocate_lead_backlog(backlog, st.session_state.ceo_sales_agents)
+    summary = lead_center_summary(backlog, st.session_state.ceo_sales_agents)
+    performance = generate_sales_performance_demo(st.session_state.ceo_sales_agents)
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("صف لید", fa_num(summary["backlog"]))
+    c2.metric("کارشناس فعال · Demo", fa_num(summary["active_agents"]))
+    c3.metric("ظرفیت تماس اولیه / روز · Demo", fa_num(summary["daily_contact_capacity"]))
+    first_days = summary["first_touch_days_proxy"]
+    c4.metric("زمان تماس اولیه کل صف · Proxy", "—" if pd.isna(first_days) else f"{fa_num(first_days)} روز", help="این زمان فروش نیست؛ فقط Backlog ÷ ظرفیت تماس اولیه Demo است.")
+
+    left, right = st.columns(2)
+    with left:
+        section_heading("Routing", "پیشنهاد تقسیم صف")
+        st.dataframe(allocation, use_container_width=True, hide_index=True)
+        if st.button("ثبت پخش لید در Audit Log · Demo", use_container_width=True, type="primary", key="v08_route_leads"):
+            _append_audit("پیشنهاد پخش لید", "فروش تلفنی", f"Routing برای {backlog} لید محاسبه شد.")
+            st.toast("Routing ثبت شد؛ ارسال واقعی لید بعد از اتصال CRM فعال می‌شود.")
+    with right:
+        section_heading("Performance", "خروجی ۳۰روزه شبیه‌سازی‌شده")
+        show = performance.copy()
+        show["نرخ تبدیل"] = show["نرخ تبدیل"].map(pct)
+        st.dataframe(show, use_container_width=True, hide_index=True)
+
+    section_heading("KPI واقعی موردنیاز", "فروشنده فقط با فروش نهایی سنجیده نشود")
+    kpis_needed = pd.DataFrame([
+        ["Leads Received", "چند لید به هر فروشنده رسید؟"],
+        ["First Touch SLA", "چند درصد در زمان هدف تماس گرفتند؟"],
+        ["Contact Rate", "چند لید پاسخ دادند؟"],
+        ["Qualified Rate", "چند لید واقعاً واجد شرایط بودند؟"],
+        ["Win Rate", "فروش موفق / لید دریافتی"],
+        ["Loss Reason", "چرا فروش ناموفق شد؟"],
+        ["Follow-up Compliance", "پیگیری‌های موعددار انجام شدند؟"],
+        ["Revenue per Lead", "هر لید چه ارزشی ایجاد کرد؟"],
+    ], columns=["KPI", "معنا"])
+    st.dataframe(kpis_needed, use_container_width=True, hide_index=True)
+    _department_task_table("فروش تلفنی")
+    _department_task_form("فروش تلفنی", "سرپرست فروش", "sales")
+
+
+def _simple_department_workspace(dept_key: str, title: str, subtitle: str, default_owner: str, automation_ideas: list[tuple[str, str]], key_prefix: str, scenario, kpis):
+    if not _ceo_ops_ready():
+        return
+    _ensure_ceo_state()
+    page_header(title, subtitle)
+    section_heading("تیم", title)
+    _render_team_roster(dept_key, 3)
+
+    if MANAGEMENT_ENGINE_AVAILABLE:
+        detail = department_kpis(scenario, kpis, _management_overrides())
+        if dept_key == "support":
+            management_key = "support"
+        elif dept_key == "hr":
+            management_key = "hr"
+        elif dept_key == "marketing":
+            management_key = "marketing"
+        else:
+            management_key = dept_key
+        detail = detail[detail["department"] == management_key].copy()
+        if not detail.empty:
+            detail["مقدار"] = detail.apply(lambda r: _format_mgmt_value(r["actual"], r["unit"]), axis=1)
+            detail["هدف"] = detail.apply(lambda r: _format_mgmt_value(r["target"], r["unit"]), axis=1)
+            st.dataframe(detail[["metric", "مقدار", "هدف", "status", "source"]].rename(columns={"metric": "KPI", "status": "وضعیت", "source": "منبع"}), use_container_width=True, hide_index=True)
+
+    section_heading("اتوماسیون پیشنهادی", "چه چیزهایی از کار دستی حذف شود؟")
+    ideas = pd.DataFrame(automation_ideas, columns=["اتوماسیون", "خروجی برای مدیریت"])
+    st.dataframe(ideas, use_container_width=True, hide_index=True)
+    dept_name = title.replace("مدیریت ", "") if title.startswith("مدیریت ") else title
+    _department_task_table(dept_name)
+    _department_task_form(dept_name, default_owner, key_prefix)
+
+
+def support_workspace_page(scenario, kpis):
+    _simple_department_workspace(
+        "support",
+        "پشتیبانی",
+        "پشتیبانی باید برای مدیرعامل به Exception تبدیل شود: Backlog، SLA، موضوعات پرتکرار و Escalation؛ نه گزارش طولانی از تمام تیکت‌ها.",
+        "خانم ملیکا جمع دار",
+        [
+            ("دسته‌بندی خودکار تیکت", "موضوعات پرتکرار و Root Cause"),
+            ("SLA Timer", "هشدار فقط برای تیکت‌های نزدیک نقض SLA"),
+            ("Escalation Rule", "ارسال موارد بحرانی برای سرپرست/مدیرعامل"),
+            ("Daily Support Brief", "Backlog + حل‌شده + Escalation + تصمیم لازم"),
+        ],
+        "support",
+        scenario,
+        kpis,
+    )
+
+
+def hr_workspace_page(scenario, kpis):
+    _simple_department_workspace(
+        "hr",
+        "منابع انسانی",
+        "HR در پنل مدیرعامل باید ظرفیت تیم، حضور، استخدام باز، Onboarding و مسائل نیازمند تصمیم را خلاصه کند.",
+        "خانم مقصودی",
+        [
+            ("ورود حضور/مرخصی", "گزارش خودکار ظرفیت و غیبت"),
+            ("Onboarding Checklist", "هیچ مرحله‌ای برای نیروی جدید فراموش نشود"),
+            ("Review Reminder", "یادآوری دوره‌ای ارزیابی و جلسه 1:1"),
+            ("People Exception Brief", "فقط ریسک خروج، غیبت غیرعادی و نیاز استخدام"),
+        ],
+        "hr",
+        scenario,
+        kpis,
+    )
+
+
+def marketing_workspace_page(scenario, kpis):
+    _simple_department_workspace(
+        "marketing",
+        "مارکتینگ",
+        "مارکتینگ از تولید محتوا به سیستم قابل اندازه‌گیری Content → Lead → Sale → Revenue تبدیل شود و فقط KPIهای تصمیم‌ساز به مدیرعامل گزارش شوند.",
+        "امیر عباس حبیبی",
+        [
+            ("Content Calendar", "Owner + Deadline + Status برای هر خروجی"),
+            ("UTM / CTA Tracking", "اتصال محتوا به Lead و فروش"),
+            ("Campaign Approval", "بودجه + Offer + Margin + Inventory قبل از اجرا"),
+            ("Daily Marketing Brief", "محتوای برتر، Lead، فروش منتسب، تصمیم لازم"),
+        ],
+        "marketing",
+        scenario,
+        kpis,
+    )
 
 
 def settings_page(scenario, kpis):
@@ -2854,7 +3384,7 @@ def main():
     if st.session_state.presentation_mode:
         left, right = st.columns([5, 1])
         with left:
-            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · منوها و کنترل‌های فنی پنهان شده‌اند.</span><span>V0.7</span></div>', unsafe_allow_html=True)
+            st.markdown('<div class="presentation-ribbon"><span>حالت ارائه مدیرعامل فعال است · منوها و کنترل‌های فنی پنهان شده‌اند.</span><span>V0.8</span></div>', unsafe_allow_html=True)
         with right:
             if st.button("خروج از ارائه", use_container_width=True, key="exit_presentation"):
                 st.session_state.presentation_mode = False
@@ -2875,6 +3405,20 @@ def main():
 
     if page == "Executive Overview":
         executive_overview(scenario, data, kpis, monthly, funnel, forecast, insights, customers_model, risk_stats, sales_anomalies, sms_anomalies)
+    elif page == "CEO Task Center":
+        ceo_task_center_page(scenario, kpis)
+    elif page == "IT Workspace":
+        it_workspace_page(scenario, kpis)
+    elif page == "Accounting Automation":
+        accounting_automation_page()
+    elif page == "Sales Lead Center":
+        sales_lead_center_page(scenario)
+    elif page == "Support Workspace":
+        support_workspace_page(scenario, kpis)
+    elif page == "HR Workspace":
+        hr_workspace_page(scenario, kpis)
+    elif page == "Marketing Workspace":
+        marketing_workspace_page(scenario, kpis)
     elif page == "Organization Pulse":
         organization_pulse_page(scenario, kpis)
     elif page == "Task & KPI":
@@ -2919,7 +3463,7 @@ def main():
         settings_page(scenario, kpis)
 
     st.markdown("---")
-    st.caption("NIK MANAGEMENT OS V0.7 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
+    st.caption("NIK MANAGEMENT OS V0.8 — پنل مدیریتی و اتوماسیون با داده مبنا و داده آزمایشی؛ هنوز به سیستم‌های داخلی نیک متصل نیست.")
     st.caption("پیش‌بینی‌ها و خروجی‌های یادگیری ماشین آزمایشی‌اند و نباید مبنای تصمیم قطعی عملیاتی قرار گیرند.")
 
 

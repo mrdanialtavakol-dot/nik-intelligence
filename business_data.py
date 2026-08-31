@@ -4,13 +4,13 @@ import pandas as pd
 
 
 BUSINESS_BASELINE = {
-    "snapshot_date": "2026-08-29",
+    "snapshot_date": "2026-08-31",
     "plan_a_price": 15_000_000,
     "plan_b_price": 30_000_000,
     "plan_a_share": 0.50,
     "daily_phone_sales": 10,
     "monthly_online_sales": 20,
-    "lead_backlog": 4_000,
+    "lead_backlog": 5_490,
     "stories_per_day": 9,
     "reels_per_day": 1,
     "estimated_content_sales_per_day": 2.0,
@@ -57,7 +57,8 @@ BACKLOG_SNAPSHOTS = pd.DataFrame(
     [
         {"snapshot": "کمپین", "lead_backlog": 2_644},
         {"snapshot": "کمپین", "lead_backlog": 3_800},
-        {"snapshot": "Baseline فعلی", "lead_backlog": 4_000},
+        {"snapshot": "Baseline قبلی", "lead_backlog": 4_000},
+        {"snapshot": "Baseline فعلی 2026-08-31", "lead_backlog": 5_490},
         {"snapshot": "کمپین", "lead_backlog": 4_500},
     ]
 )

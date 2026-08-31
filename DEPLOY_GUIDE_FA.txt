@@ -1,12 +1,16 @@
-آپدیت کم‌ریسک از V0.6 به V0.7
+NIK MANAGEMENT OS V0.8
 
-1) فایل NIK_INTELLIGENCE_V0_7_UPDATE_ONLY.zip را Extract کن.
-2) در GitHub این دو فایل را جایگزین/اضافه کن:
-   - app.py
-   - management_engine.py
-3) VERSION.txt را هم جایگزین کن.
-4) Commit changes بزن.
-5) Render/Streamlit را Redeploy یا Reboot کن.
+اگر V0.7 الان سالم اجرا می‌شود، برای آپدیت این فایل‌ها را جایگزین/اضافه کن:
 
-فایل‌های Analytics قبلی تغییر نکرده‌اند.
-اگر management_engine.py به هر دلیل آپلود نشود، app.py طوری نوشته شده که صفحات قدیمی Crash نکنند و فقط بخش مدیریتی پیام کمبود فایل نشان دهد.
+1) app.py
+2) ceo_ops_engine.py   ← فایل جدید و الزامی برای قابلیت‌های V0.8
+3) management_engine.py
+4) business_data.py
+5) VERSION.txt
+
+سپس:
+Commit changes → Redeploy / Reboot
+
+Main file path همان app.py است.
+
+اگر ceo_ops_engine.py موقتاً در Deploy نباشد، app.py طوری نوشته شده که هسته قبلی Crash نکند و فقط صفحات V0.8 پیام عدم دسترسی بدهند.
